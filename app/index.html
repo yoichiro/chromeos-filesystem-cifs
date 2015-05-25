@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+    <head>
+
+        <meta charset="utf-8">
+        <title>sample_smb_app</title>
+
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:css styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+
+        <script src="scripts/deps/encoding.js"></script>
+        <script src="scripts/deps/encoding-indexes.js"></script>
+        <script src="scripts/deps/BigInteger.min.js"></script>
+        <script src="bower_components/cryptojslib/components/core.js"></script>
+        <script src="bower_components/cryptojslib/components/enc-utf16.js"></script>
+        <script src="bower_components/cryptojslib/components/hmac.js"></script>
+        <script src="bower_components/cryptojslib/components/md5.js"></script>
+        <script src="bower_components/cryptojslib/components/evpkdf.js"></script>
+        <script src="bower_components/cryptojslib/components/cipher-core.js"></script>
+        <script src="bower_components/cryptojslib/components/mode-ecb.js"></script>
+        <script src="bower_components/cryptojslib/components/tripledes.js"></script>
+        <script src="bower_components/cryptojslib/components/pad-nopadding.js"></script>
+        <script src="scripts/md4.js"></script>
+        <script src="scripts/lib-typedarrays.js"></script>
+
+        <script src="scripts/smb_client/smb_client.js"></script>
+        <script src="scripts/smb_client/constants.js"></script>
+        <script src="scripts/smb_client/debug.js"></script>
+        <script src="scripts/smb_client/binary_utils.js"></script>
+        <script src="scripts/smb_client/types.js"></script>
+        <script src="scripts/smb_client/session.js"></script>
+        <script src="scripts/smb_client/auth/hash_response_base.js"></script>
+        <script src="scripts/smb_client/auth/lm_hash.js"></script>
+        <script src="scripts/smb_client/auth/lm_response.js"></script>
+        <script src="scripts/smb_client/auth/ntlm_hash.js"></script>
+        <script src="scripts/smb_client/auth/ntlm_v2_hash.js"></script>
+        <script src="scripts/smb_client/auth/ntlm_v2_response.js"></script>
+        <script src="scripts/smb_client/auth/lm_v2_response.js"></script>
+        <script src="scripts/smb_client/auth/ntlm_v2_session_response.js"></script>
+        <script src="scripts/smb_client/auth/type_1_message.js"></script>
+        <script src="scripts/smb_client/auth/type_2_message.js"></script>
+        <script src="scripts/smb_client/auth/type_3_message.js"></script>
+        <script src="scripts/smb_client/models/header.js"></script>
+        <script src="scripts/smb_client/models/packet.js"></script>
+        <script src="scripts/smb_client/models/file.js"></script>
+        <script src="scripts/smb_client/models/request_utils.js"></script>
+        <script src="scripts/smb_client/models/response_utils.js"></script>
+        <script src="scripts/smb_client/models/negotiate_protocol_request.js"></script>
+        <script src="scripts/smb_client/models/negotiate_protocol_response.js"></script>
+        <script src="scripts/smb_client/models/session_setup_andx_request.js"></script>
+        <script src="scripts/smb_client/models/session_setup_andx_response.js"></script>
+        <script src="scripts/smb_client/models/echo_request.js"></script>
+        <script src="scripts/smb_client/models/tree_connect_andx_request.js"></script>
+        <script src="scripts/smb_client/models/tree_connect_andx_response.js"></script>
+        <script src="scripts/smb_client/models/nt_create_andx_request.js"></script>
+        <script src="scripts/smb_client/models/nt_create_andx_response.js"></script>
+        <script src="scripts/smb_client/models/dce_rpc.js"></script>
+        <script src="scripts/smb_client/models/dcerpc_bind.js"></script>
+        <script src="scripts/smb_client/models/dcerpc_bind_ack.js"></script>
+        <script src="scripts/smb_client/models/dcerpc_net_share_enum_all_request.js"></script>
+        <script src="scripts/smb_client/models/dcerpc_net_share_enum_all_response.js"></script>
+        <script src="scripts/smb_client/models/transaction_request.js"></script>
+        <script src="scripts/smb_client/models/transaction_response.js"></script>
+        <script src="scripts/smb_client/models/close_request.js"></script>
+        <script src="scripts/smb_client/models/query_path_info_request.js"></script>
+        <script src="scripts/smb_client/models/query_path_info_response.js"></script>
+        <script src="scripts/smb_client/models/find_first2_request.js"></script>
+        <script src="scripts/smb_client/models/find_first2_response.js"></script>
+        <script src="scripts/smb_client/models/find_next2_request.js"></script>
+        <script src="scripts/smb_client/models/find_next2_response.js"></script>
+        <script src="scripts/smb_client/models/find_close2_request.js"></script>
+        <script src="scripts/smb_client/models/seek_request.js"></script>
+        <script src="scripts/smb_client/models/seek_response.js"></script>
+        <script src="scripts/smb_client/models/read_andx_request.js"></script>
+        <script src="scripts/smb_client/models/read_andx_response.js"></script>
+        <script src="scripts/smb_client/models/write_andx_request.js"></script>
+        <script src="scripts/smb_client/models/write_andx_response.js"></script>
+        <script src="scripts/smb_client/models/create_directory_request.js"></script>
+        <script src="scripts/smb_client/models/delete_request.js"></script>
+        <script src="scripts/smb_client/models/delete_directory_request.js"></script>
+        <script src="scripts/smb_client/models/rename_request.js"></script>
+        <script src="scripts/smb_client/protocol.js"></script>
+        <script src="scripts/smb_client/communication.js"></script>
+        <script src="scripts/smb_client/chrome_socket_2.js"></script>
+        <script src="scripts/smb_client/client.js"></script>
+
+    </head>
+
+    <body>
+
+        <button id="testAuth">Test Auth</button><br />
+
+        <input type="password" id="password" />
+        <button id="login">Login</button><br />
+        <button id="getSharedResources">Get shared resources</button><br />
+        <button id="connectSharedResource">Connect shared resource</button><br />
+        <button id="getMetadata">Get metadata</button><br />
+        <button id="readDirectory">Read directory</button><br />
+        <button id="readFile">Read file</button><br />
+        <button id="createFile">Create file</button><br />
+        <button id="truncateFile">Truncate file</button><br />
+        <button id="writeFile">Write file</button><br />
+        <button id="createDirectory">Create directory</button><br />
+        <button id="deleteFile">Delete file</button><br />
+        <button id="deleteDirectory">Delete directory</button><br />
+        <button id="moveDirectory">Move directory</button><br />
+        <button id="copyDirectory">Copy directory</button><br />
+        <button id="moveFile">Move file</button><br />
+        <button id="copyFile">Copy file</button><br />
+        <button id="renameFile">Rename file</button><br />
+
+        <br />
+
+        <div id="msg"></div>
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:js scripts/index.js -->
+        <script src="scripts/index.js"></script>
+        <!-- endbuild -->
+
+    </body>
+
+</html>

@@ -1,0 +1,55 @@
+{
+    "name": "__MSG_appName__",
+    "description": "__MSG_appDescription__",
+    "short_name": "__MSG_shortName__",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "default_locale": "en",
+    "permissions": [
+        "fileSystemProvider",
+        "storage",
+        "notifications",
+        {
+            "socket": [
+                "resolve-host",
+                "tcp-connect:*:*"
+            ]
+        }
+    ],
+    "icons": {
+        "16": "images/16.png",
+        "32": "images/32.png",
+        "48": "images/48.png",
+        "128": "images/128.png"
+    },
+    "app": {
+        "background": {
+            "scripts": [
+                "scripts/deps/encoding.js",
+                "scripts/deps/encoding-indexes.js",
+                "scripts/deps/BigInteger.min.js",
+                "bower_components/cryptojslib/components/core.js",
+                "bower_components/cryptojslib/components/enc-utf16.js",
+                "bower_components/cryptojslib/components/hmac.js",
+                "bower_components/cryptojslib/components/md5.js",
+                "bower_components/cryptojslib/components/evpkdf.js",
+                "bower_components/cryptojslib/components/cipher-core.js",
+                "bower_components/cryptojslib/components/mode-ecb.js",
+                "bower_components/cryptojslib/components/tripledes.js",
+                "bower_components/cryptojslib/components/pad-nopadding.js",
+                "scripts/deps/md4.js",
+                "scripts/deps/lib-typedarrays.js",
+                "scripts/task_queue.js",
+                "scripts/metadata_cache.js",
+                "scripts/cifs_fs.js",
+                "scripts/cifs_client.js",
+                "scripts/background.js",
+                "scripts/chromereload.js"
+            ]
+        }
+    },
+    "file_system_provider_capabilities": {
+        "source": "network"
+    },
+    "minimum_chrome_version": "42"
+}
