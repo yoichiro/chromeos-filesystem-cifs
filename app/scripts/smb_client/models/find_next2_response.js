@@ -16,7 +16,11 @@
 
     FindNext2Response.prototype.load = function(parameterArray, parameterOffset, dataArray, dataOffset) {
         loadParameters.call(this, parameterArray, parameterOffset);
-        loadData.call(this, dataArray, dataOffset);
+        if (this.searchCount_ > 0) {
+            loadData.call(this, dataArray, dataOffset);
+        } else {
+            this.files_ = [];
+        }
     };
 
     FindNext2Response.prototype.getSearchCount = function() {

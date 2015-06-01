@@ -7,7 +7,7 @@
 
     // Constants
 
-    Constants.READ_ANDX_BUFFER_SIZE = 8192;
+    Constants.READ_ANDX_BUFFER_SIZE = 8192 * 7;
 
     // - Dialect
 
@@ -30,12 +30,17 @@
     Constants.SMB_COM_DELETE = 0x06;
     Constants.SMB_COM_DELETE_DIRECTORY = 0x01;
     Constants.SMB_COM_RENAME = 0x07;
+    Constants.SMB_COM_TREE_DISCONNECT = 0x71;
+    Constants.SMB_COM_LOGOFF_ANDX = 0x74;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
     Constants.TRANS2_FIND_FIRST2 = 0x0001;
     Constants.TRANS2_FIND_NEXT2 = 0x0002;
     Constants.TRANS2_CREATE_DIRECTORY = 0x000d;
+    
+    // - NBT Type
+    Constants.NBT_SESSION_KEEPALIVE = 0x85;
 
     // - Flag
     Constants.SMB_FLAGS_SERVER_TO_REDIR = 0x80; // 0: request 1: reply

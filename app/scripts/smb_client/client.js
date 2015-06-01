@@ -12,14 +12,16 @@
 
     // Public functions
 
-    Client.prototype.login = function(serverName, userName, password, onSuccess, onError) {
+    Client.prototype.login = function(serverName, port, userName, password, onSuccess, onError) {
+        Debug.trace("Client#login");
+
         this.session_ = new Session();
 
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
 
-        connect.call(this, serverName, function() {
+        connect.call(this, serverName, port, function() {
             negotiateProtocol.call(this, function(
                 negotiateProtocolResponseHeader, negotiateProtocolResponse) {
                 Debug.log(negotiateProtocolResponseHeader);
@@ -30,8 +32,30 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
+    
+    Client.prototype.logout = function(onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+        
+        var logoffAndDisconnect = function() {
+            logoffAndx.call(this, function() {
+                disconnect.call(this, function() {
+                    onSuccess();
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }.bind(this);
+
+        if (this.session_.getTreeId()) {
+            disconnectTree.call(this, logoffAndDisconnect, errorHandler);
+        } else {
+            logoffAndDisconnect();
+        }
+    };
 
     Client.prototype.getSharedResourceList = function(onSuccess, onError) {
+        Debug.trace("Client#getSharedResourceList");
+
         var errorHandler = function(error) {
             console.log(error);
             onError(error);
@@ -85,6 +109,8 @@
     };
 
     Client.prototype.connectSharedResource = function(path, onSuccess, onError) {
+        Debug.trace("Client#connectSharedResource");
+
         connectTree.call(this, path.toUpperCase(), "?????", function(
             treeConnectAndxResponseHeader, treeConnectAndxResponse) {
             Debug.log(treeConnectAndxResponseHeader);
@@ -96,6 +122,8 @@
     };
 
     Client.prototype.getMetadata = function(fileName, onSuccess, onError) {
+        Debug.trace("Client#getMetadata");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -109,6 +137,8 @@
     };
 
     Client.prototype.readDirectory = function(directoryName, onSuccess, onError) {
+        Debug.trace("Client#readDirectory");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -136,6 +166,8 @@
     };
 
     Client.prototype.readFile = function(fileName, offset, length, onSuccess, onError) {
+        Debug.trace("Client#readFile");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -150,6 +182,8 @@
     };
 
     Client.prototype.createFile = function(fileName, onSuccess, onError) {
+        Debug.trace("Client#createFile");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -162,6 +196,8 @@
     };
 
     Client.prototype.truncate = function(fileName, length, onSuccess, onError) {
+        Debug.trace("Client#truncate");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -197,6 +233,8 @@
 
     // array: Uint8Array
     Client.prototype.writeFile = function(fileName, offset, array, onSuccess, onError) {
+        Debug.trace("Client#writeFile");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -211,6 +249,8 @@
     };
 
     Client.prototype.createDirectory = function(directoryName, onSuccess, onError) {
+        Debug.trace("Client#createDirectory");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -223,6 +263,8 @@
     };
 
     Client.prototype.deleteEntry = function(fileName, onSuccess, onError) {
+        Debug.trace("Client#deleteEntry");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -246,6 +288,8 @@
     };
 
     Client.prototype.move = function(source, target, onSuccess, onError) {
+        Debug.trace("Client#move");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -266,6 +310,8 @@
     };
 
     Client.prototype.copy = function(source, target, onSuccess, onError) {
+        Debug.trace("Client#copy");
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -298,12 +344,16 @@
         }
     };
 
-    var connect = function(serverName, onSuccess, onError) {
-        this.comm_.connect(serverName, 445, function() {
+    var connect = function(serverName, port, onSuccess) {
+        this.comm_.connect(serverName, Number(port), function() {
             this.session_.setServerName(serverName);
             onSuccess();
-        }.bind(this), function(error) {
-            onError(error);
+        }.bind(this));
+    };
+    
+    var disconnect = function(onSuccess) {
+        this.comm_.disconnect(function() {
+            onSuccess();
         }.bind(this));
     };
 
@@ -400,6 +450,24 @@
                     var treeConnectAndxResponse =
                             this.protocol_.parseTreeConnectAndxResponse(packet);
                     onSuccess(header, treeConnectAndxResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var disconnectTree = function(onSuccess, onError) {
+        var treeDisconnectRequestPacket = this.protocol_.createTreeDisconnectRequestPacket(this.session_);
+        Debug.log(treeDisconnectRequestPacket);
+        this.comm_.writePacket(treeDisconnectRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    this.session_.setTreeId(null);
+                    onSuccess(header);
                 }
             }.bind(this), function(error) {
                 onError(error);
@@ -893,6 +961,23 @@
             var name = names[names.length - 2];
             return name;
         }
+    };
+    
+    var logoffAndx = function(onSuccess, onError) {
+        var logoffAndxRequestPacket = this.protocol_.createLogoffAndxRequestPacket(this.session_);
+        this.comm_.writePacket(logoffAndxRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    onSuccess(header);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
     };
 
     // Export

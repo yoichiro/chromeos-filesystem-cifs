@@ -6,7 +6,7 @@
     };
 
     // 0: Trace, 1: Debug, 2: Info
-    Debug.Level = 1;
+    Debug.Level = 2;
 
     // Static functions
 

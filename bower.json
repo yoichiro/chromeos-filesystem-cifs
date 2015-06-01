@@ -1,6 +1,6 @@
 {
   "name": "SMB/CIFS File System",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "dependencies": {
     "cryptojslib": "~3.1.2",
     "jquery": "~1.11.2",

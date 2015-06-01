@@ -1,4 +1,4 @@
-(function(Constants, Packet, Header, Types, EchoRequest, NegotiateProtocolRequest, NegotiateProtocolResponse, SessionSetupAndxRequest, Type1Message, SessionSetupAndxResponse, NtlmV2Hash, LmV2Response, Debug, NtlmV2Response, Type3Message, TreeConnectAndxResponse, NtCreateAndxRequest, NtCreateAndxResponse, TransactionRequest, DceRpcBind, TransactionResponse, DceRpcBindAck, DceRpcNetShareEnumAllRequest, DceRpcNetShareEnumAllResponse, CloseRequest, QueryPathInfoRequest, QueryPathInfoResponse, FindFirst2Request, FindFirst2Response, FindNext2Request, FindNext2Response, FindClose2Request, SeekRequest, SeekResponse, ReadAndxRequest, ReadAndxResponse, WriteAndxRequest, WriteAndxResponse, CreateDirectoryRequest, DeleteRequest, DeleteDirectoryRequest, RenameRequest) {
+(function(Constants, Packet, Header, Types, EchoRequest, NegotiateProtocolRequest, NegotiateProtocolResponse, SessionSetupAndxRequest, Type1Message, SessionSetupAndxResponse, NtlmV2Hash, LmV2Response, Debug, NtlmV2Response, Type3Message, TreeConnectAndxResponse, NtCreateAndxRequest, NtCreateAndxResponse, TransactionRequest, DceRpcBind, TransactionResponse, DceRpcBindAck, DceRpcNetShareEnumAllRequest, DceRpcNetShareEnumAllResponse, CloseRequest, QueryPathInfoRequest, QueryPathInfoResponse, FindFirst2Request, FindFirst2Response, FindNext2Request, FindNext2Response, FindClose2Request, SeekRequest, SeekResponse, ReadAndxRequest, ReadAndxResponse, WriteAndxRequest, WriteAndxResponse, CreateDirectoryRequest, DeleteRequest, DeleteDirectoryRequest, RenameRequest, EmptyRequest, LogoffAndxRequest) {
 
     // Constructor
 
@@ -464,6 +464,31 @@
         packet.set(header, renameRequest);
         return packet;
     };
+    
+    Protocol.prototype.createTreeDisconnectRequestPacket = function(session) {
+        var header = createHeader.call(this, Constants.SMB_COM_TREE_DISCONNECT, {
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var emptyRequest = new EmptyRequest();
+
+        var packet = new Packet();
+        packet.set(header, emptyRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.createLogoffAndxRequestPacket = function(session) {
+        var header = createHeader.call(this, Constants.SMB_COM_LOGOFF_ANDX, {
+            userId: session.getUserId()
+        });
+
+        var logoffAndxRequest = new LogoffAndxRequest();
+
+        var packet = new Packet();
+        packet.set(header, logoffAndxRequest);
+        return packet;
+    };
 
     // Private functions
 
@@ -538,4 +563,6 @@
    SmbClient.CreateDirectoryRequest,
    SmbClient.DeleteRequest,
    SmbClient.DeleteDirectoryRequest,
-   SmbClient.RenameRequest);
+   SmbClient.RenameRequest,
+   SmbClient.EmptyRequest,
+   SmbClient.LogoffAndxRequest);
