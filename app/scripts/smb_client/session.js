@@ -1,5 +1,7 @@
 (function() {
 
+    "use strict";
+
     // Constructor
 
     var Session = function() {

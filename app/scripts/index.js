@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var out = "";
         for (var i = 0; i < array.length; i++) {
             // out += String.fromCharCode(array[i]);
-            out += (new Number(array[i])).toString(16).toUpperCase() + " ";
+            out += (Number(array[i])).toString(16).toUpperCase() + " ";
         }
         console.log(out);
     };

@@ -1,5 +1,7 @@
 (function() {
 
+    "use strict";
+
     // Constructor
 
     var ChromeSocket2 = function() {
@@ -289,7 +291,7 @@
         var subjectAltName = cert.getExtension({
             name: "subjectAltName"
         });
-        if (!(subjectAltName && subjectAltName.altNames)){ 
+        if (!(subjectAltName && subjectAltName.altNames)){
             return false;
         }
         var altNames = subjectAltName.altNames;
@@ -320,7 +322,8 @@
             sessionCache: null,
             cipherSuites: [
                 forge.tls.CipherSuites.TLS_RSA_WITH_AES_128_CBC_SHA,
-                forge.tls.CipherSuites.TLS_RSA_WITH_AES_256_CBC_SHA],
+                forge.tls.CipherSuites.TLS_RSA_WITH_AES_256_CBC_SHA
+            ],
             virtualHost: null,
             verify: function(c, verified, depth, certs) {
                 return _verify.call(this, c, verified, depth, certs);

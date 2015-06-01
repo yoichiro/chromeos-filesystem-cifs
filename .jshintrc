@@ -23,6 +23,12 @@
         "MetadataCache": true,
         "SmbClient": true,
         "CifsFS": true,
-        "CifsClient": true
+        "CifsClient": true,
+        "TaskQueue": true,
+        "CryptoJS": true,
+        "bigInt": true,
+        "forge": true,
+        "TextDecoder": true,
+        "TextEncoder": true
     }
 }
