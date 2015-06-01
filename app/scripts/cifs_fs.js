@@ -13,7 +13,7 @@
     };
 
     // Public functions
-    
+
     CifsFS.prototype.getSharedResources = function(options) {
         var cifsClient = new CifsClient(
             this,
