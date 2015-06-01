@@ -1,4 +1,4 @@
-(function(Packet, Types, Debug) {
+(function(Packet, Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -15,10 +15,12 @@
     };
 
     Communication.prototype.connect = function(host, port, callback) {
+        Debug.trace("connect");
         this.socketImpl.connect(host, port, callback);
     };
 
     Communication.prototype.disconnect = function(callback) {
+        Debug.trace("disconnect");
         this.socketImpl.disconnect(callback);
     };
 
@@ -76,9 +78,18 @@
         _read.call(this, length, function(readInfo) {
             Debug.trace("_readPacketSize - 2");
             var buffer = readInfo.data;
-            var view = new DataView(buffer);
-            var result = view.getUint32(0, false);
-            callback(result);
+            var array = new Uint8Array(buffer);
+            if (array[0] === 0x00) { // Normak Message
+                var view = new DataView(buffer);
+                var result = view.getUint32(0, false);
+                callback(result);
+            } else if (array[0] === Constants.NBT_SESSION_KEEPALIVE) {
+                Debug.log("NBT_SESSION_KEEPALIVE received. Ignore.");
+                _readPacketSize.call(this, length, callback, fatalCallback);
+            } else {
+                Debug.outputArrayBuffer(buffer);
+                fatalCallback("Unknown packet received");
+            }
         }.bind(this), fatalCallback);
     };
 
@@ -90,4 +101,4 @@
 
     SmbClient.Communication = Communication;
 
-})(SmbClient.Packet, SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Packet, SmbClient.Types, SmbClient.Debug, SmbClient.Constants);

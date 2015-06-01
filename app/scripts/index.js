@@ -133,13 +133,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var onClickedLogin = function() {
         client = new SmbClient.Client();
-        var serverName = "10.211.55.4";
+        //var serverName = "10.211.55.4";
+        var serverName = "127.0.0.1";
         //var serverName = "192.168.147.131";
         //var serverName = "10.211.55.3";
         //var serverName = "freenas.eisbahn.jp";
+        //var port = "445";
+        var port = "20445";
         var userName = "yoichiro";
         var password = document.querySelector("#password").value;
-        client.login(serverName, userName, password, function() {
+        client.login(serverName, port, userName, password, function() {
             msg("Logged in");
         }, function(error) {
             console.log(error);
@@ -155,8 +158,8 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     var onClickedConnectSharedResource = function() {
-        client.connectSharedResource("yoichiro", function() {
-        //client.connectSharedResource("share", function() {
+        //client.connectSharedResource("yoichiro", function() {
+        client.connectSharedResource("share", function() {
             msg("Connected");
         }, function(error) {
             console.log(error);

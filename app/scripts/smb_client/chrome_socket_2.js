@@ -289,7 +289,7 @@
         var subjectAltName = cert.getExtension({
             name: "subjectAltName"
         });
-        if (!(subjectAltName && subjectAltName.altNames)) {
+        if (!(subjectAltName && subjectAltName.altNames)){ 
             return false;
         }
         var altNames = subjectAltName.altNames;

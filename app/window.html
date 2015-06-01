@@ -7,63 +7,81 @@
 
   <title data-message="mountHeader"></title>
 
-  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
 
-  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
   <link rel="import" href="bower_components/paper-toast/paper-toast.html">
   <link rel="import" href="bower_components/paper-button/paper-button.html">
-  <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
-  <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
-  <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
-  <link rel="import" href="bower_components/paper-dialog/paper-action-dialog.html">
+  <link rel="import" href="bower_components/paper-input/paper-input.html">
   <link rel="import" href="bower_components/paper-radio-button/paper-radio-button.html">
   <link rel="import" href="bower_components/paper-radio-group/paper-radio-group.html">
-
-  <script type="text/javascript" src="scripts/dropbox_client.js"></script>
-  <script type="text/javascript" src="scripts/dropbox_fs.js"></script>
+  <link rel="import" href="bower_components/paper-input/paper-autogrow-textarea.html">
+  <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+  <link rel="import" href="bower_components/paper-dialog/paper-action-dialog.html">
+  <link rel="import" href="bower_components/core-menu/core-menu.html">
+  <link rel="import" href="bower_components/paper-item/paper-item.html">
+  <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+  <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
 
   <link rel="stylesheet" href="styles/style.css">
 </head>
 
-<body fullbleed vertical layout>
+<body unresolved>
   <paper-toast data-message="mountAttempt" id="toast-mount-attempt"></paper-toast>
   <paper-toast data-message="mountFail" id="toast-mount-fail"></paper-toast>
   <paper-toast data-message="mountSuccess" id="toast-mount-success"></paper-toast>
 
-  <div flex class="main">
-    <div vertical layout center>
-      <div horizontal layout>
-        <img src="/icons/64.png">
-        <h1>Mount your Dropbox</h1>
-      </div>
-      <paper-button id="btnMount" data-message="mount"></paper-button>
-    </div>
-    <a layout horizontal end-justified href="https://www.dropbox.com/account/security#apps" target="_blank">Dropbox linked applications list</a>
-  </div>
-  
-  <div vertical layout>
+  <div class="list" layout vertical>
+    <core-menu id="credentials" flex>
+    </core-menu>
     <core-toolbar>
       <paper-icon-button icon="settings" id="btnSettings"></paper-icon-button>
     </core-toolbar>
   </div>
-  
+
+  <div class="container">
+    <h2 data-message="mountHeader"></h2>
+
+    <form>
+      <paper-input floatinglabel type="text" id="serverName" data-message="serverName"></paper-input>
+      <paper-input-decorator data-message="serverPort" floatingLabel>
+        <input is="core-input" id="serverPort" type="number" value="445">
+      </paper-input-decorator>
+      <paper-input floatinglabel type="text" id="username" data-message="username"></paper-input>
+      <paper-input-decorator data-message="password" floatingLabel>
+        <input is="core-input" id="password" type="password">
+      </paper-input-decorator>
+      <div horizontal layout>
+        <paper-button raised id="btnMount" data-message="mount"></paper-button>
+        <paper-button raised id="btnKeep" data-message="keep"></paper-button>
+      </div>
+    </form>
+  </div>
+
+  <paper-action-dialog id="selectSharedResourceDialog" heading="Select shared resource"
+      backdrop autoCloseDisabled layered="false" transition="core-transition-top">
+    <div layout vertical>
+        <paper-radio-group id="sharedResources">
+        </paper-radio-group>
+    </div>
+    <paper-button affirmative id="btnCancel">Cancel</paper-button>
+    <paper-button affirmative id="btnConnect">Connect</paper-button>
+  </paper-action-dialog>
+
   <paper-action-dialog id="settingsDialog" heading="Settings"
       backdrop autoCloseDisabled layered="false" transition="core-transition-top">
     <form>
       <div layout horizontal>
-        <h3>Opened files limit</h3>
-        <paper-radio-group id="openedFilesLimit">
-          <paper-radio-button id="openedFilesLimit0" name="openedFilesLimit0" label="0"></paper-radio-button>
-          <paper-radio-button id="openedFilesLimit5" name="openedFilesLimit5" label="5"></paper-radio-button>
-          <paper-radio-button id="openedFilesLimit10" name="openedFilesLimit10" label="10"></paper-radio-button>
-          <paper-radio-button id="openedFilesLimit15" name="openedFilesLimit15" label="15"></paper-radio-button>
+        <h3>Keep password</h3>
+        <paper-radio-group id="keepPassword">
+          <paper-radio-button id="keepPasswordYes" name="keepPasswordYes" data-message="keepPasswordYes"></paper-radio-button>
+          <paper-radio-button id="keepPasswordNo" name="keepPasswordNo" data-message="keepPasswordNo"></paper-radio-button>
         </paper-radio-group>
       </div>
       <paper-button affirmative>Close</paper-button>
     </form>
   </paper-action-dialog>
 
-  
   <script type="text/javascript" src="scripts/window.js"></script>
 
 </body>

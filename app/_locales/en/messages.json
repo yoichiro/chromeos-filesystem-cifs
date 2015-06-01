@@ -1,23 +1,27 @@
 {
   "appName": {
-    "message": "File System for Dropbox",
-    "description": "Application name"
-  },
-  "shortName": {
-    "message": "Dropbox",
-    "description": "Application short name"
+    "message": "SMB/CIFS File System",
+    "description": "The name of the application"
   },
   "appDescription": {
-    "message": "This application provides File System for your Dropbox storage.",
-    "description": "Application description"
+    "message": "Access a SMB/CIFS server directly from the Files app.",
+    "description": "The description of the application"
+  },
+  "shortName": {
+    "message": "SMB/CIFS",
+    "description": "The short name of the application"
   },
   "mountHeader": {
-    "message": "Mount your Dropbox",
+    "message": "Mount a new SMB/CIFS server",
     "description": "Header describing the server mount form."
   },
   "mount": {
     "message": "Mount",
     "description": "Label for a button that triggers the mount action."
+  },
+  "keep": {
+    "message": "Keep",
+    "description": "Label for a button that triggers the keep action."
   },
   "mountAttempt": {
     "message": "Attempting to mount instance...",
@@ -30,5 +34,29 @@
   "mountFail": {
     "message": "Failed to mount.",
     "description": "Popup notifcation that informs the user that the system failed to mount a new instance with the credentials they provided."
+  },
+  "serverName": {
+    "message": "Server Host Name / IP Address",
+    "description": "The server's host name or IP address"
+  },
+  "serverPort": {
+    "message": "Server Port Number",
+    "description": "The server's port number"
+  },
+  "username": {
+    "message": "User Name",
+    "description": "The user name"
+  },
+  "password": {
+    "message": "Password",
+    "description": "The user password"
+  },
+  "keepPasswordYes": {
+    "message": "Yes",
+    "description": "Keep password"
+  },
+  "keepPasswordNo": {
+    "message": "No",
+    "description": "Don't keep password"
   }
 }

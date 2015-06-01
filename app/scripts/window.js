@@ -3,36 +3,93 @@
 (function() {
 
     var onLoad = function() {
+        loadKeptCredentials();
         assignEventHandlers();
     };
 
     var assignEventHandlers = function() {
         var btnMount = document.querySelector("#btnMount");
         btnMount.addEventListener("click", function(e) {
-            onClickedBtnMount();
+            onClickedBtnMount(e);
         });
-       // Settings dialog
+        var btnKeep = document.querySelector("#btnKeep");
+        btnKeep.addEventListener("click", function(e) {
+            onClickedBtnKeep(e);
+        });
+        var btnCancel = document.querySelector("#btnCancel");
+        btnCancel.addEventListener("click", function(e) {
+            onClickedBtnCancel(e);
+        });
+        var btnConnect = document.querySelector("#btnConnect");
+        btnConnect.addEventListener("click", function(e) {
+            onClickedBtnConnect(e);
+        });
+        var password = document.querySelector("#password");
+        password.addEventListener("change", function(e) {
+            if (document.activeElement === this) {
+                onClickedBtnMount(e);
+            }
+        });
+        // Settings dialog
         var btnSettings = document.querySelector("#btnSettings");
         btnSettings.addEventListener("click", function(e) {
             onClickedBtnSettings(e);
         });
-        var openedFilesLimits = [0, 5, 10, 15];
-        for (var i = 0; i < openedFilesLimits.length; i++) {
-            var limit = document.querySelector("#openedFilesLimit" + openedFilesLimits[i]);
-            /*jshint loopfunc: true */
-            limit.addEventListener("core-change", function(e) {
-                onChangedOpenedFilesLimit(e);
-            });
-        }
+        var keepPasswordYes = document.querySelector("#keepPasswordYes");
+        keepPasswordYes.addEventListener("core-change", onChangeKeepPassword);
+        var keepPasswordNo = document.querySelector("#keepPasswordNo");
+        keepPasswordNo.addEventListener("core-change", onChangeKeepPassword);
     };
 
-    var onClickedBtnMount = function() {
+    var onClickedBtnMount = function(evt) {
+        console.log("onClickedBtnMount");
         var btnMount = document.querySelector("#btnMount");
-        event.preventDefault();
+        evt.preventDefault();
         btnMount.setAttribute("disabled", "true");
         document.getElementById("toast-mount-attempt").show();
         var request = {
-            type: "mount"
+            type: "getSharedResources",
+            serverName: document.querySelector("#serverName").value,
+            serverPort: document.querySelector("#serverPort").value,
+            username: document.querySelector("#username").value,
+            password: document.querySelector("#password").value
+        };
+        chrome.runtime.sendMessage(request, function(response) {
+            console.log(response);
+            if (response.type === "sharedResources") {
+                var sharedResources = document.querySelector("#sharedResources");
+                for (var i = 0; i < response.sharedResources.length; i++) {
+                    var radio = document.createElement("paper-radio-button");
+                    radio.name = response.sharedResources[i].name;
+                    radio.label = response.sharedResources[i].name;
+                    sharedResources.appendChild(radio);
+                }
+                sharedResources.selected = response.sharedResources[0].name;
+                document.querySelector("#selectSharedResourceDialog").toggle();
+            } else {
+                var toast = document.getElementById("toast-mount-fail");
+                if (response.error) {
+                    toast.setAttribute("text", response.error);
+                }
+                toast.show();
+                btnMount.removeAttribute("disabled");
+            }
+        });
+    };
+
+    var mount = function() {
+        var serverName = document.querySelector("#serverName").value;
+        var serverPort = document.querySelector("#serverPort").value;
+        var username = document.querySelector("#username").value;
+        var password = document.querySelector("#password").value;
+        var sharedResource = document.querySelector("#sharedResources").selected;
+        var request = {
+            type: "mount",
+            serverName: serverName,
+            serverPort: serverPort,
+            username: username,
+            password: password,
+            sharedResource: sharedResource
         };
         chrome.runtime.sendMessage(request, function(response) {
             if (response.success) {
@@ -46,9 +103,21 @@
                     toast.setAttribute("text", response.error);
                 }
                 toast.show();
+                var btnMount = document.querySelector("#btnMount");
                 btnMount.removeAttribute("disabled");
             }
         });
+    };
+
+    var onClickedBtnConnect = function(evt) {
+        console.log("onClickedBtnConnect");
+        mount();
+    };
+
+    var onClickedBtnCancel = function(evt) {
+        console.log("onClickedBtnCancel");
+        var btnMount = document.querySelector("#btnMount");
+        btnMount.removeAttribute("disabled");
     };
 
     var setMessageResources = function() {
@@ -62,19 +131,21 @@
             var messageText = chrome.i18n.getMessage(messageID);
 
             var textNode = null;
+
             switch(element.tagName.toLowerCase()) {
             case "paper-button":
                 textNode = document.createTextNode(messageText);
                 element.appendChild(textNode);
                 break;
             case "paper-input":
-            case "paper-dropdown":
+            case "paper-input-decorator":
+            case "paper-radio-button":
                 element.setAttribute("label", messageText);
                 break;
             case "paper-toast":
                 element.setAttribute("text", messageText);
                 break;
-            case "h1":
+            case "h2":
             case "title":
                 textNode = document.createTextNode(messageText);
                 element.appendChild(textNode);
@@ -83,26 +154,123 @@
         }
     };
 
+    var onClickedBtnKeep = function(evt) {
+        console.log("onClickedBtnKeep");
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var keepPassword = settings.keepPassword || "keepPasswordNo";
+            keepPassword = (keepPassword === "keepPasswordYes");
+            var serverName = document.querySelector("#serverName").value;
+            var serverPort = document.querySelector("#serverPort").value;
+            var username = document.querySelector("#username").value;
+            var password = document.querySelector("#password").value;
+            if (serverName && serverPort && username) {
+                chrome.storage.local.get("keptCredentials", function(items) {
+                    var credentials = items.keptCredentials || {};
+                    var key = createKey(serverName, serverPort, username);
+                    var credential = {
+                        serverName: serverName,
+                        serverPort: serverPort,
+                        username: username
+                    };
+                    if (keepPassword) {
+                        credential.password = password;
+                    }
+                    credentials[key] = credential;
+                    chrome.storage.local.set({
+                        keptCredentials: credentials
+                    }, function() {
+                        loadKeptCredentials();
+                    });
+                });
+            }
+        });
+    };
+
+    var loadKeptCredentials = function() {
+        chrome.storage.local.get("keptCredentials", function(items) {
+            document.querySelector("#credentials").innerHTML = "";
+            var credentials = items.keptCredentials || {};
+            for (var key in credentials) {
+                appendCredentialToScreen(credentials[key]);
+            }
+        });
+    };
+
+    var appendCredentialToScreen = function(credential) {
+        var credentials = document.querySelector("#credentials");
+        var div = document.createElement("div");
+        div.setAttribute("horizontal", "true");
+        div.setAttribute("layout", "true");
+        div.setAttribute("center", "true");
+        var item = document.createElement("paper-item");
+        item.textContent = createKey(credential.serverName, credential.serverPort, credential.username);
+        item.addEventListener("click", (function(credential) {
+            return function(evt) {
+                setCredentialToForm(credential);
+            };
+        })(credential));
+        div.appendChild(item);
+        var btnClose = document.createElement("paper-icon-button");
+        btnClose.setAttribute("icon", "close");
+        btnClose.setAttribute("title", "Delete");
+        btnClose.addEventListener("click", (function(credential) {
+            return function(evt) {
+                setCredentialToForm(credential);
+                chrome.storage.local.get("keptCredentials", function(items) {
+                    var credentials = items.keptCredentials || {};
+                    var key = createKey(credential.serverName, credential.serverPort, credential.username);
+                    delete credentials[key];
+                    chrome.storage.local.set({
+                        keptCredentials: credentials
+                    }, function() {
+                        loadKeptCredentials();
+                    });
+                });
+            };
+        })(credential));
+        div.appendChild(btnClose);
+        credentials.appendChild(div);
+    };
+
+    var setCredentialToForm = function(credential) {
+        document.querySelector("#serverName").value = credential.serverName;
+        document.querySelector("#serverPort").value = credential.serverPort;
+        document.querySelector("#username").value = credential.username;
+        var password = credential.password;
+        if (password) {
+            document.querySelector("#password").value = password;
+        } else {
+            document.querySelector("#password").value = "";
+        }
+        document.querySelector("#password").focus();
+    };
+
+    var createKey = function(serverName, serverPort, username) {
+        return serverName + ":" + serverPort + " (" + username + ")";
+    };
+
     var onClickedBtnSettings = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            var openedFilesLimit = settings.openedFilesLimit || "10";
-            document.querySelector("#openedFilesLimit").selected = "openedFilesLimit" + openedFilesLimit;
+            var keepPassword = settings.keepPassword || "keepPasswordNo";
+            if (keepPassword === "keepPasswordYes") {
+                document.querySelector("#keepPassword").selected = "keepPasswordYes";
+            } else {
+                document.querySelector("#keepPassword").selected = "keepPasswordNo";
+            }
             document.querySelector("#settingsDialog").toggle();
         });
     };
 
-    var onChangedOpenedFilesLimit = function(evt) {
+    var onChangeKeepPassword = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            var selected = document.querySelector("#openedFilesLimit").selected;
-            var value = selected.substring(16);
-            settings.openedFilesLimit = value;
+            settings.keepPassword = document.querySelector("#keepPassword").selected;
             chrome.storage.local.set({settings: settings}, function() {
                 console.log("Saving settings done.");
             });
         });
-
     };
 
     window.addEventListener("load", function(e) {
