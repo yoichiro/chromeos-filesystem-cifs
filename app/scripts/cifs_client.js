@@ -1,6 +1,6 @@
-"use strict";
-
 (function() {
+
+    "use strict";
 
     // Constructor
 
@@ -14,7 +14,7 @@
         this.sharedResource_ = sharedResource;
 
         this.cifsFS_ = cifsFS;
-        
+
         this.client_ = null;
     };
 
@@ -43,7 +43,7 @@
     CifsClient.prototype.setup = function() {
         this.client_ = new SmbClient.Client();
     };
-    
+
     CifsClient.prototype.getSharedResources = function(options) {
         this.client_.login(
             this.getServerName(),
@@ -106,7 +106,7 @@
             options.onSuccess({
                 metadata: metadata
             });
-            
+
         }.bind(this), function(error) {
             if (error === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
                 options.onError("NOT_FOUND");

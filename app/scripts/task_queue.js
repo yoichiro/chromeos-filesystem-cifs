@@ -1,6 +1,6 @@
-"use strict";
-
 (function() {
+
+    "use strict";
 
     var TaskQueue = function() {
         this.queue_ = [];
