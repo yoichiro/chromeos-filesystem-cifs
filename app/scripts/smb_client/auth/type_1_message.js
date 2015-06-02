@@ -1,4 +1,5 @@
 (function(Constants, Types, Debug) {
+    "use strict";
 
     // Constructor
 
@@ -24,6 +25,7 @@
         this.flag_ = flag;
     };
 
+    /*jslint bitwise: true */
     Type1Message.prototype.isFlagOf = function(field) {
         return (this.flag_ & field) === field;
     };

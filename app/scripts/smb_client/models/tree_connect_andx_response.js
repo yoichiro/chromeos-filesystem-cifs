@@ -1,4 +1,5 @@
 (function(Types, ResponseUtils) {
+    "use strict";
 
     // Constructor
 
@@ -19,14 +20,15 @@
 
     // Public functions
 
+    /*jslint bitwise: true */
     TreeConnectAndxResponse.prototype.load = function(packet) {
         var array = packet.getSmbParametersAndSmbDataUint8Array();
 
         var offset = this.responseUtils_.getOffsetSkippedAndxData();
         this.supportSearchBits_ =
-            (array[offset] & TreeConnectAndxResponse.SMB_SUPPORT_SEARCH_BITS) != 0;
+            (array[offset] & TreeConnectAndxResponse.SMB_SUPPORT_SEARCH_BITS) !== 0;
         this.shareIsInDfs_ =
-            (array[offset] & TreeConnectAndxResponse.SMB_SHARE_IS_IN_DFS) != 0;
+            (array[offset] & TreeConnectAndxResponse.SMB_SHARE_IS_IN_DFS) !== 0;
 
         var dataArray = this.responseUtils_.getSmbDataUint8Array(array);
 

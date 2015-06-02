@@ -1,4 +1,5 @@
 (function(Types, DceRpc, Debug) {
+    "use strict";
 
     // Constructor
 

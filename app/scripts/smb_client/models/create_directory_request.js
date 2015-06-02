@@ -1,4 +1,5 @@
 (function(Types, Constants, RequestUtils) {
+    "use strict";
 
     // Constructor
 

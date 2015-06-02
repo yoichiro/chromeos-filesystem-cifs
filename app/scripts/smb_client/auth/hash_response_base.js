@@ -1,4 +1,5 @@
 (function() {
+    "use strict";
 
     // Constructor
 
@@ -18,6 +19,7 @@
         return result;
     };
 
+    /*jslint bitwise: true */
     HashResponseBase.prototype.createDesKey = function(array) {
         var result = [];
         var temp = 0;

@@ -1,4 +1,5 @@
 (function(Types, File) {
+    "use strict";
 
     // Constructor
 

@@ -1,4 +1,5 @@
 (function(Types, Debug) {
+    "use strict";
 
     // Constructor
 
@@ -37,6 +38,7 @@
         return this.ntlmMessageType_;
     };
 
+    /*jslint bitwise: true */
     Type2Message.prototype.isFlagOf = function(field) {
         return (this.flag_ & field) === field;
     };

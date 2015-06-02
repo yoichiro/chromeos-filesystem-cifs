@@ -1,4 +1,5 @@
 (function(Types, Debug) {
+    "use strict";
 
     // Constructor
 
@@ -43,7 +44,7 @@
         var total = 14 * 2;
         if (this.setup_) {
             total += setupBuffer.byteLength;
-        };
+        }
         var buffer = new ArrayBuffer(total);
         var array = new Uint8Array(buffer);
 

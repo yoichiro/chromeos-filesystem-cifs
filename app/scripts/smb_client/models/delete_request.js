@@ -1,4 +1,5 @@
 (function(Types, Constants) {
+    "use strict";
 
     // Constructor
 
@@ -14,6 +15,7 @@
         this.fileName_ = fileName;
     };
 
+    /*jslint bitwise: true */
     DeleteRequest.prototype.createSmbParametersArrayBuffer = function() {
         var buffer = new ArrayBuffer(2);
         var array = new Uint8Array(buffer);

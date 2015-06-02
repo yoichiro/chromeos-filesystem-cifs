@@ -1,4 +1,5 @@
 (function(Debug, Types, Base, NtlmHash) {
+    "use strict";
 
     // Constructor
 

@@ -1,4 +1,5 @@
 (function(Types, Debug, RequestUtils, Constants) {
+    "use strict";
 
     // Constructor
 
@@ -20,6 +21,7 @@
         this.searchCount_ = searchCount;
     };
 
+    /*jslint bitwise: true */
     FindFirst2Request.prototype.createTransactionParameter = function() {
         var fileName = this.directoryName_ + "\\*";
         var total =

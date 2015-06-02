@@ -159,16 +159,18 @@
         this.multiplexId_ = multiplexId;
     };
 
+    /*jslint bitwise: true */
     Header.prototype.isFlagOf = function(field) {
-        return (this.getFlag() & field) != 0;
+        return (this.getFlag() & field) !== 0;
     };
 
     Header.prototype.setFlag = function(flag) {
         this.flag_ = flag;
     };
 
+    /*jslint bitwise: true */
     Header.prototype.isFlag2Of = function(field) {
-        return (this.getFlag2() & field) != 0;
+        return (this.getFlag2() & field) !== 0;
     };
 
     Header.prototype.setFlag2 = function(flag2) {

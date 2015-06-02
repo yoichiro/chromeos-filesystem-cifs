@@ -1,4 +1,5 @@
 (function(Types, Constants) {
+    "use strict";
 
     // Constructor
 
@@ -19,6 +20,7 @@
         this.newFileName_ = newFileName;
     };
 
+    /*jslint bitwise: true */
     RenameRequest.prototype.createSmbParametersArrayBuffer = function() {
         var buffer = new ArrayBuffer(2);
         var array = new Uint8Array(buffer);
