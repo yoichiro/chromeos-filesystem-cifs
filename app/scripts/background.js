@@ -4,16 +4,21 @@
 
     var cifs_fs_ = new CifsFS();
 
-    chrome.app.runtime.onLaunched.addListener(function() {
+    var openWindow = function() {
         chrome.app.window.create("window.html", {
-        //chrome.app.window.create("index.html", {
             outerBounds: {
                 width: 800,
                 height: 500
             },
             resizable: false
         });
-    });
+    };
+
+    chrome.app.runtime.onLaunched.addListener(openWindow);
+
+    if (chrome.fileSystemProvider.onMountRequested) {
+        chrome.fileSystemProvider.onMountRequested.addListener(openWindow);
+    }
 
     var getSharedResources = function(request, sendResponse) {
         cifs_fs_.getSharedResources({
