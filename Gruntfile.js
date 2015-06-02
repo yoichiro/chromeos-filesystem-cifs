@@ -135,7 +135,21 @@ module.exports = function (grunt) {
         concat: {
             dist: {
                 src: [
-                    '<%= config.app %>/bower_components/jquery/dist/jquery.min.js',
+                    '<%= config.app %>/scripts/deps/encoding.js',
+                    '<%= config.app %>/scripts/deps/encoding-indexes.js',
+                    '<%= config.app %>/scripts/deps/BigInteger.min.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/core.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/enc-utf16.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/hmac.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/md5.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/evpkdf.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/cipher-core.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/mode-ecb.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/tripledes.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/pad-nopadding.js',
+                    '<%= config.app %>/scripts/deps/md4.js',
+                    '<%= config.app %>/scripts/deps/lib-typedarray.js',
+
                     '<%= config.app %>/scripts/metadata_cache.js',
                     '<%= config.app %>/scripts/dropbox_client.js',
                     '<%= config.app %>/scripts/dropbox_fs.js',
@@ -217,7 +231,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build', [
         'clean:dist',
         'bower:install',
-//        'concat',
+        'concat',
         'chromeManifest:dist',
         'copy',
         'vulcanize',
