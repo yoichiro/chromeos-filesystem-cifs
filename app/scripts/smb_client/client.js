@@ -1,5 +1,7 @@
 (function(Protocol, Communication, ChromeSocket2, Session, Constants, Debug) {
 
+    "use strict";
+
     // Constructor
 
     var Client = function() {
@@ -32,12 +34,12 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     Client.prototype.logout = function(onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
-        
+
         var logoffAndDisconnect = function() {
             logoffAndx.call(this, function() {
                 disconnect.call(this, function() {
@@ -53,6 +55,7 @@
         }
     };
 
+    /*jslint bitwise: true */
     Client.prototype.getSharedResourceList = function(onSuccess, onError) {
         Debug.trace("Client#getSharedResourceList");
 
@@ -350,7 +353,7 @@
             onSuccess();
         }.bind(this));
     };
-    
+
     var disconnect = function(onSuccess) {
         this.comm_.disconnect(function() {
             onSuccess();
@@ -458,7 +461,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var disconnectTree = function(onSuccess, onError) {
         var treeDisconnectRequestPacket = this.protocol_.createTreeDisconnectRequestPacket(this.session_);
         Debug.log(treeDisconnectRequestPacket);
@@ -962,7 +965,7 @@
             return name;
         }
     };
-    
+
     var logoffAndx = function(onSuccess, onError) {
         var logoffAndxRequestPacket = this.protocol_.createLogoffAndxRequestPacket(this.session_);
         this.comm_.writePacket(logoffAndxRequestPacket, function() {

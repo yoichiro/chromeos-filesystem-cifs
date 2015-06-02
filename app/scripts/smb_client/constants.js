@@ -1,5 +1,7 @@
 (function() {
 
+    "use strict";
+
     // Constructor
 
     var Constants = function() {
@@ -38,7 +40,7 @@
     Constants.TRANS2_FIND_FIRST2 = 0x0001;
     Constants.TRANS2_FIND_NEXT2 = 0x0002;
     Constants.TRANS2_CREATE_DIRECTORY = 0x000d;
-    
+
     // - NBT Type
     Constants.NBT_SESSION_KEEPALIVE = 0x85;
 

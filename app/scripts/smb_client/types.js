@@ -1,3 +1,4 @@
+/*jslint bitwise: true */
 (function(BinaryUtils) {
     "use strict";
 

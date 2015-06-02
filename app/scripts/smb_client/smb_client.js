@@ -3,7 +3,7 @@
 
     var SmbClient = {};
 
-    if ("undefined" == typeof module) {
+    if ("undefined" === typeof module) {
         window.SmbClient = SmbClient;
     } else {
         module.exports = SmbClient;
