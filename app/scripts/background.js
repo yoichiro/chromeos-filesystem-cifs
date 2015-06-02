@@ -1,6 +1,6 @@
-"use strict";
-
 (function() {
+
+    "use strict";
 
     var cifs_fs_ = new CifsFS();
 
@@ -14,7 +14,7 @@
             resizable: false
         });
     });
-    
+
     var getSharedResources = function(request, sendResponse) {
         cifs_fs_.getSharedResources({
             serverName: request.serverName,
@@ -34,7 +34,7 @@
                 });
             }.bind(this),
             onError: function(error) {
-                
+
             }.bind(this)
         });
     };
