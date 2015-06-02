@@ -1,4 +1,5 @@
 (function(Types, Constants, Debug) {
+    "use strict";
 
     // Constructor
 
@@ -20,6 +21,7 @@
 
     // Public functions
 
+    /*jslint bitwise: true */
     SessionSetupAndxRequest.prototype.load = function(negotiateProtocolResponse, ntlmMessage) {
         this.maxBufferSize_ = negotiateProtocolResponse.getMaxBufferSize();
         this.maxMpxCount_ = negotiateProtocolResponse.getMaxMpxCount();

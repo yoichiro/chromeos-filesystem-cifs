@@ -1,5 +1,7 @@
 (function(Types, ResponseUtils) {
 
+    "use strict";
+
     // Constructor
 
     var WriteAndxResponse = function() {

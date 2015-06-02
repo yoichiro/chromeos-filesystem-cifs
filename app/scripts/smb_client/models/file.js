@@ -1,4 +1,5 @@
 (function(Constants) {
+    "use strict";
 
     // Constructor
 
@@ -56,8 +57,9 @@
         this.fileAttributes_ = fileAttributes;
     };
 
+    /*jslint bitwise: true */
     File.prototype.isFileAttributesOf = function(flag) {
-        return (this.fileAttributes_ & flag) != 0;
+        return (this.fileAttributes_ & flag) !== 0;
     };
 
     File.prototype.getAllocationSize = function() {
@@ -76,6 +78,7 @@
         this.endOfFile_ = endOfFile;
     };
 
+    /*jslint bitwise: true */
     File.prototype.isDirectory = function() {
         return (this.fileAttributes_ & Constants.SMB_FILE_ATTRIBUTE_DIRECTORY) !== 0;
     };

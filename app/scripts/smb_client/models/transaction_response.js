@@ -1,4 +1,5 @@
 (function(Types, ResponseUtils, Debug) {
+    "use strict";
 
     // Constructor
 

@@ -1,4 +1,5 @@
 (function(Types, Debug, Type2Message, ResponseUtils) {
+    "use strict";
 
     // Constructor
 
@@ -25,7 +26,7 @@
 
         var offsetOfAll = 32 + wordCount * 2 + 1 + securityBlobLength;
         var offset = securityBlobLength;
-        if ((offsetOfAll - 4) % 2 != 0) {
+        if ((offsetOfAll - 4) % 2 !== 0) {
             offset += 1;
         }
 

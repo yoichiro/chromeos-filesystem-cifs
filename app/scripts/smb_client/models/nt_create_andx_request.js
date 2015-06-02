@@ -1,7 +1,9 @@
 (function(Types, Constants) {
+    "use strict";
 
     // Constructor
 
+    /*jslint bitwise: true */
     var NtCreateAndxRequest = function() {
         this.types_ = new Types();
 

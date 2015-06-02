@@ -1,4 +1,5 @@
 (function(Types) {
+    "use strict";
 
     // Constructor
 
@@ -39,7 +40,7 @@
             var dialectArray = new Uint8Array(dialectBuffers[i]);
             array.set(dialectArray, pos);
             pos += dialectArray.length;
-        };
+        }
         // This returns the result as ArrayBuffer.
         return buffer;
     };

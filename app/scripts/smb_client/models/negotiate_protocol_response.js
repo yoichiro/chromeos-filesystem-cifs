@@ -1,4 +1,5 @@
 (function(Types, Constants) {
+    "use strict";
 
     // Constructor
 
@@ -56,7 +57,7 @@
     };
 
     NegotiateProtocolResponse.prototype.getDialectIndex = function() {
-        return this.dialectIndex_ = 0;
+        return this.dialectIndex_ === 0;
     };
 
     NegotiateProtocolResponse.prototype.getSecurityMode = function() {
@@ -87,8 +88,9 @@
         return this.capabilities_;
     };
 
+    /*jslint bitwise: true */
     NegotiateProtocolResponse.prototype.isCapabilityOf = function(name) {
-        return (this.capabilities_ & name) != 0;
+        return (this.capabilities_ & name) !== 0;
     };
 
     NegotiateProtocolResponse.prototype.getSystemTimeLow = function() {
