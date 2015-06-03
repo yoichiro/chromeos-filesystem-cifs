@@ -112,12 +112,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    handleError.call(this, reason, "FAILED", onError);
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            handleError.call(this, reason, "FAILED", onError);
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -709,13 +709,13 @@
         console.log("deleteMetadataCache: " + fileSystemId);
         delete this.metadataCache_[fileSystemId];
     };
-    
+
     var handleError = function(reason, errorCode, onError) {
         console.log(reason);
         showNotification.call(this, reason);
         onError(errorCode);
     };
-    
+
     var showNotification = function(message) {
         chrome.notifications.create("", {
             type: "basic",

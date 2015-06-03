@@ -27,7 +27,6 @@
             username: request.username,
             password: request.password,
             onSuccess: function(result) {
-              console.log(result);
                 var sharedResources = [];
                 for (var i = 0; i < result.length; i++) {
                     if (result[i].type === 0) {
