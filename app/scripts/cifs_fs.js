@@ -712,8 +712,12 @@
 
     var handleError = function(reason, errorCode, onError) {
         console.log(reason);
-        showNotification.call(this, reason);
-        onError(errorCode);
+        if (reason === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
+            onError("NOT_FOUND");
+        } else {
+            showNotification.call(this, reason);
+            onError(errorCode);
+        }
     };
 
     var showNotification = function(message) {
