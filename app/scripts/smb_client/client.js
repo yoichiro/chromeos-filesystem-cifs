@@ -11,6 +11,10 @@
 
         this.session_ = null;
     };
+    
+    // Static values
+    
+    Client.process_id_ = 0;
 
     // Public functions
 
@@ -18,6 +22,8 @@
         Debug.trace("Client#login");
 
         this.session_ = new Session();
+        Client.process_id_ += 1;
+        this.session_.setProcessId(Client.process_id_);
 
         var errorHandler = function(error) {
             onError(error);

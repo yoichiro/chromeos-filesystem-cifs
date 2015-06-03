@@ -9,6 +9,7 @@
         this.maxBufferSize_ = null;
         this.userId_ = null;
         this.treeId_ = null;
+        this.processId_ = null;
     };
 
     // Public functions
@@ -43,6 +44,14 @@
 
     Session.prototype.getTreeId = function() {
         return this.treeId_;
+    };
+
+    Session.prototype.setProcessId = function(processId) {
+        this.processId_ = processId;
+    };
+
+    Session.prototype.getProcessId = function() {
+        return this.processId_;
     };
 
     // Export
