@@ -14,7 +14,9 @@
 
     // dialects: array of string
     Protocol.prototype.createNegotiateProtocolRequestPacket = function(session, dialects) {
-        var header = createHeader.call(this, Constants.SMB_COM_NEGOTIATE, {});
+        var header = createHeader.call(this, Constants.SMB_COM_NEGOTIATE, {
+            processId: session.getProcessId()
+        });
         var negotiateProtocolRequest = new NegotiateProtocolRequest();
         negotiateProtocolRequest.setDialects(dialects);
         var packet = new Packet();
@@ -30,7 +32,9 @@
 
     /*jslint bitwise: true */
     Protocol.prototype.createSessionSetupRequestType1Packet = function(session, negotiateProtocolResponse) {
-        var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {});
+        var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
+            processId: session.getProcessId()
+        });
 
         var type1Message = new Type1Message();
         type1Message.setFlag(
@@ -61,6 +65,7 @@
 
     Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, negotiateProtocolResponse, type2Message) {
         var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId()
         });
 
@@ -118,6 +123,7 @@
 
     Protocol.prototype.createTreeConnectAndxRequestPacket = function(session, path, service) {
         var header = createHeader.call(this, Constants.SMB_COM_TREE_CONNECT_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId()
         });
 
@@ -141,6 +147,7 @@
     //         (impersonationLevel), (securityFlags), fileName
     Protocol.prototype.createNtCreateAndxRequestPacket = function(session, params) {
         var header = createHeader.call(this, Constants.SMB_COM_NT_CREATE_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -177,6 +184,7 @@
 
     Protocol.prototype.createDceRpcBindRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -203,6 +211,7 @@
 
     Protocol.prototype.createDceRpcNetShareEnumAllRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -231,6 +240,7 @@
 
     Protocol.prototype.createCloseRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB_COM_CLOSE, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -245,6 +255,7 @@
 
     Protocol.prototype.createQueryPathInfoRequestPacket = function(session, fileName) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION2, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -272,6 +283,7 @@
 
     Protocol.prototype.createFindFirst2RequestPacket = function(session, directoryName) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION2, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -301,6 +313,7 @@
 
     Protocol.prototype.createFindNext2RequestPacket = function(session, searchId, lastFileName) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION2, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -331,6 +344,7 @@
 
     Protocol.prototype.createFindClose2RequestPacket = function(session, searchId) {
         var header = createHeader.call(this, Constants.SMB_COM_FIND_CLOSE2, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -345,6 +359,7 @@
 
     Protocol.prototype.createSeekRequestPacket = function(session, fid, offset) {
         var header = createHeader.call(this, Constants.SMB_COM_SEEK, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -367,6 +382,7 @@
     Protocol.prototype.createReadAndxRequestPacket = function(
         session, fid, offset, length) {
         var header = createHeader.call(this, Constants.SMB_COM_READ_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -389,6 +405,7 @@
 
     Protocol.prototype.createWriteAndxRequestPacket = function(session, fid, offset, data) {
         var header = createHeader.call(this, Constants.SMB_COM_WRITE_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -411,6 +428,7 @@
 
     Protocol.prototype.createCreateDirectoryRequestPacket = function(session, directoryName) {
         var header = createHeader.call(this, Constants.SMB_COM_TRANSACTION2, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -427,6 +445,7 @@
 
     Protocol.prototype.createDeleteRequestPacket = function(session, fileName) {
         var header = createHeader.call(this, Constants.SMB_COM_DELETE, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -441,6 +460,7 @@
 
     Protocol.prototype.createDeleteDirectoryRequestPacket = function(session, directoryName) {
         var header = createHeader.call(this, Constants.SMB_COM_DELETE_DIRECTORY, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -455,6 +475,7 @@
 
     Protocol.prototype.createRenameRequestPacket = function(session, source, target) {
         var header = createHeader.call(this, Constants.SMB_COM_RENAME, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -470,6 +491,7 @@
 
     Protocol.prototype.createTreeDisconnectRequestPacket = function(session) {
         var header = createHeader.call(this, Constants.SMB_COM_TREE_DISCONNECT, {
+            processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
@@ -483,6 +505,7 @@
 
     Protocol.prototype.createLogoffAndxRequestPacket = function(session) {
         var header = createHeader.call(this, Constants.SMB_COM_LOGOFF_ANDX, {
+            processId: session.getProcessId(),
             userId: session.getUserId()
         });
 
@@ -499,6 +522,7 @@
     var createHeader = function(command, options) {
         var userId = options.userId || 0;
         var treeId = options.treeId || 0;
+        var processId = options.processId || 0;
 
         var header = new Header();
         header.setCommand(command);
@@ -512,7 +536,7 @@
             | Constants.SMB_FLAGS2_EAS
             | Constants.SMB_FLAGS2_KNOWS_LONG_NAMES);
         header.setTreeId(treeId);
-        header.setProcessId(0x0001);
+        header.setProcessId(processId);
         header.setUserId(userId);
         header.setMultiplexId(this.sequenceNumber_);
 
