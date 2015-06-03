@@ -27,7 +27,10 @@
             onSuccess: function(result) {
                 options.onSuccess(result);
             }.bind(this),
-            onError: options.onError
+            onError: function(reason) {
+                showNotification.call(this, reason);
+                options.onError(reason);
+            }.bind(this)
         });
     };
 
@@ -76,8 +79,7 @@
                         onSuccess();
                     }.bind(this),
                     onError: function(reason) {
-                        console.log(reason);
-                        onError(reason);
+                        handleError.call(this, reason, reason, onError);
                     }.bind(this)
                 });
             } else {
@@ -110,14 +112,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", onError);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", onError);
         }.bind(this));
     };
 
@@ -146,7 +146,7 @@
                         if (reason === "NOT_FOUND") {
                             errorCallback("NOT_FOUND");
                         } else {
-                            errorCallback("FAILED");
+                            handleError.call(this, reason, "FAILED", errorCallback);
                         }
                         closeCallback();
                     }.bind(this)
@@ -169,8 +169,7 @@
             successCallback();
             closeCallback();
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -194,14 +193,12 @@
                     }
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -215,8 +212,7 @@
             successCallback();
             closeCallback();
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -234,14 +230,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -261,14 +255,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -290,14 +282,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -316,14 +306,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -346,14 +334,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -372,14 +358,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -399,14 +383,12 @@
                     closeCallback();
                 }.bind(this),
                 onError: function(reason) {
-                    console.log(reason);
-                    errorCallback("FAILED");
+                    handleError.call(this, reason, "FAILED", errorCallback);
                     closeCallback();
                 }
             });
         }.bind(this), function(reason) {
-            console.log(reason);
-            errorCallback("FAILED");
+            handleError.call(this, reason, "FAILED", errorCallback);
         }.bind(this));
     };
 
@@ -548,13 +530,7 @@
                         callback(options, successCallback, errorCallback);
                     }.bind(this), function(reason) {
                         console.log("resume failed: " + reason);
-                        chrome.notifications.create("", {
-                            type: "basic",
-                            title: "SMB/CIFS File System",
-                            message: "Resuming connection failed. Unmount.",
-                            iconUrl: "/images/48.png"
-                        }, function(notificationId) {
-                        }.bind(this));
+                        showNotification.call(this, "Resuming connection failed. Unmount.");
                         getMountedCredential.call(this, fileSystemId, function(credential) {
                             if (credential) {
                                 _doUnmount.call(
@@ -588,6 +564,7 @@
                         this.onUnmountRequested(options, successCallback, errorCallback);
                     }.bind(this), function(reason) {
                         console.log("resume failed: " + reason);
+                        showNotification.call(this, "resume failed: " + reason);
                         errorCallback("FAILED");
                     }.bind(this));
                 } else {
@@ -731,6 +708,22 @@
     var deleteMetadataCache = function(fileSystemId) {
         console.log("deleteMetadataCache: " + fileSystemId);
         delete this.metadataCache_[fileSystemId];
+    };
+    
+    var handleError = function(reason, errorCode, onError) {
+        console.log(reason);
+        showNotification.call(this, reason);
+        onError(errorCode);
+    };
+    
+    var showNotification = function(message) {
+        chrome.notifications.create("", {
+            type: "basic",
+            title: "SMB/CIFS File System",
+            message: message,
+            iconUrl: "/icons/48.png"
+        }, function(notificationId) {
+        }.bind(this));
     };
 
     // Export

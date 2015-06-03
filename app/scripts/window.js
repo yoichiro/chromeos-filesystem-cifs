@@ -58,6 +58,7 @@
             console.log(response);
             if (response.type === "sharedResources") {
                 var sharedResources = document.querySelector("#sharedResources");
+                sharedResources.innerHTML = "";
                 for (var i = 0; i < response.sharedResources.length; i++) {
                     var radio = document.createElement("paper-radio-button");
                     radio.name = response.sharedResources[i].name;

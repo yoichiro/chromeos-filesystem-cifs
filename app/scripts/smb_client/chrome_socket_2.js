@@ -178,7 +178,7 @@
         }
     };
 
-    ChromeSocket2.prototype.connect = function(host, port, callback) {
+    ChromeSocket2.prototype.connect = function(host, port, successCallback, errorCallback) {
         var id = null;
         chrome.sockets.tcp.create({
             bufferSize: 0xFFFFFF
@@ -189,12 +189,13 @@
                     if (result >= 0) {
                         this.socketId = id;
                         this.host = host;
+                        successCallback(result);
                     } else {
                         this.socketId = null;
                         this.host = null;
+                        errorCallback(chrome.runtime.lastError.message);
                     }
                     this.ca = null;
-                    callback(result);
                 }.bind(this));
         }.bind(this));
     };
