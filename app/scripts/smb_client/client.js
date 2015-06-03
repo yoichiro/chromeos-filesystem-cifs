@@ -347,10 +347,12 @@
         }
     };
 
-    var connect = function(serverName, port, onSuccess) {
+    var connect = function(serverName, port, onSuccess, onError) {
         this.comm_.connect(serverName, Number(port), function() {
             this.session_.setServerName(serverName);
             onSuccess();
+        }.bind(this), function(reason) {
+            onError(reason);
         }.bind(this));
     };
 

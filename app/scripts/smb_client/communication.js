@@ -14,9 +14,11 @@
         this.socketImpl = impl;
     };
 
-    Communication.prototype.connect = function(host, port, callback) {
+    Communication.prototype.connect = function(host, port, callback, errorCallback) {
         Debug.trace("connect");
-        this.socketImpl.connect(host, port, callback);
+        this.socketImpl.connect(host, port, callback, function(reason) {
+            errorCallback(reason);
+        }.bind(this));
     };
 
     Communication.prototype.disconnect = function(callback) {

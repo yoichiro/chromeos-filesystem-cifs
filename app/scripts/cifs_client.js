@@ -222,16 +222,6 @@
 
     // Private functions
 
-    var showNotification = function(message) {
-        chrome.notifications.create("", {
-            type: "basic",
-            title: "SMB/CIFS File System",
-            message: message,
-            iconUrl: "/images/48.png"
-        }, function(notificationId) {
-        }.bind(this));
-    };
-
     var getNameFromPath = function(path) {
         var names = path.split("/");
         var name = names[names.length - 1];
