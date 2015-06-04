@@ -108,11 +108,7 @@
             });
 
         }.bind(this), function(error) {
-            if (error === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
-                options.onError("NOT_FOUND");
-            } else {
-                options.onError(error);
-            }
+            options.onError(error);
         }.bind(this));
     };
 
