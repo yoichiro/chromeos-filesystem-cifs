@@ -36,7 +36,7 @@
 
     CifsFS.prototype.mount = function(options) {
         var fileSystemId = createFileSystemID.call(
-            this, options.serverName, options.serverPort, options.username);
+            this, options.serverName, options.serverPort, options.username, options.sharedResource);
         var cifsClient = new CifsClient(
             this,
             options.serverName, options.serverPort,
@@ -50,7 +50,6 @@
         cifsClient.connect({
             requestId: requestId,
             onSuccess: function(result) {
-                console.log(result);
                 doMount.call(
                     this,
                     cifsClient.getServerName(), cifsClient.getServerPort(),
@@ -392,8 +391,8 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.checkAlreadyMounted = function(serverName, serverPort, username, callback) {
-        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username);
+    CifsFS.prototype.checkAlreadyMounted = function(serverName, serverPort, username, sharedResource, callback) {
+        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
         chrome.fileSystemProvider.getAll(function(fileSystems) {
             for (var i = 0; i < fileSystems.length; i++) {
                 if (fileSystems[i].fileSystemId === fileSystemId) {
@@ -408,9 +407,9 @@
     // Private functions
 
     var doMount = function(serverName, serverPort, username, password, sharedResource, callback) {
-        this.checkAlreadyMounted(serverName, serverPort, username, function(exists) {
+        this.checkAlreadyMounted(serverName, serverPort, username, sharedResource, function(exists) {
             if (!exists) {
-                var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username);
+                var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
                 var displayName = serverName;
                 if (Number(serverPort) !== 445) {
                     displayName += ":" + serverPort;
@@ -440,17 +439,18 @@
             cifsClient.getServerName(),
             cifsClient.getServerPort(),
             cifsClient.getUsername(),
+            cifsClient.getSharedResource(),
             function() {
                 successCallback();
             }.bind(this));
     };
 
-    var _doUnmount = function(serverName, serverPort, username, successCallback) {
+    var _doUnmount = function(serverName, serverPort, username, sharedResource, successCallback) {
         console.log("_doUnmount");
         unregisterMountedCredential.call(
-            this, serverName, serverPort, username,
+            this, serverName, serverPort, username, sharedResource,
             function() {
-                var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username);
+                var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
                 console.log(fileSystemId);
                 chrome.fileSystemProvider.unmount({
                     fileSystemId: fileSystemId
@@ -476,7 +476,7 @@
 
     var registerMountedCredential = function(
             serverName, serverPort, username, password, sharedResource, callback) {
-        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username);
+        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
         chrome.storage.local.get("mountedCredentials", function(items) {
             var mountedCredentials = items.mountedCredentials || {};
             mountedCredentials[fileSystemId] = {
@@ -494,8 +494,8 @@
         }.bind(this));
     };
 
-    var unregisterMountedCredential = function(serverName, serverPort, username, callback) {
-        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username);
+    var unregisterMountedCredential = function(serverName, serverPort, username, sharedResource, callback) {
+        var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
         chrome.storage.local.get("mountedCredentials", function(items) {
             var mountedCredentials = items.mountedCredentials || {};
             delete mountedCredentials[fileSystemId];
@@ -515,8 +515,8 @@
         }.bind(this));
     };
 
-    var createFileSystemID = function(serverName, serverPort, username) {
-        var id = "cifsfs://" + serverName + ":" + serverPort + "/" + username;
+    var createFileSystemID = function(serverName, serverPort, username, sharedResource) {
+        var id = "cifsfs://" + serverName + ":" + serverPort + "/" + username + "/" + sharedResource;
         return id;
     };
 
@@ -538,6 +538,7 @@
                                     credential.serverName,
                                     credential.serverPort,
                                     credential.username,
+                                    credential.sharedResource,
                                     function() {
                                         errorCallback("FAILED");
                                     }.bind(this));
@@ -648,7 +649,8 @@
                     console.log(chrome.runtime.lastError);
                 }
                 var fileSystemId = createFileSystemID.call(self,
-                    cifsClient.getServerName(), cifsClient.getServerPort(), cifsClient.getUsername());
+                    cifsClient.getServerName(), cifsClient.getServerPort(),
+                    cifsClient.getUsername(), cifsClient.getSharedResource());
                 shiftAndConsumeQueue.call(self, fileSystemId);
             }.bind(self);
         })(this, cifsClient);
