@@ -49,7 +49,7 @@
     };
 
     var doMount = function(request, sendResponse) {
-        cifs_fs_.checkAlreadyMounted(request.serverName, request.serverPort, request.username, function(exists) {
+        cifs_fs_.checkAlreadyMounted(request.serverName, request.serverPort,request.username, request.sharedResource, function(exists) {
             if (exists) {
                 sendResponse({
                     type: "error",
