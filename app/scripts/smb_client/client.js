@@ -438,6 +438,10 @@
     var sessionSetup = function(negotiateProtocolResponse, userName, password, onSuccess, onError) {
         sendType1Message.call(this, negotiateProtocolResponse, function(
             header, sessionSetupResponse) {
+            
+            var type2Message = sessionSetupResponse.getType2Message();
+            Debug.outputType2MessageFlags(type2Message);
+            
             sendType3Message.call(this, userName, password, negotiateProtocolResponse, sessionSetupResponse, function() {
                 onSuccess();
             }.bind(this), function(error) {
