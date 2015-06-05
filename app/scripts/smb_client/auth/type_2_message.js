@@ -1,4 +1,4 @@
-(function(Types, Debug) {
+(function(Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -54,7 +54,7 @@
     Type2Message.prototype.getTargetInformation = function() {
         return this.targetInformation_;
     };
-
+    
     // Private functions
 
     // This returns the result as String.
@@ -83,4 +83,4 @@
 
     SmbClient.Type2Message = Type2Message;
 
-})(SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Types, SmbClient.Debug, SmbClient.Constants);

@@ -1,4 +1,4 @@
-(function(Constants, Packet, Header, Types, EchoRequest, NegotiateProtocolRequest, NegotiateProtocolResponse, SessionSetupAndxRequest, Type1Message, SessionSetupAndxResponse, NtlmV2Hash, LmV2Response, Debug, NtlmV2Response, Type3Message, TreeConnectAndxResponse, NtCreateAndxRequest, NtCreateAndxResponse, TransactionRequest, DceRpcBind, TransactionResponse, DceRpcBindAck, DceRpcNetShareEnumAllRequest, DceRpcNetShareEnumAllResponse, CloseRequest, QueryPathInfoRequest, QueryPathInfoResponse, FindFirst2Request, FindFirst2Response, FindNext2Request, FindNext2Response, FindClose2Request, SeekRequest, SeekResponse, ReadAndxRequest, ReadAndxResponse, WriteAndxRequest, WriteAndxResponse, CreateDirectoryRequest, DeleteRequest, DeleteDirectoryRequest, RenameRequest, EmptyRequest, LogoffAndxRequest) {
+(function(Constants, Packet, Header, Types, EchoRequest, NegotiateProtocolRequest, NegotiateProtocolResponse, SessionSetupAndxRequest, Type1Message, SessionSetupAndxResponse, NtlmV2Hash, LmV2Response, Debug, NtlmV2Response, LmHash, LmResponse, NtlmHash, Type3Message, TreeConnectAndxResponse, NtCreateAndxRequest, NtCreateAndxResponse, TransactionRequest, DceRpcBind, TransactionResponse, DceRpcBindAck, DceRpcNetShareEnumAllRequest, DceRpcNetShareEnumAllResponse, CloseRequest, QueryPathInfoRequest, QueryPathInfoResponse, FindFirst2Request, FindFirst2Response, FindNext2Request, FindNext2Response, FindClose2Request, SeekRequest, SeekResponse, ReadAndxRequest, ReadAndxResponse, WriteAndxRequest, WriteAndxResponse, CreateDirectoryRequest, DeleteRequest, DeleteDirectoryRequest, RenameRequest, EmptyRequest, LogoffAndxRequest) {
 
     "use strict";
 
@@ -70,32 +70,52 @@
         });
 
         var serverChallenge = type2Message.getChallenge();
-        //Debug.outputUint8Array(serverChallenge);
-
-        var lmV2HashObj = new NtlmV2Hash();
-        var lmV2Hash = lmV2HashObj.create(username, password, "?");
-        var lmV2ResponseObj = new LmV2Response();
-        var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
-
-        var ntlmV2HashObj = new NtlmV2Hash();
-        var ntlmV2Hash = ntlmV2HashObj.create(username, password, "?");
-        var ntlmV2ResponseObj = new NtlmV2Response();
-        var targetInformation = type2Message.getTargetInformation();
-        //Debug.outputUint8Array(targetInformation);
-        var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
-        //Debug.outputArrayBuffer(ntlmV2Response);
 
         var type3Message = new Type3Message();
-        type3Message.setLmResponse(lmV2Response);
-        type3Message.setNtlmResponse(ntlmV2Response);
+
+        if (type2Message.isFlagOf(Constants.NTLMSSP_NEGOTIATE_NTLM2)) { // LMv2 and NTLMv2
+            var lmV2HashObj = new NtlmV2Hash();
+            var lmV2Hash = lmV2HashObj.create(username, password, "?");
+            var lmV2ResponseObj = new LmV2Response();
+            var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
+    
+            var ntlmV2HashObj = new NtlmV2Hash();
+            var ntlmV2Hash = ntlmV2HashObj.create(username, password, "?");
+            var ntlmV2ResponseObj = new NtlmV2Response();
+            var targetInformation = type2Message.getTargetInformation();
+            var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
+    
+            type3Message.setLmResponse(lmV2Response);
+            type3Message.setNtlmResponse(ntlmV2Response);
+
+            type3Message.setFlag(
+                  Constants.NTLMSSP_NEGOTIATE_UNICODE
+                | Constants.NTLMSSP_NEGOTIATE_NTLM2
+            );
+        } else { // LMv1 and NTLMv1
+            var lmHashObj = new LmHash();
+            var lmHash = lmHashObj.create(password);
+            var lmResponseObj = new LmResponse();
+            var lmResponse = lmResponseObj.create(lmHash, serverChallenge);
+
+            var ntlmHashObj = new NtlmHash();
+            var ntlmHash = ntlmHashObj.create(password);
+            var ntlmResponseObj = new LmResponse();
+            var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
+
+            type3Message.setLmResponse(lmResponse);
+            type3Message.setNtlmResponse(ntlmResponse);
+
+            type3Message.setFlag(
+                  Constants.NTLMSSP_NEGOTIATE_UNICODE
+                | Constants.NTLMSSP_NEGOTIATE_NTLM
+            );
+        }
+
         type3Message.setDomainName("?");
         type3Message.setUsername(username);
         type3Message.setWorkstationName("FSP_CIFS");
         type3Message.setSessionKey(null);
-        type3Message.setFlag(
-              Constants.NTLMSSP_NEGOTIATE_UNICODE
-            | Constants.NTLMSSP_NEGOTIATE_NTLM
-        );
         type3Message.load(type2Message);
 
         var sessionSetupAndxRequest = new SessionSetupAndxRequest();
@@ -563,6 +583,9 @@
    SmbClient.LmV2Response,
    SmbClient.Debug,
    SmbClient.NtlmV2Response,
+   SmbClient.LmHash,
+   SmbClient.LmResponse,
+   SmbClient.NtlmHash,
    SmbClient.Type3Message,
    SmbClient.TreeConnectAndxResponse,
    SmbClient.NtCreateAndxRequest,

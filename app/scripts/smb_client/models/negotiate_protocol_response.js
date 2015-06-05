@@ -1,4 +1,4 @@
-(function(Types, Constants) {
+(function(Types, Constants, Debug) {
     "use strict";
 
     // Constructor
@@ -55,7 +55,7 @@
             this.domainName_ = this.types_.getUnicodeNullEndString(array, 37 + this.encryptionKeyLength_).result;
         }
     };
-
+    
     NegotiateProtocolResponse.prototype.getDialectIndex = function() {
         return this.dialectIndex_ === 0;
     };
@@ -133,4 +133,4 @@
 
     SmbClient.NegotiateProtocolResponse = NegotiateProtocolResponse;
 
-})(SmbClient.Types, SmbClient.Constants);
+})(SmbClient.Types, SmbClient.Constants, SmbClient.Debug);
