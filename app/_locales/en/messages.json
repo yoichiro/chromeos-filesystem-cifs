@@ -58,5 +58,17 @@
   "keepPasswordNo": {
     "message": "No",
     "description": "Don't keep password"
+  },
+  "debugLevelTrace": {
+    "message": "Trace",
+    "description": "Trace"
+  },
+  "debugLevelInfo": {
+    "message": "Info",
+    "description": "Info"
+  },
+  "debugLevelError": {
+    "message": "Error",
+    "description": "Error"
   }
 }

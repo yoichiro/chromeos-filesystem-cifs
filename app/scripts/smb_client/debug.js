@@ -30,7 +30,12 @@
         if (Debug.Level > 2) {
             return;
         }
-        console.log(message);
+        console.info(message);
+    };
+    
+    Debug.error = function(message) {
+        console.error(message);
+        console.trace();
     };
 
     Debug.outputUint8Array = function(array) {
@@ -39,7 +44,7 @@
             // out += String.fromCharCode(array[i]);
             out += (Number(array[i])).toString(16).toUpperCase() + " ";
         }
-        console.log(out);
+        Debug.log(out);
     };
 
     Debug.outputArrayBuffer = function(buffer) {

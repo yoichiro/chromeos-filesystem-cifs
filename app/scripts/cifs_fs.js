@@ -1,4 +1,4 @@
-(function() {
+(function(Debug) {
 
     "use strict";
 
@@ -64,7 +64,7 @@
     };
 
     CifsFS.prototype.resume = function(fileSystemId, onSuccess, onError) {
-        console.log("resume - start");
+        Debug.trace("resume - start");
         getMountedCredential.call(this, fileSystemId, function(credential) {
             if (credential) {
                 this.mount({
@@ -74,7 +74,7 @@
                     password: credential.password,
                     sharedResource: credential.sharedResource,
                     onSuccess: function() {
-                        console.log("Resumed file system: " + fileSystemId);
+                        Debug.log("Resumed file system: " + fileSystemId);
                         onSuccess();
                     }.bind(this),
                     onError: function(reason) {
@@ -88,15 +88,15 @@
     };
 
     CifsFS.prototype.onUnmountRequested = function(options, successCallback, errorCallback) {
-        console.log("onUnmountRequested");
-        console.log(options);
+        Debug.trace("onUnmountRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         doUnmount.call(this, cifsClient, options.requestId, successCallback);
     };
 
     CifsFS.prototype.onReadDirectoryRequested = function(options, successCallback, errorCallback) {
-        console.log("onReadDirectoryRequested");
-        console.log(options);
+        Debug.trace("onReadDirectoryRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -104,7 +104,7 @@
                 requestId: requestId,
                 path: options.directoryPath,
                 onSuccess: function(result) {
-                    console.log(result);
+                    Debug.trace(result);
                     var metadataCache = getMetadataCache.call(this, options.fileSystemId);
                     metadataCache.put(options.directoryPath, result.metadataList);
                     successCallback(result.metadataList, false);
@@ -121,8 +121,8 @@
     };
 
     CifsFS.prototype.onGetMetadataRequested = function(options, successCallback, errorCallback) {
-        console.log("onGetMetadataRequested: thumbnail=" + options.thumbnail);
-        console.log(options);
+        Debug.trace("onGetMetadataRequested: thumbnail=" + options.thumbnail);
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -136,12 +136,11 @@
                     requestId: requestId,
                     path: options.entryPath,
                     onSuccess: function(result) {
-                        console.log(result);
+                        Debug.trace(result);
                         successCallback(result.metadata);
                         closeCallback();
                     }.bind(this),
                     onError: function(reason) {
-                        console.log(reason);
                         if (reason === "NOT_FOUND") {
                             errorCallback("NOT_FOUND");
                         } else {
@@ -152,14 +151,14 @@
                 });
             }
         }.bind(this), function(reason) {
-            console.log(reason);
+            Debug.error(reason);
             errorCallback("FAILED");
         }.bind(this));
     };
 
     CifsFS.prototype.onOpenFileRequested = function(options, successCallback, errorCallback) {
-        console.log("onOpenFileRequested");
-        console.log(options);
+        Debug.trace("onOpenFileRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -173,8 +172,8 @@
     };
 
     CifsFS.prototype.onReadFileRequested = function(options, successCallback, errorCallback) {
-        console.log("onReadFileRequested - start");
-        console.log(options);
+        Debug.trace("onReadFileRequested - start");
+        Debug.trace(options);
         var filePath = getOpenedFiles.call(this, options.fileSystemId)[options.openRequestId];
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
@@ -185,7 +184,7 @@
                 offset: options.offset,
                 length: options.length,
                 onSuccess: function(result) {
-                    console.log(result);
+                    Debug.info(result);
                     successCallback(result.data, result.hasMore);
                     if (!result.hasMore) {
                         closeCallback();
@@ -202,7 +201,7 @@
     };
 
     CifsFS.prototype.onCloseFileRequested = function(options, successCallback, errorCallback) {
-        console.log("onCloseFileRequested");
+        Debug.trace("onCloseFileRequested");
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -216,8 +215,8 @@
     };
 
     CifsFS.prototype.onCreateDirectoryRequested = function(options, successCallback, errorCallback) {
-        console.log("onCreateDirectoryRequested");
-        console.log(options);
+        Debug.trace("onCreateDirectoryRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -239,8 +238,8 @@
     };
 
     CifsFS.prototype.onDeleteEntryRequested = function(options, successCallback, errorCallback) {
-        console.log("onDeleteEntryRequested");
-        console.log(options);
+        Debug.trace("onDeleteEntryRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -264,8 +263,8 @@
     };
 
     CifsFS.prototype.onMoveEntryRequested = function(options, successCallback, errorCallback) {
-        console.log("onMoveEntryRequested");
-        console.log(options);
+        Debug.trace("onMoveEntryRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -291,8 +290,8 @@
     };
 
     CifsFS.prototype.onCopyEntryRequested = function(options, successCallback, errorCallback) {
-        console.log("onCopyEntryRequested");
-        console.log(options);
+        Debug.trace("onCopyEntryRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -315,8 +314,8 @@
     };
 
     CifsFS.prototype.onWriteFileRequested = function(options, successCallback, errorCallback) {
-        console.log("onWriteFileRequested");
-        console.log(options);
+        Debug.trace("onWriteFileRequested");
+        Debug.trace(options);
         var filePath = getOpenedFiles.call(this, options.fileSystemId)[options.openRequestId];
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
@@ -343,8 +342,8 @@
     };
 
     CifsFS.prototype.onTruncateRequested = function(options, successCallback, errorCallback) {
-        console.log("onTruncateRequested");
-        console.log(options);
+        Debug.trace("onTruncateRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -367,8 +366,8 @@
     };
 
     CifsFS.prototype.onCreateFileRequested = function(options, successCallback, errorCallback) {
-        console.log("onCreateFileRequested");
-        console.log(options);
+        Debug.trace("onCreateFileRequested");
+        Debug.trace(options);
         var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
@@ -433,7 +432,7 @@
     };
 
     var doUnmount = function(cifsClient, requestId, successCallback) {
-        console.log("doUnmount");
+        Debug.trace("doUnmount");
         _doUnmount.call(
             this,
             cifsClient.getServerName(),
@@ -446,12 +445,12 @@
     };
 
     var _doUnmount = function(serverName, serverPort, username, sharedResource, successCallback) {
-        console.log("_doUnmount");
+        Debug.trace("_doUnmount");
         unregisterMountedCredential.call(
             this, serverName, serverPort, username, sharedResource,
             function() {
                 var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, sharedResource);
-                console.log(fileSystemId);
+                Debug.trace(fileSystemId);
                 chrome.fileSystemProvider.unmount({
                     fileSystemId: fileSystemId
                 }, function() {
@@ -529,7 +528,7 @@
                     this.resume(fileSystemId, function() {
                         callback(options, successCallback, errorCallback);
                     }.bind(this), function(reason) {
-                        console.log("resume failed: " + reason);
+                        Debug.error("resume failed: " + reason);
                         showNotification.call(this, "Resuming connection failed. Unmount.");
                         getMountedCredential.call(this, fileSystemId, function(credential) {
                             if (credential) {
@@ -543,7 +542,7 @@
                                         errorCallback("FAILED");
                                     }.bind(this));
                             } else {
-                                console.log("Credential for [" + fileSystemId + "] not found.");
+                                Debug.error("Credential for [" + fileSystemId + "] not found.");
                                 errorCallback("FAILED");
                             }
                         }.bind(this));
@@ -564,7 +563,7 @@
                     this.resume(fileSystemId, function() {
                         this.onUnmountRequested(options, successCallback, errorCallback);
                     }.bind(this), function(reason) {
-                        console.log("resume failed: " + reason);
+                        Debug.error("resume failed: " + reason);
                         showNotification.call(this, "resume failed: " + reason);
                         errorCallback("FAILED");
                     }.bind(this));
@@ -646,7 +645,7 @@
         var closeCallback = (function(self, cifsClient) {
             return function() {
                 if (chrome.runtime.lastError) {
-                    console.log(chrome.runtime.lastError);
+                    Debug.error(chrome.runtime.lastError);
                 }
                 var fileSystemId = createFileSystemID.call(self,
                     cifsClient.getServerName(), cifsClient.getServerPort(),
@@ -662,13 +661,13 @@
         if (!taskQueue) {
             taskQueue = new TaskQueue();
             this.taskQueue_[fileSystemId] = taskQueue;
-            console.log("getTaskQueue: Created. " + fileSystemId);
+            Debug.trace("getTaskQueue: Created. " + fileSystemId);
         }
         return taskQueue;
     };
 
     var deleteTaskQueue = function(fileSystemId) {
-        console.log("deleteTaskQueue: " + fileSystemId);
+        Debug.trace("deleteTaskQueue: " + fileSystemId);
         delete this.taskQueue_[fileSystemId];
     };
 
@@ -702,18 +701,18 @@
         if (!metadataCache) {
             metadataCache = new MetadataCache();
             this.metadataCache_[fileSystemId] = metadataCache;
-            console.log("getMetadataCache: Created. " + fileSystemId);
+            Debug.trace("getMetadataCache: Created. " + fileSystemId);
         }
         return metadataCache;
     };
 
     var deleteMetadataCache = function(fileSystemId) {
-        console.log("deleteMetadataCache: " + fileSystemId);
+        Debug.trace("deleteMetadataCache: " + fileSystemId);
         delete this.metadataCache_[fileSystemId];
     };
 
     var handleError = function(reason, errorCode, onError) {
-        console.log(reason);
+        Debug.error(reason);
         if (reason === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
             onError("NOT_FOUND");
         } else {
@@ -736,4 +735,4 @@
 
     window.CifsFS = CifsFS;
 
-})();
+})(SmbClient.Debug);

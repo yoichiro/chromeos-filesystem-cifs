@@ -1,8 +1,19 @@
-(function() {
+(function(Debug) {
 
     "use strict";
 
     var cifs_fs_ = new CifsFS();
+    
+    var setDebugLevel = function() {
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings;
+            var debugLevel = settings.debugLevel;
+            if (typeof debugLevel === "undefined") {
+                debugLevel = 2;
+            }
+            Debug.Level = debugLevel;
+        });
+    };
 
     var openWindow = function() {
         chrome.app.window.create("window.html", {
@@ -14,11 +25,42 @@
         });
     };
 
-    chrome.app.runtime.onLaunched.addListener(openWindow);
+    var assignEventListeners = function() {
+        chrome.app.runtime.onLaunched.addListener(openWindow);
+    
+        if (chrome.fileSystemProvider.onMountRequested) {
+            chrome.fileSystemProvider.onMountRequested.addListener(openWindow);
+        }
 
-    if (chrome.fileSystemProvider.onMountRequested) {
-        chrome.fileSystemProvider.onMountRequested.addListener(openWindow);
-    }
+        chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+            Debug.trace(request);
+            switch(request.type) {
+            case "getSharedResources":
+                getSharedResources(request, sendResponse);
+                break;
+            case "mount":
+                doMount(request, sendResponse);
+                break;
+            case "refreshDebugLevel":
+                setDebugLevel();
+                break;
+            default:
+                var message;
+                if (request.type) {
+                    message = "Invalid request type: " + request.type + ".";
+                } else {
+                    message = "No request type provided.";
+                }
+                sendResponse({
+                    type: "error",
+                    success: false,
+                    message: message
+                });
+                break;
+            }
+            return true;
+        });
+      };
 
     var getSharedResources = function(request, sendResponse) {
         cifs_fs_.getSharedResources({
@@ -79,30 +121,7 @@
         });
     };
 
-    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-        console.log(request);
-        switch(request.type) {
-        case "getSharedResources":
-            getSharedResources(request, sendResponse);
-            break;
-        case "mount":
-            doMount(request, sendResponse);
-            break;
-        default:
-            var message;
-            if (request.type) {
-                message = "Invalid request type: " + request.type + ".";
-            } else {
-                message = "No request type provided.";
-            }
-            sendResponse({
-                type: "error",
-                success: false,
-                message: message
-            });
-            break;
-        }
-        return true;
-    });
+    setDebugLevel();
+    assignEventListeners();
 
-})();
+})(SmbClient.Debug);

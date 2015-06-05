@@ -39,6 +39,12 @@
         keepPasswordYes.addEventListener("core-change", onChangeKeepPassword);
         var keepPasswordNo = document.querySelector("#keepPasswordNo");
         keepPasswordNo.addEventListener("core-change", onChangeKeepPassword);
+        var debugLevelTrace = document.querySelector("#debugLevelTrace");
+        debugLevelTrace.addEventListener("core-change", onChangeDebugLevel);
+        var debugLevelInfo = document.querySelector("#debugLevelInfo");
+        debugLevelInfo.addEventListener("core-change", onChangeDebugLevel);
+        var debugLevelError = document.querySelector("#debugLevelError");
+        debugLevelError.addEventListener("core-change", onChangeDebugLevel);
     };
 
     var onClickedBtnMount = function(evt) {
@@ -260,6 +266,17 @@
             } else {
                 document.querySelector("#keepPassword").selected = "keepPasswordNo";
             }
+            var debugLevel = settings.debugLevel;
+            if (typeof debugLevel === "undefined") {
+                debugLevel = 2;
+            }
+            if (debugLevel === 0) {
+                document.querySelector("#debugLevel").selected = "debugLevelTrace";
+            } else if (debugLevel === 1) {
+                document.querySelector("#debugLevel").selected = "debugLevelInfo";
+            } else {
+                document.querySelector("#debugLevel").selected = "debugLevelError";
+            }
             document.querySelector("#settingsDialog").toggle();
         });
     };
@@ -270,6 +287,27 @@
             settings.keepPassword = document.querySelector("#keepPassword").selected;
             chrome.storage.local.set({settings: settings}, function() {
                 console.log("Saving settings done.");
+            });
+        });
+    };
+
+    var onChangeDebugLevel = function(evt) {
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var debugLevelName = document.querySelector("#debugLevel").selected;
+            if (debugLevelName === "debugLevelTrace") {
+                settings.debugLevel = 0;
+            } else if (debugLevelName === "debugLevelInfo") {
+                settings.debugLevel = 1;
+            } else {
+                settings.debugLevel = 2;
+            }
+            chrome.storage.local.set({settings: settings}, function() {
+                console.log("Saving settings done.");
+                var request = {
+                    type: "refreshDebugLevel"
+                };
+                chrome.runtime.sendMessage(request);
             });
         });
     };
