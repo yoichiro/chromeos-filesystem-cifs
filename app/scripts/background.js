@@ -60,7 +60,7 @@
             }
             return true;
         });
-      };
+    };
 
     var getSharedResources = function(request, sendResponse) {
         cifs_fs_.getSharedResources({
