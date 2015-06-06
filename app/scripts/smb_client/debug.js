@@ -216,6 +216,32 @@
             Debug.info(key + ": " + type2Message.isFlagOf(flagMap[key]));
         }
     };
+    
+    Debug.outputCapabilityFlags = function(negotiateProtocolResponse) {
+        var flagMap = {
+            "CAP_EXTENDED_SECURITY": Constants.CAP_EXTENDED_SECURITY,
+            "CAP_COMPRESSED_DATA": Constants.CAP_COMPRESSED_DATA,
+            "CAP_BULK_TRANSFER": Constants.CAP_BULK_TRANSFER,
+            "CAP_UNIX": Constants.CAP_UNIX,
+            "CAP_LARGE_WRITEX": Constants.CAP_LARGE_WRITEX,
+            "CAP_LARGE_READX": Constants.CAP_LARGE_READX,
+            "CAP_INFOLEVEL_PASSTHROUGH": Constants.CAP_INFOLEVEL_PASSTHROUGH,
+            "CAP_DFS": Constants.CAP_DFS,
+            "CAP_NT_FIND": Constants.CAP_NT_FIND,
+            "CAP_LOCK_AND_READ": Constants.CAP_LOCK_AND_READ,
+            "CAP_LEVEL_II_OPLOCKS": Constants.CAP_LEVEL_II_OPLOCKS,
+            "CAP_STATUS32": Constants.CAP_STATUS32,
+            "CAP_RPC_REMOTE_APIS": Constants.CAP_RPC_REMOTE_APIS,
+            "CAP_NT_SMBS": Constants.CAP_NT_SMBS,
+            "CAP_LARGE_FILES": Constants.CAP_LARGE_FILES,
+            "CAP_UNICODE": Constants.CAP_UNICODE,
+            "CAP_MPX_MODE": Constants.CAP_MPX_MODE,
+            "CAP_RAW_MODE": Constants.CAP_RAW_MODE
+        };
+        for (var key in flagMap) {
+            Debug.info(key + ": " + negotiateProtocolResponse.isCapabilityOf(flagMap[key]));
+        }
+    };
 
     // Export
 
