@@ -74,7 +74,7 @@
             if (resultCode === 0) {
                 callback(sendInfo);
             } else {
-                console.log("Error: writeInfo.resultCode=" + resultCode);
+                console.error("Error: writeInfo.resultCode=" + resultCode);
                 errorCallback("Sending data failed: " + resultCode);
             }
         }.bind(this));
@@ -173,7 +173,7 @@
                 // Recursible
                 this.fetch();
             } else {
-                console.log("Invalid data.length: " + data.length);
+                console.error("Invalid data.length: " + data.length);
             }
         }
     };
@@ -366,7 +366,7 @@
                 // N/A
             }.bind(this),
             error: function(c, e) {
-                console.log(e);
+                console.error(e);
                 fatalCallback(e.message);
             }.bind(this)
         });

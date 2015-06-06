@@ -33,7 +33,7 @@
     Communication.prototype.readPacket = function(callback, fatalCallback) {
         Debug.trace("readPacket");
         _readPacketSize.call(this, 4, function(dataLength) {
-            Debug.log("readPacket: " + dataLength);
+            Debug.trace("readPacket: " + dataLength);
             _read.call(this, dataLength, function(readInfo) {
                 var packet = new Packet(readInfo.data);
                 callback(packet);
