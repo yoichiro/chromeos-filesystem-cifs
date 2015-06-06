@@ -383,6 +383,7 @@
                     if (negotiateProtocolResponse.getDialectIndex() === Constants.NO_SUPPORTED_DIALECT) {
                         onError("Supported dialect not found");
                     } else {
+                        Debug.outputCapabilityFlags(negotiateProtocolResponse);
                         this.session_.setMaxBufferSize(
                             negotiateProtocolResponse.getMaxBufferSize());
                         onSuccess(header, negotiateProtocolResponse);

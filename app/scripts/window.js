@@ -39,12 +39,14 @@
         keepPasswordYes.addEventListener("core-change", onChangeKeepPassword);
         var keepPasswordNo = document.querySelector("#keepPasswordNo");
         keepPasswordNo.addEventListener("core-change", onChangeKeepPassword);
+        /*
         var debugLevelTrace = document.querySelector("#debugLevelTrace");
         debugLevelTrace.addEventListener("core-change", onChangeDebugLevel);
         var debugLevelInfo = document.querySelector("#debugLevelInfo");
         debugLevelInfo.addEventListener("core-change", onChangeDebugLevel);
         var debugLevelError = document.querySelector("#debugLevelError");
         debugLevelError.addEventListener("core-change", onChangeDebugLevel);
+        */
     };
 
     var onClickedBtnMount = function(evt) {
@@ -266,6 +268,7 @@
             } else {
                 document.querySelector("#keepPassword").selected = "keepPasswordNo";
             }
+            /*
             var debugLevel = settings.debugLevel;
             if (typeof debugLevel === "undefined") {
                 debugLevel = 2;
@@ -277,6 +280,7 @@
             } else {
                 document.querySelector("#debugLevel").selected = "debugLevelError";
             }
+            */
             document.querySelector("#settingsDialog").toggle();
         });
     };
