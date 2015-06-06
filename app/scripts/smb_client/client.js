@@ -380,9 +380,13 @@
                 if (checkError.call(this, header, onError)) {
                     var negotiateProtocolResponse =
                             this.protocol_.parseNegotiateProtocolResponse(packet);
-                    this.session_.setMaxBufferSize(
-                        negotiateProtocolResponse.getMaxBufferSize());
-                    onSuccess(header, negotiateProtocolResponse);
+                    if (negotiateProtocolResponse.getDialectIndex() === Constants.NO_SUPPORTED_DIALECT) {
+                        onError("Supported dialect not found");
+                    } else {
+                        this.session_.setMaxBufferSize(
+                            negotiateProtocolResponse.getMaxBufferSize());
+                        onSuccess(header, negotiateProtocolResponse);
+                    }
                 }
             }.bind(this), function(error) {
                 onError(error);

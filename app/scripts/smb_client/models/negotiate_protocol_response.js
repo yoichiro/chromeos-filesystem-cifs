@@ -31,6 +31,10 @@
         var array = packet.getSmbParametersAndSmbDataUint8Array();
 
         this.dialectIndex_ = this.types_.getFixed2BytesValue(array, 1);
+        if (this.dialectIndex_ === Constants.NO_SUPPORTED_DIALECT) {
+            // No supported dialect.
+            return;
+        }
         this.securityMode_ = array[3];
         this.maxMpxCount_ = this.types_.getFixed2BytesValue(array, 4);
         this.maxNumberVCs_ = this.types_.getFixed2BytesValue(array, 6);
@@ -57,7 +61,7 @@
     };
     
     NegotiateProtocolResponse.prototype.getDialectIndex = function() {
-        return this.dialectIndex_ === 0;
+        return this.dialectIndex_;
     };
 
     NegotiateProtocolResponse.prototype.getSecurityMode = function() {

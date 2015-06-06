@@ -14,6 +14,7 @@
     // - Dialect
 
     Constants.DIALECT_NT_LM_0_12 = "NT LM 0.12";
+    Constants.NO_SUPPORTED_DIALECT = 65535;
 
     // - Command
 
