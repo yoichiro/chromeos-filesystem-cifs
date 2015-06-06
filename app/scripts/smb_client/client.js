@@ -380,6 +380,7 @@
                 if (checkError.call(this, header, onError)) {
                     var negotiateProtocolResponse =
                             this.protocol_.parseNegotiateProtocolResponse(packet);
+                    Debug.outputCapabilityFlags(negotiateProtocolResponse);
                     this.session_.setMaxBufferSize(
                         negotiateProtocolResponse.getMaxBufferSize());
                     onSuccess(header, negotiateProtocolResponse);
