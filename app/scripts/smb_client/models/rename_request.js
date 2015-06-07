@@ -44,7 +44,6 @@
                 (this.oldFileName_.length + 1) * 2 + // Olf File Name
                 1, // Buffer Format 2
             2);
-        console.log(padding);
         var total =
                 1 + // Buffer Format 1
                 (this.oldFileName_.length + 1) * 2 + // Old File Name

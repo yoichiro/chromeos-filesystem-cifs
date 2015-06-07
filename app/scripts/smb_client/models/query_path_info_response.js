@@ -28,9 +28,9 @@
         // End Of File
         var endOfFile = this.types_.getFixed8BytesValue(array, 48);
         // Full File Name
-        var fullFileNameLen = this.types_.getFixed4BytesValue(array, 68);
-        var fullFileName =
-            this.types_.getFixedLengthUnicodeString(array, 72, fullFileNameLen).result;
+        //var fullFileNameLen = this.types_.getFixed4BytesValue(array, 68);
+        //var fullFileName =
+        //    this.types_.getFixedLengthUnicodeString(array, 72, fullFileNameLen).result;
 
         this.file_ = new File();
         this.file_.setCreated(created);
@@ -40,8 +40,8 @@
         this.file_.setFileAttributes(fileAttributes);
         this.file_.setAllocationSize(allocationSize);
         this.file_.setEndOfFile(endOfFile);
-        this.file_.setFullFileName(fullFileName);
-        this.file_.setFileName(getNameFromPath.call(this, fullFileName));
+        //this.file_.setFullFileName(fullFileName);
+        //this.file_.setFileName(getNameFromPath.call(this, fullFileName));
     };
 
     QueryPathInfoResponse.prototype.getFile = function() {
