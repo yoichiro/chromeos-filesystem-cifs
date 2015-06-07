@@ -146,7 +146,7 @@
     };
 
     Client.prototype.readDirectory = function(directoryName, onSuccess, onError) {
-        Debug.trace("Client#readDirectory");
+        Debug.trace("Client#readDirectory: " + directoryName);
 
         var errorHandler = function(error) {
             onError(error);
@@ -384,9 +384,13 @@
                         onError("Supported dialect not found");
                     } else {
                         Debug.outputCapabilityFlags(negotiateProtocolResponse);
-                        this.session_.setMaxBufferSize(
-                            negotiateProtocolResponse.getMaxBufferSize());
-                        onSuccess(header, negotiateProtocolResponse);
+                        if (!negotiateProtocolResponse.isCapabilityOf(Constants.CAP_EXTENDED_SECURITY)) {
+                            onError("Extended security not supported");
+                        } else {
+                            this.session_.setMaxBufferSize(
+                                negotiateProtocolResponse.getMaxBufferSize());
+                            onSuccess(header, negotiateProtocolResponse);
+                        }
                     }
                 }
             }.bind(this), function(error) {
@@ -584,6 +588,9 @@
                 if (checkError.call(this, header, onError)) {
                     var queryPathInfoResponse =
                             this.protocol_.parseQueryPathInfoResponsePacket(packet);
+                    var file = queryPathInfoResponse.getFile();
+                    file.setFullFileName(fileName);
+                    file.setFileName(getNameFromPath.call(this, fileName));
                     onSuccess(header, queryPathInfoResponse);
                 }
             }.bind(this), function(error) {
