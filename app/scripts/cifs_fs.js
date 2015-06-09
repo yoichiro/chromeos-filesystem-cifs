@@ -548,7 +548,21 @@
                         }.bind(this));
                     }.bind(this));
                 } else {
-                    callback(options, successCallback, errorCallback);
+                    callback(options, successCallback, function(error) {
+                        Debug.error(error);
+                        Debug.info("Re-try to establish connection");
+                        var requestId = createRequestId.call(this);
+                        cifsClient.connect({
+                            requestId: requestId,
+                            onSuccess: function(result) {
+                                callback(options, successCallback, errorCallback);
+                            }.bind(this),
+                            onError: function(error) {
+                                Debug.error(error);
+                                errorCallback("IO");
+                            }.bind(this)
+                        });
+                    }.bind(this));
                 }
             }.bind(this));
         }.bind(this);

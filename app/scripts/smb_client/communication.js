@@ -32,13 +32,17 @@
 
     Communication.prototype.readPacket = function(callback, fatalCallback) {
         Debug.trace("readPacket");
-        _readPacketSize.call(this, 4, function(dataLength) {
-            Debug.trace("readPacket: " + dataLength);
-            _read.call(this, dataLength, function(readInfo) {
-                var packet = new Packet(readInfo.data);
-                callback(packet);
+        if (this.isConnected()) {
+            _readPacketSize.call(this, 4, function(dataLength) {
+                Debug.trace("readPacket: " + dataLength);
+                _read.call(this, dataLength, function(readInfo) {
+                    var packet = new Packet(readInfo.data);
+                    callback(packet);
+                }.bind(this), fatalCallback);
             }.bind(this), fatalCallback);
-        }.bind(this), fatalCallback);
+        } else {
+            fatalCallback("Reading packet failed (Lost connection?)");
+        }
     };
 
     Communication.prototype.readMultiplePackets = function(
@@ -48,7 +52,11 @@
 
     Communication.prototype.writePacket = function(packet, callback, errorCallback) {
         Debug.trace("writePacket");
-        this.socketImpl.write(packet, callback, errorCallback);
+        if (this.isConnected()) {
+            this.socketImpl.write(packet, callback, errorCallback);
+        } else {
+            errorCallback("Writing packet failed (Lost connection?)");
+        }
     };
 
     Communication.prototype.createPacket = function(buffer) {
