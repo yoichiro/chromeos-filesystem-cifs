@@ -6,11 +6,12 @@
 
     var CifsClient = function(
             cifsFS, serverName, serverPort,
-            username, password, sharedResource) {
+            username, password, domainName, sharedResource) {
         this.serverName_ = serverName;
         this.serverPort_ = serverPort;
         this.username_ = username;
         this.password_ = password;
+        this.domainName_ = domainName;
         this.sharedResource_ = sharedResource;
 
         this.cifsFS_ = cifsFS;
@@ -35,6 +36,10 @@
     CifsClient.prototype.getPassword = function() {
         return this.password_;
     };
+    
+    CifsClient.prototype.getDomainName = function() {
+        return this.domainName_;
+    };
 
     CifsClient.prototype.getSharedResource = function() {
         return this.sharedResource_;
@@ -50,6 +55,7 @@
             Number(this.getServerPort()),
             this.getUsername(),
             this.getPassword(),
+            this.getDomainName(),
             function() {
                 this.client_.getSharedResourceList(function(list) {
                     this.close({
@@ -74,6 +80,7 @@
             this.getServerPort(),
             this.getUsername(),
             this.getPassword(),
+            this.getDomainName(),
             function() {
                 this.client_.connectSharedResource(this.getSharedResource(), function() {
                     options.onSuccess();

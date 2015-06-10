@@ -180,7 +180,7 @@
             if (serverName && serverPort && username) {
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
-                    var key = createKey(serverName, serverPort, username);
+                    var key = createKey(serverName, serverPort, username, domainName);
                     var credential = {
                         serverName: serverName,
                         serverPort: serverPort,
@@ -218,7 +218,8 @@
         div.setAttribute("layout", "true");
         div.setAttribute("center", "true");
         var item = document.createElement("paper-item");
-        item.textContent = createKey(credential.serverName, credential.serverPort, credential.username);
+        item.textContent = createKey(
+            credential.serverName, credential.serverPort, credential.username, credential.domainName);
         item.addEventListener("click", (function(credential) {
             return function(evt) {
                 setCredentialToForm(credential);
@@ -233,7 +234,8 @@
                 setCredentialToForm(credential);
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
-                    var key = createKey(credential.serverName, credential.serverPort, credential.username);
+                    var key = createKey(
+                        credential.serverName, credential.serverPort, credential.username, credential.domainName);
                     delete credentials[key];
                     chrome.storage.local.set({
                         keptCredentials: credentials
@@ -261,8 +263,12 @@
         document.querySelector("#password").focus();
     };
 
-    var createKey = function(serverName, serverPort, username) {
-        return serverName + ":" + serverPort + " (" + username + ")";
+    var createKey = function(serverName, serverPort, username, domainName) {
+        if (domainName) {
+            return serverName + ":" + serverPort + " (" + domainName + "@" + username + ")";
+        } else {
+            return serverName + ":" + serverPort + " (" + username + ")";
+        }
     };
 
     var onClickedBtnSettings = function(evt) {

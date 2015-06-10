@@ -18,7 +18,7 @@
 
     // Public functions
 
-    Client.prototype.login = function(serverName, port, userName, password, onSuccess, onError) {
+    Client.prototype.login = function(serverName, port, userName, password, domainName, onSuccess, onError) {
         Debug.trace("Client#login");
 
         this.session_ = new Session();
@@ -28,13 +28,18 @@
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
+        
+        if (!domainName) {
+            Debug.info("Domain name not specified. '?' will be applied.");
+            domainName = "?";
+        }
 
         connect.call(this, serverName, port, function() {
             negotiateProtocol.call(this, function(
                 negotiateProtocolResponseHeader, negotiateProtocolResponse) {
                 Debug.log(negotiateProtocolResponseHeader);
                 Debug.log(negotiateProtocolResponse);
-                sessionSetup.call(this, negotiateProtocolResponse, userName, password, function() {
+                sessionSetup.call(this, negotiateProtocolResponse, userName, password, domainName, function() {
                     onSuccess();
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
@@ -424,10 +429,10 @@
         }.bind(this));
     };
 
-    var sendType3Message = function(userName, password, negotiateProtocolResponse, sessionSetupResponse, onSuccess, onError) {
+    var sendType3Message = function(userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, onSuccess, onError) {
         var sessionSetupAndxRequestPacket =
                 this.protocol_.createSessionSetupRequestType3Packet(
-                    this.session_, userName, password, negotiateProtocolResponse,
+                    this.session_, userName, password, domainName, negotiateProtocolResponse,
                     sessionSetupResponse.getType2Message());
         Debug.log(sessionSetupAndxRequestPacket);
         this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
@@ -444,14 +449,14 @@
         }.bind(this));
     };
 
-    var sessionSetup = function(negotiateProtocolResponse, userName, password, onSuccess, onError) {
+    var sessionSetup = function(negotiateProtocolResponse, userName, password, domainName, onSuccess, onError) {
         sendType1Message.call(this, negotiateProtocolResponse, function(
             header, sessionSetupResponse) {
             
             var type2Message = sessionSetupResponse.getType2Message();
             Debug.outputType2MessageFlags(type2Message);
             
-            sendType3Message.call(this, userName, password, negotiateProtocolResponse, sessionSetupResponse, function() {
+            sendType3Message.call(this, userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, function() {
                 onSuccess();
             }.bind(this), function(error) {
                 onError(error);
