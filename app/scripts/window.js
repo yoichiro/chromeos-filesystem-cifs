@@ -60,7 +60,8 @@
             serverName: document.querySelector("#serverName").value,
             serverPort: document.querySelector("#serverPort").value,
             username: document.querySelector("#username").value,
-            password: document.querySelector("#password").value
+            password: document.querySelector("#password").value,
+            domainName: document.querySelector("#domainName").value
         };
         chrome.runtime.sendMessage(request, function(response) {
             console.log(response);
@@ -91,6 +92,7 @@
         var serverPort = document.querySelector("#serverPort").value;
         var username = document.querySelector("#username").value;
         var password = document.querySelector("#password").value;
+        var domainName = document.querySelector("#domainName").value;
         var sharedResource = document.querySelector("#sharedResources").selected;
         var request = {
             type: "mount",
@@ -98,6 +100,7 @@
             serverPort: serverPort,
             username: username,
             password: password,
+            domainName: domainName,
             sharedResource: sharedResource
         };
         chrome.runtime.sendMessage(request, function(response) {
@@ -173,6 +176,7 @@
             var serverPort = document.querySelector("#serverPort").value;
             var username = document.querySelector("#username").value;
             var password = document.querySelector("#password").value;
+            var domainName = document.querySelector("#domainName").value;
             if (serverName && serverPort && username) {
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
@@ -180,7 +184,8 @@
                     var credential = {
                         serverName: serverName,
                         serverPort: serverPort,
-                        username: username
+                        username: username,
+                        domainName: domainName
                     };
                     if (keepPassword) {
                         credential.password = password;
@@ -252,6 +257,7 @@
         } else {
             document.querySelector("#password").value = "";
         }
+        document.querySelector("#domainName").value = credential.domainName;
         document.querySelector("#password").focus();
     };
 

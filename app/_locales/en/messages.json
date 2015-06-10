@@ -51,6 +51,10 @@
     "message": "Password",
     "description": "The user password"
   },
+  "domainName": {
+    "message": "Domain Name",
+    "description": "The domain name"
+  },
   "keepPasswordYes": {
     "message": "Yes",
     "description": "Keep password"
