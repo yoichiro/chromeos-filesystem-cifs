@@ -558,19 +558,24 @@
                     }.bind(this));
                 } else {
                     callback(options, successCallback, function(error) {
-                        Debug.error(error);
-                        Debug.info("Re-try to establish connection");
-                        var requestId = createRequestId.call(this);
-                        cifsClient.connect({
-                            requestId: requestId,
-                            onSuccess: function(result) {
-                                callback(options, successCallback, errorCallback);
-                            }.bind(this),
-                            onError: function(error) {
-                                Debug.error(error);
-                                errorCallback("IO");
-                            }.bind(this)
-                        });
+                        Debug.info(error);
+                        if (error === "IO") {
+                            Debug.info("Re-try to establish connection");
+                            var requestId = createRequestId.call(this);
+                            cifsClient.connect({
+                                requestId: requestId,
+                                onSuccess: function(result) {
+                                    callback(options, successCallback, errorCallback);
+                                }.bind(this),
+                                onError: function(error) {
+                                    Debug.error(error);
+                                    showNotification(error);
+                                    errorCallback("IO");
+                                }.bind(this)
+                            });
+                        } else {
+                            errorCallback(error);
+                        }
                     }.bind(this));
                 }
             }.bind(this));
@@ -739,6 +744,10 @@
         Debug.error(reason);
         if (reason === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
             onError("NOT_FOUND");
+        } else if (reason === "Sending data failed: -15" ||
+                   reason === "Reading packet failed (Lost connection?)" ||
+                   reason === "Writing packet failed (Lost connection?)") {
+            onError("IO");
         } else {
             showNotification.call(this, reason);
             onError(errorCode);
