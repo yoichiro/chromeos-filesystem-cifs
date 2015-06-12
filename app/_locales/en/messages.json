@@ -1,10 +1,10 @@
 {
   "appName": {
-    "message": "SMB/CIFS File System",
+    "message": "File System for SMB/CIFS and Windows(R)",
     "description": "The name of the application"
   },
   "appDescription": {
-    "message": "Access a SMB/CIFS server directly from the Files app.",
+    "message": "Access a shared folder of a SMB/CIFS/Windows(R) server directly from the Files app.",
     "description": "The description of the application"
   },
   "shortName": {
@@ -12,7 +12,7 @@
     "description": "The short name of the application"
   },
   "mountHeader": {
-    "message": "Mount a new SMB/CIFS server",
+    "message": "Mount a new SMB/CIFS/Windows(R) server",
     "description": "Header describing the server mount form."
   },
   "mount": {
@@ -50,6 +50,10 @@
   "password": {
     "message": "Password",
     "description": "The user password"
+  },
+  "domainName": {
+    "message": "Domain Name (Need to support NTLMv2 authentication)",
+    "description": "The domain name"
   },
   "keepPasswordYes": {
     "message": "Yes",

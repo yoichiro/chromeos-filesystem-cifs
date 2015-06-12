@@ -22,7 +22,7 @@
         chrome.app.window.create("window.html", {
             outerBounds: {
                 width: 800,
-                height: 500
+                height: 540
             },
             resizable: false
         });
@@ -71,6 +71,7 @@
             serverPort: request.serverPort,
             username: request.username,
             password: request.password,
+            domainName: request.domainName,
             onSuccess: function(result) {
                 var sharedResources = [];
                 for (var i = 0; i < result.length; i++) {
@@ -94,7 +95,7 @@
     };
 
     var doMount = function(request, sendResponse) {
-        cifs_fs_.checkAlreadyMounted(request.serverName, request.serverPort,request.username, request.sharedResource, function(exists) {
+        cifs_fs_.checkAlreadyMounted(request.serverName, request.serverPort,request.username, request.domainName, request.sharedResource, function(exists) {
             if (exists) {
                 sendResponse({
                     type: "error",
@@ -106,6 +107,7 @@
                     serverPort: request.serverPort,
                     username: request.username,
                     password: request.password,
+                    domainName: request.domainName,
                     sharedResource: request.sharedResource,
                     onSuccess: function(algorithm, fingerprint, requestId, fileSystemId) {
                         sendResponse({

@@ -63,7 +63,7 @@
         return sessionSetupAndxResponse;
     };
 
-    Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, negotiateProtocolResponse, type2Message) {
+    Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, domainName, negotiateProtocolResponse, type2Message) {
         var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
             processId: session.getProcessId(),
             userId: session.getUserId()
@@ -75,12 +75,12 @@
 
         if (type2Message.isFlagOf(Constants.NTLMSSP_NEGOTIATE_NTLM2)) { // LMv2 and NTLMv2
             var lmV2HashObj = new NtlmV2Hash();
-            var lmV2Hash = lmV2HashObj.create(username, password, "?");
+            var lmV2Hash = lmV2HashObj.create(username, password, domainName);
             var lmV2ResponseObj = new LmV2Response();
             var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
     
             var ntlmV2HashObj = new NtlmV2Hash();
-            var ntlmV2Hash = ntlmV2HashObj.create(username, password, "?");
+            var ntlmV2Hash = ntlmV2HashObj.create(username, password, domainName);
             var ntlmV2ResponseObj = new NtlmV2Response();
             var targetInformation = type2Message.getTargetInformation();
             var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
@@ -112,7 +112,7 @@
             );
         }
 
-        type3Message.setDomainName("?");
+        type3Message.setDomainName(domainName);
         type3Message.setUsername(username);
         type3Message.setWorkstationName("FSP_CIFS");
         type3Message.setSessionKey(null);
