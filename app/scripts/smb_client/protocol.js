@@ -50,7 +50,60 @@
         type1Message.setSuppliedWorkstation("FSP_CIFS");
 
         var sessionSetupAndxRequest = new SessionSetupAndxRequest();
-        sessionSetupAndxRequest.load(negotiateProtocolResponse, type1Message);
+        sessionSetupAndxRequest.load(negotiateProtocolResponse, {
+            extendedSecurity: true,
+            ntlmMessage: type1Message
+        });
+
+        var packet = new Packet();
+        packet.set(header, sessionSetupAndxRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.createSessionSetupRequestSharePacket = function(session, negotiateProtocolResponse, username) {
+        var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
+            processId: session.getProcessId()
+        });
+        
+        var sessionSetupAndxRequest = new SessionSetupAndxRequest();
+        sessionSetupAndxRequest.load(negotiateProtocolResponse, {
+            extendedSecurity: false,
+            caseInsensitivePassword: new Uint8Array(new ArrayBuffer(0)),
+            caseSensitivePassword: new Uint8Array(new ArrayBuffer(0)),
+            accountName: username.toUpperCase(),
+            primaryDomain: "?"
+        });
+
+        var packet = new Packet();
+        packet.set(header, sessionSetupAndxRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.createSessionSetupRequestUnextendedSecurityPacket = function(session, negotiateProtocolResponse, username, password, domainName) {
+        var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
+            processId: session.getProcessId()
+        });
+        
+        var serverChallenge = negotiateProtocolResponse.getEncryptionKey();
+        // LMv1 and NTLMv1
+        var lmHashObj = new LmHash();
+        var lmHash = lmHashObj.create(password);
+        var lmResponseObj = new LmResponse();
+        var lmResponse = lmResponseObj.create(lmHash, serverChallenge);
+
+        var ntlmHashObj = new NtlmHash();
+        var ntlmHash = ntlmHashObj.create(password);
+        var ntlmResponseObj = new LmResponse();
+        var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
+        
+        var sessionSetupAndxRequest = new SessionSetupAndxRequest();
+        sessionSetupAndxRequest.load(negotiateProtocolResponse, {
+            extendedSecurity: false,
+            caseInsensitivePassword: new Uint8Array(lmResponse),
+            caseSensitivePassword: new Uint8Array(ntlmResponse),
+            accountName: username.toUpperCase(),
+            primaryDomain: domainName
+        });
 
         var packet = new Packet();
         packet.set(header, sessionSetupAndxRequest);
@@ -119,7 +172,10 @@
         type3Message.load(type2Message);
 
         var sessionSetupAndxRequest = new SessionSetupAndxRequest();
-        sessionSetupAndxRequest.load(negotiateProtocolResponse, type3Message);
+        sessionSetupAndxRequest.load(negotiateProtocolResponse, {
+            extendedSecurity: true,
+            ntlmMessage: type3Message
+        });
 
         var packet = new Packet();
         packet.set(header, sessionSetupAndxRequest);

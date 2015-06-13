@@ -67,6 +67,10 @@
     NegotiateProtocolResponse.prototype.getSecurityMode = function() {
         return this.securityMode_;
     };
+    
+    NegotiateProtocolResponse.prototype.isSecurityModeOf = function(name) {
+        return (this.securityMode_ & name) !== 0 ? 1 : 0;
+    };
 
     NegotiateProtocolResponse.prototype.getMaxMpxCount = function() {
         return this.maxMpxCount_;

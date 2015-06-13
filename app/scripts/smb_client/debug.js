@@ -242,6 +242,18 @@
             Debug.info(key + ": " + negotiateProtocolResponse.isCapabilityOf(flagMap[key]));
         }
     };
+    
+    Debug.outputSecurityMode = function(negotiateProtocolResponse) {
+        var flagMap = {
+            "NEGOTIATE_SECURITY_SIGNATURES_REQUIRED": Constants.NEGOTIATE_SECURITY_SIGNATURES_REQUIRED,
+            "NEGOTIATE_SECURITY_SIGNATURES_ENABLED": Constants.NEGOTIATE_SECURITY_SIGNATURES_ENABLED,
+            "NEGOTIATE_SECURITY_CHALLENGE_RESPONSE": Constants.NEGOTIATE_SECURITY_CHALLENGE_RESPONSE,
+            "NEGOTIATE_SECURITY_USER_LEVEL": Constants.NEGOTIATE_SECURITY_USER_LEVEL
+        };
+        for (var key in flagMap) {
+            Debug.info(key + ": " + negotiateProtocolResponse.isSecurityModeOf(flagMap[key]));
+        }
+    };
 
     // Export
 
