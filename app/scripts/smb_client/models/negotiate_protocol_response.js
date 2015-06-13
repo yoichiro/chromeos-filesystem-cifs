@@ -67,7 +67,8 @@
     NegotiateProtocolResponse.prototype.getSecurityMode = function() {
         return this.securityMode_;
     };
-    
+
+    /*jslint bitwise: true */
     NegotiateProtocolResponse.prototype.isSecurityModeOf = function(name) {
         return (this.securityMode_ & name) !== 0 ? 1 : 0;
     };
