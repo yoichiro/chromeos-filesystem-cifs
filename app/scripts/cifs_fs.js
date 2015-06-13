@@ -415,10 +415,12 @@
                 if (Number(serverPort) !== 445) {
                     displayName += ":" + serverPort + "/" + sharedResource;
                 }
-                if (domainName) {
-                    displayName += " (" + domainName + "@" + username + ")";
-                } else {
-                    displayName += " (" + username + ")";
+                if (username) {
+                    if (domainName) {
+                        displayName += " (" + domainName + "@" + username + ")";
+                    } else {
+                        displayName += " (" + username + ")";
+                    }
                 }
                 chrome.fileSystemProvider.mount({
                     fileSystemId: fileSystemId,

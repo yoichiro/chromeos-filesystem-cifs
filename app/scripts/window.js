@@ -177,7 +177,7 @@
             var username = document.querySelector("#username").value;
             var password = document.querySelector("#password").value;
             var domainName = document.querySelector("#domainName").value;
-            if (serverName && serverPort && username) {
+            if (serverName && serverPort) {
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
                     var key = createKey(serverName, serverPort, username, domainName);
@@ -264,10 +264,14 @@
     };
 
     var createKey = function(serverName, serverPort, username, domainName) {
-        if (domainName) {
-            return serverName + ":" + serverPort + " (" + domainName + "@" + username + ")";
+        if (username) {
+            if (domainName) {
+                return serverName + ":" + serverPort + " (" + domainName + "@" + username + ")";
+            } else {
+                return serverName + ":" + serverPort + " (" + username + ")";
+            }
         } else {
-            return serverName + ":" + serverPort + " (" + username + ")";
+            return serverName + ":" + serverPort;
         }
     };
 

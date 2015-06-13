@@ -389,13 +389,10 @@
                         onError("Supported dialect not found");
                     } else {
                         Debug.outputCapabilityFlags(negotiateProtocolResponse);
-                        if (!negotiateProtocolResponse.isCapabilityOf(Constants.CAP_EXTENDED_SECURITY)) {
-                            onError("Extended security not supported");
-                        } else {
-                            this.session_.setMaxBufferSize(
-                                negotiateProtocolResponse.getMaxBufferSize());
-                            onSuccess(header, negotiateProtocolResponse);
-                        }
+                        Debug.outputSecurityMode(negotiateProtocolResponse);
+                        this.session_.setMaxBufferSize(
+                            negotiateProtocolResponse.getMaxBufferSize());
+                        onSuccess(header, negotiateProtocolResponse);
                     }
                 }
             }.bind(this), function(error) {
@@ -414,12 +411,55 @@
         this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
                 var header = packet.getHeader();
+                Debug.log(header);
                 if (checkError.call(this, header, onError,
                                   Constants.NT_STATUS_MORE_PROCESSING_REQUIRED)) {
                     var sessionSetupResponse =
                             this.protocol_.parseSessionSetupResponse(packet);
                     this.session_.setUserId(header.getUserId());
                     onSuccess(header, sessionSetupResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var sendSessionSetupRequestForShare = function(negotiateProtocolResponse, username, onSuccess, onError) {
+        var sessionSetupAndxRequestPacket =
+                this.protocol_.createSessionSetupRequestSharePacket(
+                    this.session_, negotiateProtocolResponse, username);
+        Debug.log(sessionSetupAndxRequestPacket);
+        this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    this.session_.setUserId(header.getUserId());
+                    onSuccess(header);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var sendSessionSetupRequestForUnextendedSecurity = function(negotiateProtocolResponse, username, password, domainName, onSuccess, onError) {
+        var sessionSetupAndxRequestPacket =
+                this.protocol_.createSessionSetupRequestUnextendedSecurityPacket(
+                    this.session_, negotiateProtocolResponse, username, password, domainName);
+        Debug.log(sessionSetupAndxRequestPacket);
+        this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    this.session_.setUserId(header.getUserId());
+                    onSuccess(header);
                 }
             }.bind(this), function(error) {
                 onError(error);
@@ -450,20 +490,38 @@
     };
 
     var sessionSetup = function(negotiateProtocolResponse, userName, password, domainName, onSuccess, onError) {
-        sendType1Message.call(this, negotiateProtocolResponse, function(
-            header, sessionSetupResponse) {
-            
-            var type2Message = sessionSetupResponse.getType2Message();
-            Debug.outputType2MessageFlags(type2Message);
-            
-            sendType3Message.call(this, userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, function() {
+        if (negotiateProtocolResponse.isSecurityModeOf(Constants.NEGOTIATE_SECURITY_USER_LEVEL) === 1) { // user
+            if (negotiateProtocolResponse.isCapabilityOf(Constants.CAP_EXTENDED_SECURITY)) {
+                sendType1Message.call(this, negotiateProtocolResponse, function(
+                    header, sessionSetupResponse) {
+                    
+                    var type2Message = sessionSetupResponse.getType2Message();
+                    Debug.outputType2MessageFlags(type2Message);
+                    
+                    sendType3Message.call(this, userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, function() {
+                        onSuccess();
+                    }.bind(this), function(error) {
+                        onError(error);
+                    }.bind(this));
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
+            } else if (negotiateProtocolResponse.isSecurityModeOf(Constants.NEGOTIATE_SECURITY_CHALLENGE_RESPONSE) === 1) {
+                sendSessionSetupRequestForUnextendedSecurity.call(this, negotiateProtocolResponse, userName, password, domainName, function(header) {
+                    onSuccess();
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
+            } else {
+                onError("Sending plain password not supported");
+            }
+        } else { // share
+            sendSessionSetupRequestForShare.call(this, negotiateProtocolResponse, userName, function(header) {
                 onSuccess();
             }.bind(this), function(error) {
                 onError(error);
             }.bind(this));
-        }.bind(this), function(error) {
-            onError(error);
-        }.bind(this));
+        }
     };
 
     var connectTree = function(name, service, onSuccess, onError) {
