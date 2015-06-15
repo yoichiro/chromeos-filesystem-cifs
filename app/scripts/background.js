@@ -1,7 +1,9 @@
 (function(Debug) {
 
     "use strict";
-
+    
+    var mdnsResult = [];
+    
     var cifs_fs_ = new CifsFS();
     
     var setDebugLevel = function() {
@@ -47,6 +49,9 @@
             case "refreshDebugLevel":
                 setDebugLevel();
                 break;
+            case "lookupServiceList":
+                lookupServiceList(request, sendResponse);
+                break;
             default:
                 var message;
                 if (request.type) {
@@ -62,6 +67,20 @@
                 break;
             }
             return true;
+        });
+        
+        chrome.mdns.onServiceList.addListener(function(result) {
+            console.log("Looked up with chrome.mdns: ", result);
+            mdnsResult = result;
+        }, {
+            serviceType: "_smb._tcp.local"
+        });
+    };
+    
+    var lookupServiceList = function(request, sendResponse) {
+        sendResponse({
+            type: "serviceList",
+            serviceList: mdnsResult
         });
     };
 

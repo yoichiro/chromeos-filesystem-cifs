@@ -47,6 +47,15 @@
         var debugLevelError = document.querySelector("#debugLevelError");
         debugLevelError.addEventListener("core-change", onChangeDebugLevel);
         */
+        // Search dialog
+        var btnSearch = document.querySelector("#btnSearch");
+        btnSearch.addEventListener("click", function(e) {
+            onClickedBtnSearch(e);
+        });
+        var btnSelectServer = document.querySelector("#btnSelectServer");
+        btnSelectServer.addEventListener("click", function(e) {
+            onClickedBtnSelectServer(e);
+        });
     };
 
     var onClickedBtnMount = function(evt) {
@@ -330,6 +339,48 @@
                 chrome.runtime.sendMessage(request);
             });
         });
+    };
+    
+    var onClickedBtnSearch = function(evt) {
+        console.log("onClickedBtnSearch");
+        var request = {
+            type: "lookupServiceList"
+        };
+        chrome.runtime.sendMessage(request, function(response) {
+            var serviceList = response.serviceList;
+            console.log(serviceList);
+            
+            var serviceListElem = document.querySelector("#serviceList");
+            serviceListElem.innerHTML = "";
+            for (var i = 0; i < serviceList.length; i++) {
+                var radio = document.createElement("paper-radio-button");
+                radio.name = createServiceName(serviceList[i]);
+                radio.label = serviceList[i].serviceName.substring(0, serviceList[i].serviceName.indexOf("."));
+                serviceListElem.appendChild(radio);
+            }
+            if (serviceList.length > 0) {
+                serviceListElem.selected = createServiceName(serviceList[0]);
+            }
+
+            document.querySelector("#serviceListDialog").toggle();
+        });
+    };
+    
+    var createServiceName = function(service) {
+        return service.ipAddress + "_" + service.serviceHostPort.substring(service.serviceHostPort.indexOf(":") + 1);
+    };
+    
+    var onClickedBtnSelectServer = function(evt) {
+        console.log("onClickedBtnSelectServer");
+        var serviceListElem = document.querySelector("#serviceList");
+        var selectedServiceName = serviceListElem.selected;
+        if (selectedServiceName) {
+            var ipAddress = selectedServiceName.substring(0, selectedServiceName.indexOf("_"));
+            var port = selectedServiceName.substring(selectedServiceName.indexOf("_") + 1);
+            document.querySelector("#serverName").value = ipAddress;
+            document.querySelector("#serverPort").value = port;
+            document.querySelector("#username").focus();
+        }
     };
 
     window.addEventListener("load", function(e) {

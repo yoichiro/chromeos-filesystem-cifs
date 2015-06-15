@@ -36,6 +36,7 @@
     </core-menu>
     <core-toolbar>
       <paper-icon-button icon="settings" id="btnSettings"></paper-icon-button>
+      <paper-icon-button icon="search" id="btnSearch"></paper-icon-button>
     </core-toolbar>
   </div>
 
@@ -90,6 +91,20 @@
       </div>
       -->
       <paper-button affirmative>Close</paper-button>
+    </form>
+  </paper-action-dialog>
+  
+  <paper-action-dialog id="serviceListDialog" heading="Servers"
+      backdrop autoCloseDisabled layered="false" transition="core-transition-top">
+    <form>
+      <div layout vertical>
+        <paper-radio-group id="serviceList">
+        </paper-radio-group>
+      </div>
+      <div layout horizontal>
+        <paper-button affirmative id="btnSelectServer">Select</paper-button>
+        <paper-button affirmative>Close</paper-button>
+      </div>
     </form>
   </paper-action-dialog>
 
