@@ -180,6 +180,9 @@
     Constants.NT_STATUS_ACCOUNT_LOCKED_OUT = 0xC0000234;
     Constants.NT_STATUS_PATH_NOT_COVERED = 0xC0000257;
     Constants.NT_STATUS_IO_REPARSE_TAG_NOT_HANDLED = 0xC0000279;
+    
+    // -- DCERPC ERROR CODEs
+    Constants.STATUS_BUFFER_OVERFLOW = 0x80000005;
 
     // -- SMB_COM_NT_CREATE_ANDX Flags
     Constants.NT_CREATE_REQUEST_OPLOCK = 0x00000002; // If set, the client requests an exclusive OpLock.

@@ -351,6 +351,10 @@
         } else {
             if (errorCode === Constants.NT_STATUS_OK) {
                 return true;
+            } else if (errorCode === Constants.STATUS_BUFFER_OVERFLOW) {
+                // Normal for DCERPC named pipes
+                Debug.info("0x80000005: STATUS_BUFFER_OVERFLOW: Normal for DCERPC named pipes. Ignore.");
+                return true;
             } else {
                 onError(errorCode + ": " + Debug.getNtStatusMessage(errorCode));
                 return false;
