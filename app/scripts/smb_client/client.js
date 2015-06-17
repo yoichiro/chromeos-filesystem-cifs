@@ -614,7 +614,9 @@
         Debug.log(dceRpcNetShareEnumAllRequestPacket);
         this.comm_.writePacket(dceRpcNetShareEnumAllRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
+                Debug.outputArrayBuffer(packet.getData()); // For debugging of STATUS_BUFFER_OVERFLOW
                 var header = packet.getHeader();
+                Debug.log(header);
                 if (checkError.call(this, header, onError)) {
                     var dceRpcNetShareEnumAllResponse =
                             this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(packet);
