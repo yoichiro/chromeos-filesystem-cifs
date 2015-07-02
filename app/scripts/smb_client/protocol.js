@@ -278,7 +278,7 @@
 
     Protocol.prototype.parseDceRpcBindAckPacket = function(packet) {
         var transactionResponse = new TransactionResponse();
-        transactionResponse.load(packet);
+        transactionResponse.load(packet, 0);
         var dataArray = transactionResponse.getData();
         var dceRpcBindAck = new DceRpcBindAck();
         dceRpcBindAck.load(dataArray);
@@ -304,16 +304,16 @@
         return packet;
     };
 
-    Protocol.prototype.parseDceRpcNetShareEnumAllResponsePacket = function(packet) {
+    Protocol.prototype.parseDceRpcNetShareEnumAllResponsePacket = function(packet, appendedDataCount) {
         var transactionResponse = new TransactionResponse();
-        transactionResponse.load(packet);
+        transactionResponse.load(packet, appendedDataCount);
         var dataArray = transactionResponse.getData();
         var dataOffset = transactionResponse.getDataOffset();
         var dceRpcNetShareEnumAllResponse = new DceRpcNetShareEnumAllResponse();
         dceRpcNetShareEnumAllResponse.load(dataArray, dataOffset);
         return dceRpcNetShareEnumAllResponse;
     };
-
+    
     Protocol.prototype.createCloseRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB_COM_CLOSE, {
             processId: session.getProcessId(),
@@ -349,7 +349,7 @@
 
     Protocol.prototype.parseQueryPathInfoResponsePacket = function(packet) {
         var transactionResponse = new TransactionResponse();
-        transactionResponse.load(packet);
+        transactionResponse.load(packet, 0);
         var dataArray = transactionResponse.getData();
         var dataOffset = transactionResponse.getDataOffset();
         var queryPathInfoResponse = new QueryPathInfoResponse();
@@ -377,7 +377,7 @@
 
     Protocol.prototype.parseFindFirst2ResponsePacket = function(packet) {
         var transactionResponse = new TransactionResponse();
-        transactionResponse.load(packet);
+        transactionResponse.load(packet, 0);
         var parameterArray = transactionResponse.getParameter();
         var parameterOffset = transactionResponse.getParameterOffset();
         var dataArray = transactionResponse.getData();
@@ -408,7 +408,7 @@
 
     Protocol.prototype.parseFindNext2ResponsePacket = function(packet) {
         var transactionResponse = new TransactionResponse();
-        transactionResponse.load(packet);
+        transactionResponse.load(packet, 0);
         var parameterArray = transactionResponse.getParameter();
         var parameterOffset = transactionResponse.getParameterOffset();
         var dataArray = transactionResponse.getData();

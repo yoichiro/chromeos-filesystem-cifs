@@ -13,7 +13,7 @@
     };
 
     // Public functions
-
+    
     DceRpcNetShareEnumAllResponse.prototype.load = function(array, dataOffset) {
         this.dceRpc_ = new DceRpc();
         this.dceRpc_.load(array);

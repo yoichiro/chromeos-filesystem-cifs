@@ -1,4 +1,4 @@
-(function(Protocol, Communication, ChromeSocket2, Session, Constants, Debug) {
+(function(Protocol, Communication, ChromeSocket2, Session, Constants, Debug, BinaryUtils, Packet) {
 
     "use strict";
 
@@ -8,6 +8,7 @@
         this.protocol_ = new Protocol();
         this.comm_ = new Communication();
         this.comm_.setSocketImpl(new ChromeSocket2());
+        this.binaryUtils_ = new BinaryUtils();
 
         this.session_ = null;
     };
@@ -614,13 +615,24 @@
         Debug.log(dceRpcNetShareEnumAllRequestPacket);
         this.comm_.writePacket(dceRpcNetShareEnumAllRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
-                Debug.outputArrayBuffer(packet.getData()); // For debugging of STATUS_BUFFER_OVERFLOW
                 var header = packet.getHeader();
                 Debug.log(header);
-                if (checkError.call(this, header, onError)) {
-                    var dceRpcNetShareEnumAllResponse =
-                            this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(packet);
-                    onSuccess(header, dceRpcNetShareEnumAllResponse);
+                if (header.getNtStyleErrorCode() === Constants.STATUS_BUFFER_OVERFLOW) {
+                    read.call(this, fid, 0, Constants.TRANSACTION_MAX_APPEND_READ_SIZE, function(buffer) {
+                        var newBuffer = this.binaryUtils_.concatBuffers([packet.getData(), buffer]);
+                        var dceRpcNetShareEnumAllResponse =
+                                this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(
+                                    new Packet(newBuffer), buffer.byteLength);
+                        onSuccess(header, dceRpcNetShareEnumAllResponse);
+                    }.bind(this), function(error) {
+                        onError(error);
+                    }.bind(this));
+                } else {
+                    if (checkError.call(this, header, onError)) {
+                        var dceRpcNetShareEnumAllResponse =
+                                this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(packet, 0);
+                        onSuccess(header, dceRpcNetShareEnumAllResponse);
+                    }
                 }
             }.bind(this), function(error) {
                 onError(error);
@@ -1080,4 +1092,4 @@
 
     SmbClient.Client = Client;
 
-})(SmbClient.Protocol, SmbClient.Communication, SmbClient.ChromeSocket2, SmbClient.Session, SmbClient.Constants, SmbClient.Debug);
+})(SmbClient.Protocol, SmbClient.Communication, SmbClient.ChromeSocket2, SmbClient.Session, SmbClient.Constants, SmbClient.Debug, SmbClient.BinaryUtils, SmbClient.Packet);
