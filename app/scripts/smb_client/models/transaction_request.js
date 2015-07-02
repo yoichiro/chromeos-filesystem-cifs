@@ -1,4 +1,4 @@
-(function(Types, Debug) {
+(function(Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -85,7 +85,7 @@
             this.types_.setFixed2BytesValue(0, array, 20);
         }
         // MaxParameterCount
-        this.types_.setFixed2BytesValue(1024 * 8, array, 4);
+        this.types_.setFixed2BytesValue(Constants.TRANSACTION_BUFFER_SIZE, array, 4);
 
         var dataOffset =
                 /*
@@ -113,7 +113,7 @@
             this.types_.setFixed2BytesValue(0, array, 24);
         }
         // MaxDataCount
-        this.types_.setFixed2BytesValue(1024 * 8, array, 6);
+        this.types_.setFixed2BytesValue(Constants.TRANSACTION_BUFFER_SIZE, array, 6);
 
         if (this.setup_) {
             // SetupCount
@@ -183,4 +183,4 @@
 
     SmbClient.TransactionRequest = TransactionRequest;
 
-})(SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Types, SmbClient.Debug, SmbClient.Constants);

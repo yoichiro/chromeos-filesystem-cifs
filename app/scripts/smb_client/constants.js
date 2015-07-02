@@ -10,6 +10,8 @@
     // Constants
 
     Constants.READ_ANDX_BUFFER_SIZE = 8192 * 7;
+    Constants.TRANSACTION_BUFFER_SIZE = 1024;
+    Constants.TRANSACTION_MAX_APPEND_READ_SIZE = 65535;
 
     // - Dialect
 
