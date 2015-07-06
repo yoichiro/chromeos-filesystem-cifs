@@ -136,16 +136,9 @@
     };
 
     Types.prototype.getFixed8BytesValue = function(array, offset) {
-        /*
-        var low = value & 0xffffffff;
-        var high = value >>> 31;
-        this.setFixed4BytesValue(low, array, offset);
-        this.setFixed4BytesValue(high, array, offset + 4);
-        return offset + 8;
-         */
         var low = this.getFixed4BytesValue(array, offset);
         var high = this.getFixed4BytesValue(array, offset + 4);
-        return (high << 31) | low;
+        return high * Math.pow(2, 32) + low;
     };
 
     // array: Unit8Array
@@ -171,10 +164,8 @@
 
     // array: Unit8Array
     Types.prototype.setFixed8BytesValue = function(value, array, offset) {
-        //var view = new DataView(array.buffer);
-        //view.setFloat64(offset, value, true);
-        var low = value & 0xffffffff;
-        var high = value >>> 31;
+        var low = (value & 0xffffffff) >>> 0;
+        var high = Math.floor(value / Math.pow(2, 32));
         this.setFixed4BytesValue(low, array, offset);
         this.setFixed4BytesValue(high, array, offset + 4);
         return offset + 8;
