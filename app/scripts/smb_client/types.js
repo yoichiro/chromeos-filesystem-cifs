@@ -164,11 +164,20 @@
 
     // array: Unit8Array
     Types.prototype.setFixed8BytesValue = function(value, array, offset) {
+        var divided = this.divide8BytesValue(value);
+        this.setFixed4BytesValue(divided.low, array, offset);
+        this.setFixed4BytesValue(divided.high, array, offset + 4);
+        return offset + 8;
+    };
+    
+    /*jslint bitwise: true */
+    Types.prototype.divide8BytesValue = function(value) {
         var low = (value & 0xffffffff) >>> 0;
         var high = Math.floor(value / Math.pow(2, 32));
-        this.setFixed4BytesValue(low, array, offset);
-        this.setFixed4BytesValue(high, array, offset + 4);
-        return offset + 8;
+        return {
+            low: low,
+            high: high
+        };
     };
 
     // --- For Copy, Fill

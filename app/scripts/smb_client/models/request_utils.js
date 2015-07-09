@@ -24,16 +24,6 @@
         })(buffer);
     };
 
-    /*jslint bitwise: true */
-    RequestUtils.prototype.divide8BytesValue = function(value) {
-        var low = value & 0xffffffff;
-        var high = value >>> 31;
-        return {
-            low: low,
-            high: high
-        };
-    };
-
     // Export
 
     SmbClient.RequestUtils = RequestUtils;
