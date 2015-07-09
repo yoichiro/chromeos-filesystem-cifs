@@ -40,7 +40,7 @@
         // FID
         this.types_.setFixed2BytesValue(this.fid_, array, 4);
         // Offset Low
-        var offsetInfo = this.requestUtils_.divide8BytesValue(this.offset_);
+        var offsetInfo = this.types_.divide8BytesValue(this.offset_);
         this.types_.setFixed4BytesValue(offsetInfo.low, array, 6);
         // Timeout
         this.types_.setFixed4BytesValue(0, array, 10);
