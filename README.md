@@ -1,3 +1,5 @@
+[![Code Climate](https://codeclimate.com/github/yoichiro/chromeos-filesystem-cifs/badges/gpa.svg)](https://codeclimate.com/github/yoichiro/chromeos-filesystem-cifs)
+
 # File System for CIFS
 
 File System for CIFS provides you an ability to access to your SMB/CIFS storage directly from the Files app.
