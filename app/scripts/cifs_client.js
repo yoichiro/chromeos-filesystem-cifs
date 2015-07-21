@@ -174,25 +174,13 @@
     };
 
     CifsClient.prototype.moveEntry = function(options) {
-        var realSourcePath = createRealPath.call(this, options.sourcePath);
-        var realTargetPath = createRealPath.call(this, options.targetPath);
-        this.client_.move(realSourcePath, realTargetPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        moveOrCopyEntry.call(this, "move", options);
     };
 
     CifsClient.prototype.copyEntry = function(options) {
-        var realSourcePath = createRealPath.call(this, options.sourcePath);
-        var realTargetPath = createRealPath.call(this, options.targetPath);
-        this.client_.copy(realSourcePath, realTargetPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        moveOrCopyEntry.call(this, "copy", options);
     };
-
+    
     CifsClient.prototype.createFile = function(options) {
         var realPath = createRealPath.call(this, options.path);
         this.client_.createFile(realPath, function() {
@@ -224,6 +212,16 @@
     };
 
     // Private functions
+
+    var moveOrCopyEntry = function(operation, options) {
+        var realSourcePath = createRealPath.call(this, options.sourcePath);
+        var realTargetPath = createRealPath.call(this, options.targetPath);
+        this.client_[operation](realSourcePath, realTargetPath, function() {
+            options.onSuccess();
+        }.bind(this), function(error) {
+            options.onError(error);
+        }.bind(this));
+    };
 
     var getNameFromPath = function(path) {
         var names = path.split("/");
