@@ -96,10 +96,7 @@
         doUnmount.call(this, cifsClient, options.requestId, successCallback);
     };
 
-    CifsFS.prototype.onReadDirectoryRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onReadDirectoryRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onReadDirectoryRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.readDirectory({
@@ -158,10 +155,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onOpenFileRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onOpenFileRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onOpenFileRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             var openedFiles = getOpenedFiles.call(this, options.fileSystemId);
@@ -173,11 +167,8 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onReadFileRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onReadFileRequested - start");
-        Debug.trace(options);
+    CifsFS.prototype.onReadFileRequested = function(cifsClient, options, successCallback, errorCallback) {
         var filePath = getOpenedFiles.call(this, options.fileSystemId)[options.openRequestId];
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.readFile({
@@ -202,9 +193,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onCloseFileRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onCloseFileRequested");
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onCloseFileRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             var openedFiles = getOpenedFiles.call(this, options.fileSystemId);
@@ -216,10 +205,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onCreateDirectoryRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onCreateDirectoryRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onCreateDirectoryRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.createDirectory({
@@ -239,10 +225,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onDeleteEntryRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onDeleteEntryRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onDeleteEntryRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.deleteEntry({
@@ -264,10 +247,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onMoveEntryRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onMoveEntryRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onMoveEntryRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.moveEntry({
@@ -291,10 +271,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onCopyEntryRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onCopyEntryRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onCopyEntryRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.copyEntry({
@@ -315,11 +292,8 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onWriteFileRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onWriteFileRequested");
-        Debug.trace(options);
+    CifsFS.prototype.onWriteFileRequested = function(cifsClient, options, successCallback, errorCallback) {
         var filePath = getOpenedFiles.call(this, options.fileSystemId)[options.openRequestId];
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.writeFile({
@@ -343,10 +317,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onTruncateRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onTruncateRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onTruncateRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.truncate({
@@ -367,10 +338,7 @@
         }.bind(this));
     };
 
-    CifsFS.prototype.onCreateFileRequested = function(options, successCallback, errorCallback) {
-        Debug.trace("onCreateFileRequested");
-        Debug.trace(options);
-        var cifsClient = getCifsClient.call(this, options.fileSystemId);
+    CifsFS.prototype.onCreateFileRequested = function(cifsClient, options, successCallback, errorCallback) {
         var requestId = createRequestId.call(this);
         prepare.call(this, cifsClient, requestId, function(closeCallback) {
             cifsClient.createFile({
@@ -601,10 +569,6 @@
                     this.onUnmountRequested(options, successCallback, errorCallback);
                 }
             }.bind(this));
-        chrome.fileSystemProvider.onReadDirectoryRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onReadDirectoryRequested(options, successCallback, errorCallback);
-            }.bind(this)));
         chrome.fileSystemProvider.onGetMetadataRequested.addListener(
             function(options, successCallback, errorCallback) {
                 var handler = createEventHandler.call(this, function(options, successCallback, errorCallback) {
@@ -624,46 +588,35 @@
                     handler(options, successCallback, errorCallback);
                 }
             }.bind(this));
-        chrome.fileSystemProvider.onOpenFileRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onOpenFileRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onReadFileRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onReadFileRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onCloseFileRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onCloseFileRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onCreateDirectoryRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onCreateDirectoryRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onDeleteEntryRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onDeleteEntryRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onMoveEntryRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onMoveEntryRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onCopyEntryRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onCopyEntryRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onWriteFileRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onWriteFileRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onTruncateRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onTruncateRequested(options, successCallback, errorCallback);
-            }.bind(this)));
-        chrome.fileSystemProvider.onCreateFileRequested.addListener(
-            createEventHandler.call(this, function(options, successCallback, errorCallback) {
-                this.onCreateFileRequested(options, successCallback, errorCallback);
-            }.bind(this)));
+
+        var funcNameList = [
+            "onReadDirectoryRequested",
+            "onOpenFileRequested",
+            "onReadFileRequested",
+            "onCloseFileRequested",
+            "onCreateDirectoryRequested",
+            "onDeleteEntryRequested",
+            "onMoveEntryRequested",
+            "onCopyEntryRequested",
+            "onWriteFileRequested",
+            "onTruncateRequested",
+            "onCreateFileRequested"
+        ];
+        var caller = function(self, funcName) {
+            return function(options, successCallback, errorCallback) {
+                console.log(funcName, options);
+                var cifsClient = getCifsClient.call(this, options.fileSystemId);
+                this[funcName](cifsClient, options, successCallback, errorCallback);
+            }.bind(self);
+        };
+        for (var i = 0; i < funcNameList.length; i++) {
+            chrome.fileSystemProvider[funcNameList[i]].addListener(
+                createEventHandler.call(
+                    this,
+                    caller(this, funcNameList[i])
+                )
+            );
+        }
     };
 
     var getCifsClient = function(fileSystemID) {
