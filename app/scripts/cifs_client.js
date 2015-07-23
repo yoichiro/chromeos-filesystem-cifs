@@ -155,51 +155,24 @@
     };
 
     CifsClient.prototype.createDirectory = function(options) {
-        var realPath = createRealPath.call(this, options.path);
-        this.client_.createDirectory(realPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        createOrDeleteEntry.call(this, "createDirectory", options);
     };
 
     // options: requestId, path, onSuccess, onError
     CifsClient.prototype.deleteEntry = function(options) {
-        var realPath = createRealPath.call(this, options.path);
-        this.client_.deleteEntry(realPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        createOrDeleteEntry.call(this, "deleteEntry", options);
     };
 
     CifsClient.prototype.moveEntry = function(options) {
-        var realSourcePath = createRealPath.call(this, options.sourcePath);
-        var realTargetPath = createRealPath.call(this, options.targetPath);
-        this.client_.move(realSourcePath, realTargetPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        moveOrCopyEntry.call(this, "move", options);
     };
 
     CifsClient.prototype.copyEntry = function(options) {
-        var realSourcePath = createRealPath.call(this, options.sourcePath);
-        var realTargetPath = createRealPath.call(this, options.targetPath);
-        this.client_.copy(realSourcePath, realTargetPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        moveOrCopyEntry.call(this, "copy", options);
     };
-
+    
     CifsClient.prototype.createFile = function(options) {
-        var realPath = createRealPath.call(this, options.path);
-        this.client_.createFile(realPath, function() {
-            options.onSuccess();
-        }.bind(this), function(error) {
-            options.onError(error);
-        }.bind(this));
+        createOrDeleteEntry.call(this, "createFile", options);
     };
 
     CifsClient.prototype.truncate = function(options) {
@@ -225,6 +198,25 @@
 
     // Private functions
 
+    var moveOrCopyEntry = function(operation, options) {
+        var realSourcePath = createRealPath.call(this, options.sourcePath);
+        var realTargetPath = createRealPath.call(this, options.targetPath);
+        this.client_[operation](realSourcePath, realTargetPath, function() {
+            options.onSuccess();
+        }.bind(this), function(error) {
+            options.onError(error);
+        }.bind(this));
+    };
+
+    var createOrDeleteEntry = function(operation, options) {
+        var realPath = createRealPath.call(this, options.path);
+        this.client_[operation](realPath, function() {
+            options.onSuccess();
+        }.bind(this), function(error) {
+            options.onError(error);
+        }.bind(this));
+    };
+    
     var getNameFromPath = function(path) {
         var names = path.split("/");
         var name = names[names.length - 1];
