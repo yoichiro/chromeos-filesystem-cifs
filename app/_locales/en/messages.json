@@ -55,6 +55,10 @@
     "message": "Domain Name (Need to support NTLMv2 authentication)",
     "description": "The domain name"
   },
+  "sharedResourceName": {
+    "message": "Shared Resource Name",
+    "description": "The shared resource name"
+  },
   "keepPasswordYes": {
     "message": "Yes",
     "description": "Keep password"
