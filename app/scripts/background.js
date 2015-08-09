@@ -24,7 +24,7 @@
         chrome.app.window.create("window.html", {
             outerBounds: {
                 width: 800,
-                height: 540
+                height: 480
             },
             resizable: false
         });
