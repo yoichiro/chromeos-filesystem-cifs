@@ -1,4 +1,4 @@
-(function(Header, Types) {
+(function(Header, Types, Debug) {
     "use strict";
 
     // Constructor
@@ -64,6 +64,8 @@
     };
 
     Packet.prototype.set = function(header, request) {
+        Debug.log(header);
+        Debug.log(request);
         var headerArrayBuffer = header.createArrayBuffer();
         var smbParametersArrayBuffer = request.createSmbParametersArrayBuffer();
         var smbDataArrayBuffer = request.createSmbDataArrayBuffer();
@@ -116,4 +118,4 @@
 
     SmbClient.Packet = Packet;
 
-})(SmbClient.Header, SmbClient.Types);
+})(SmbClient.Header, SmbClient.Types, SmbClient.Debug);
