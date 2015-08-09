@@ -15,14 +15,14 @@
     };
 
     Communication.prototype.connect = function(host, port, callback, errorCallback) {
-        Debug.trace("connect");
+        Debug.log("connect");
         this.socketImpl.connect(host, port, callback, function(reason) {
             errorCallback(reason);
         }.bind(this));
     };
 
     Communication.prototype.disconnect = function(callback) {
-        Debug.trace("disconnect");
+        Debug.log("disconnect");
         this.socketImpl.disconnect(callback);
     };
 
