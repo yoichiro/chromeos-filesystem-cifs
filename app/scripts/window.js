@@ -80,6 +80,7 @@
         }
         chrome.runtime.sendMessage(request, function(response) {
             console.log(response);
+            var toast = document.getElementById("toast-mount-fail");
             if (response.type === "sharedResources") {
                 var sharedResources = document.querySelector("#sharedResources");
                 sharedResources.innerHTML = "";
@@ -98,7 +99,6 @@
                         window.close();
                     }, 2000);
                 } else {
-                    var toast = document.getElementById("toast-mount-fail");
                     if (response.error) {
                         toast.setAttribute("text", response.error);
                     }
@@ -106,7 +106,6 @@
                     btnMount.removeAttribute("disabled");
                 }
             } else {
-                var toast = document.getElementById("toast-mount-fail");
                 if (response.error) {
                     toast.setAttribute("text", response.error);
                 }
