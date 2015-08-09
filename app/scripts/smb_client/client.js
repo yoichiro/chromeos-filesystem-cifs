@@ -1066,7 +1066,12 @@
             return null;
         } else {
             var names = path.split("\\");
-            var name = names[names.length - 2];
+            var name = "";
+            for (var i = 0; i < names.length - 1; i++) {
+                if (names[i].length > 0) {
+                    name += "\\" + names[i];
+                }
+            }
             return name;
         }
     };
