@@ -65,13 +65,19 @@
         btnMount.setAttribute("disabled", "true");
         document.getElementById("toast-mount-attempt").show();
         var request = {
-            type: "getSharedResources",
             serverName: document.querySelector("#serverName").value,
             serverPort: document.querySelector("#serverPort").value,
             username: document.querySelector("#username").value,
             password: document.querySelector("#password").value,
             domainName: document.querySelector("#domainName").value
         };
+        var sharedResourceName = document.querySelector("#sharedResourceName").value;
+        if (sharedResourceName) {
+            request.type = "mount";
+            request.sharedResource = sharedResourceName;
+        } else {
+            request.type = "getSharedResources";
+        }
         chrome.runtime.sendMessage(request, function(response) {
             console.log(response);
             if (response.type === "sharedResources") {
@@ -85,6 +91,20 @@
                 }
                 sharedResources.selected = response.sharedResources[0].name;
                 document.querySelector("#selectSharedResourceDialog").toggle();
+            } else if (response.type === "mount") {
+                if (response.success) {
+                    document.getElementById("toast-mount-success").show();
+                    window.setTimeout(function() {
+                        window.close();
+                    }, 2000);
+                } else {
+                    var toast = document.getElementById("toast-mount-fail");
+                    if (response.error) {
+                        toast.setAttribute("text", response.error);
+                    }
+                    toast.show();
+                    btnMount.removeAttribute("disabled");
+                }
             } else {
                 var toast = document.getElementById("toast-mount-fail");
                 if (response.error) {
@@ -186,6 +206,7 @@
             var username = document.querySelector("#username").value;
             var password = document.querySelector("#password").value;
             var domainName = document.querySelector("#domainName").value;
+            var sharedResourceName = document.querySelector("#sharedResourceName").value;
             if (serverName && serverPort) {
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
@@ -194,7 +215,8 @@
                         serverName: serverName,
                         serverPort: serverPort,
                         username: username,
-                        domainName: domainName
+                        domainName: domainName,
+                        sharedResourceName: sharedResourceName
                     };
                     if (keepPassword) {
                         credential.password = password;
@@ -269,6 +291,7 @@
             document.querySelector("#password").value = "";
         }
         document.querySelector("#domainName").value = credential.domainName;
+        document.querySelector("#sharedResourceName").value = credential.sharedResourceName;
         document.querySelector("#password").focus();
     };
 

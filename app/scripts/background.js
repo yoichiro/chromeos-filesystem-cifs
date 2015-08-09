@@ -130,11 +130,13 @@
                     sharedResource: request.sharedResource,
                     onSuccess: function(algorithm, fingerprint, requestId, fileSystemId) {
                         sendResponse({
+                            type: "mount",
                             success: true
                         });
                     },
                     onError: function(reason) {
                         sendResponse({
+                            type: "mount",
                             success: false,
                             error: reason
                         });
