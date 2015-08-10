@@ -806,8 +806,8 @@
                             var old = oldList[current.name];
                             if (old) {
                                 // Changed
-                                if ((current.size !== old.size)
-                                      || (current.modificationTime !== old.modificationTime)) {
+                                if ((current.size !== old.size) ||
+                                        (current.modificationTime !== old.modificationTime)) {
                                     notifyEntryChanged.call(this, fileSystemId, entryPath, "CHANGED", current.name);
                                 }
                             } else {
