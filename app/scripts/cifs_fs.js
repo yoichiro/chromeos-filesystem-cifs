@@ -9,6 +9,7 @@
         this.taskQueue_ = {};
         this.opened_files_ = {};
         this.metadataCache_ = {};
+        this.watchers_ = {};
         assignEventHandlers.call(this);
     };
 
@@ -373,6 +374,40 @@
         }.bind(this));
     };
 
+    CifsFS.prototype.onAddWatcherRequested = function(cifsClient, options, successCallback, errorCallback) {
+        var requestId = createRequestId.call(this);
+        prepare.call(this, cifsClient, requestId, function(closeCallback) {
+            var watchers = getWatchers.call(this, options.fileSystemId);
+            watchers.add(options.entryPath);
+            successCallback();
+            closeCallback();
+        }.bind(this), function(reason) {
+            handleError.call(this, reason, "FAILED", errorCallback);
+        }.bind(this));
+    };
+
+    CifsFS.prototype.onRemoveWatcherRequested = function(cifsClient, options, successCallback, errorCallback) {
+        var requestId = createRequestId.call(this);
+        prepare.call(this, cifsClient, requestId, function(closeCallback) {
+            var watchers = getWatchers.call(this, options.fileSystemId);
+            watchers.delete(options.entryPath);
+            successCallback();
+            closeCallback();
+        }.bind(this), function(reason) {
+            handleError.call(this, reason, "FAILED", errorCallback);
+        }.bind(this));
+    };
+    
+    CifsFS.prototype.onAlarm = function(alarm) {
+        for (var fileSystemId in this.watchers_) {
+            var cifsClient = getCifsClient.call(this, fileSystemId);
+            var watchers = this.watchers_[fileSystemId];
+            for (var watcher of watchers.values()) {
+                watchDirectory.call(this, fileSystemId, cifsClient, createRequestId.call(this), watcher);
+            }
+        }
+    };
+
     // Private functions
 
     var doMount = function(serverName, serverPort, username, password, domainName, sharedResource, callback) {
@@ -553,6 +588,16 @@
     };
 
     var assignEventHandlers = function() {
+        chrome.alarms.onAlarm.addListener(
+            function(alarm) {
+                if (alarm.name === "cifs_alarm") {
+                    this.onAlarm(alarm);
+                }
+            }.bind(this));
+        chrome.alarms.create("cifs_alarm", {
+            delayInMinutes: 1,
+            periodInMinutes: 1
+        });
         chrome.fileSystemProvider.onUnmountRequested.addListener(
             function(options, successCallback, errorCallback) { // Unmount immediately
                 var fileSystemId = options.fileSystemId;
@@ -600,7 +645,9 @@
             "onCopyEntryRequested",
             "onWriteFileRequested",
             "onTruncateRequested",
-            "onCreateFileRequested"
+            "onCreateFileRequested",
+            "onAddWatcherRequested",
+            "onRemoveWatcherRequested"
         ];
         var caller = function(self, funcName) {
             return function(options, successCallback, errorCallback) {
@@ -716,6 +763,75 @@
             message: message,
             iconUrl: "/icons/48.png"
         }, function(notificationId) {
+        }.bind(this));
+    };
+
+    var getWatchers = function(fileSystemId) {
+        var watchers = this.watchers_[fileSystemId];
+        if (!watchers) {
+            watchers = new Set();
+            this.watchers_[fileSystemId] = watchers;
+        }
+        return watchers;
+    };
+    
+    var notifyEntryChanged = function(fileSystemId, directoryPath, changeType, entryPath) {
+        chrome.fileSystemProvider.notify({
+            fileSystemId: fileSystemId,
+            observedPath: directoryPath,
+            recursive: false,
+            changeType: "CHANGED",
+            changes: [
+                {entryPath: entryPath, changeType: changeType}
+            ]
+        }, function() {
+        }.bind(this));
+    };
+    
+    var watchDirectory = function(fileSystemId, cifsClient, requestId, entryPath) {
+        addTaskQueue.call(this, fileSystemId, function() {
+            prepare.call(this, cifsClient, requestId, function(closeCallback) {
+                console.log(entryPath);
+                cifsClient.readDirectory({
+                    requestId: requestId,
+                    path: entryPath,
+                    onSuccess: function(result) {
+                        Debug.trace(result);
+                        var metadataCache = getMetadataCache.call(this, fileSystemId);
+                        var currentList = result.metadataList;
+                        var oldList = metadataCache.dir(entryPath) || {};
+                        var nameSet = new Set();
+                        for (var i = 0; i < currentList.length; i++) {
+                            var current = currentList[i];
+                            var old = oldList[current.name];
+                            if (old) {
+                                // Changed
+                                if ((current.size !== old.size)
+                                      || (current.modificationTime !== old.modificationTime)) {
+                                    notifyEntryChanged.call(this, fileSystemId, entryPath, "CHANGED", current.name);
+                                }
+                            } else {
+                                // Added
+                                notifyEntryChanged.call(this, fileSystemId, entryPath, "CHANGED", current.name);
+                            }
+                            nameSet.add(current.name);
+                        }
+                        for (var name in oldList) {
+                            if (!nameSet.has(name)) {
+                                // Delete
+                                notifyEntryChanged.call(this, fileSystemId, entryPath, "DELETED", name);
+                            }
+                        }
+                        metadataCache.put(entryPath, currentList);
+                        closeCallback();
+                    }.bind(this),
+                    onError: function(reason) {
+                        // handleError.call(this, reason, "FAILED", errorCallback);
+                        console.log(reason);
+                        closeCallback();
+                    }
+                });
+            }.bind(this));
         }.bind(this));
     };
 
