@@ -1,4 +1,4 @@
-(function(Header, Types, Debug) {
+(function(Header, Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -40,6 +40,21 @@
 
     Packet.prototype.getDataByteLength = function() {
         return this.dataLength_;
+    };
+
+    Packet.prototype.getSmbProtocolVersion = function() {
+        if (this.dataLength_ > 0) {
+            var array = new Uint8Array(this.data_);
+            if (array[0] === 0xff) {
+                return Constants.PROTOCOL_VERSION_SMB1;
+            } else if (array[0] === 0xfe) {
+                return Constants.PROTOCOL_VERSION_SMB2;
+            } else {
+                return Constants.PROTOCOL_VERSION_UNKNOWN;
+            }
+        } else {
+            return Constants.PROTOCOL_VERSION_UNKNOWN;
+        }
     };
 
     Packet.prototype.getHeaderUint8Array = function() {
@@ -118,4 +133,4 @@
 
     SmbClient.Packet = Packet;
 
-})(SmbClient.Header, SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Header, SmbClient.Types, SmbClient.Debug, SmbClient.Constants);

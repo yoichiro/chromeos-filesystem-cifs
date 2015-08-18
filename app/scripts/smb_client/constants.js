@@ -13,6 +13,11 @@
     Constants.TRANSACTION_BUFFER_SIZE = 1024;
     Constants.TRANSACTION_MAX_APPEND_READ_SIZE = 65535;
 
+    // - Protocol Version
+    Constants.PROTOCOL_VERSION_UNKNOWN = 0;
+    Constants.PROTOCOL_VERSION_SMB1 = 1;
+    Constants.PROTOCOL_VERSION_SMB2 = 2;
+
     // - Dialect
 
     Constants.DIALECT_NT_LM_0_12 = "NT LM 0.12";
@@ -182,7 +187,7 @@
     Constants.NT_STATUS_ACCOUNT_LOCKED_OUT = 0xC0000234;
     Constants.NT_STATUS_PATH_NOT_COVERED = 0xC0000257;
     Constants.NT_STATUS_IO_REPARSE_TAG_NOT_HANDLED = 0xC0000279;
-    
+
     // -- DCERPC ERROR CODEs
     Constants.STATUS_BUFFER_OVERFLOW = 0x80000005;
 
