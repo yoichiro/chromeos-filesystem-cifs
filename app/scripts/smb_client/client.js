@@ -12,9 +12,9 @@
 
         this.session_ = null;
     };
-    
+
     // Static values
-    
+
     Client.process_id_ = 0;
 
     // Public functions
@@ -29,7 +29,7 @@
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
-        
+
         if (!domainName) {
             Debug.info("Domain name not specified. '?' will be applied.");
             domainName = "?";
@@ -431,7 +431,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var sendSessionSetupRequestForShare = function(negotiateProtocolResponse, username, onSuccess, onError) {
         var sessionSetupAndxRequestPacket =
                 this.protocol_.createSessionSetupRequestSharePacket(
@@ -452,7 +452,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var sendSessionSetupRequestForUnextendedSecurity = function(negotiateProtocolResponse, username, password, domainName, onSuccess, onError) {
         var sessionSetupAndxRequestPacket =
                 this.protocol_.createSessionSetupRequestUnextendedSecurityPacket(
@@ -499,10 +499,10 @@
             if (negotiateProtocolResponse.isCapabilityOf(Constants.CAP_EXTENDED_SECURITY)) {
                 sendType1Message.call(this, negotiateProtocolResponse, function(
                     header, sessionSetupResponse) {
-                    
+
                     var type2Message = sessionSetupResponse.getType2Message();
                     Debug.outputType2MessageFlags(type2Message);
-                    
+
                     sendType3Message.call(this, userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, function() {
                         onSuccess();
                     }.bind(this), function(error) {
