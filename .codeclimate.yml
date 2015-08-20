@@ -1,0 +1,14 @@
+languages:
+  Ruby: true
+  JavaScript: true
+  PHP: true
+  Python: true
+exclude_paths:
+- "app/scripts/deps/BigInteger.min.js"
+- "app/scripts/deps/encoding-indexes.js"
+- "app/scripts/deps/encoding.js"
+- "app/scripts/deps/forge.min.js"
+- "app/scripts/deps/lib-typedarrays.js"
+- "app/scripts/deps/md4.js"
+- "app/scripts/deps/sha1.js"
+- "app/scripts/deps/sinon-1.8.2.js"

@@ -1,0 +1,82 @@
+{
+  "appName": {
+    "message": "File System for SMB/CIFS and Windows(R)",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "Access a shared folder of a SMB/CIFS/Windows(R) server directly from the Files app.",
+    "description": "The description of the application"
+  },
+  "shortName": {
+    "message": "SMB/CIFS",
+    "description": "The short name of the application"
+  },
+  "mountHeader": {
+    "message": "Mount a new SMB/CIFS/Windows(R) server",
+    "description": "Header describing the server mount form."
+  },
+  "mount": {
+    "message": "Mount",
+    "description": "Label for a button that triggers the mount action."
+  },
+  "keep": {
+    "message": "Keep",
+    "description": "Label for a button that triggers the keep action."
+  },
+  "mountAttempt": {
+    "message": "Attempting to mount instance...",
+    "description": "Popup notifcation that informs the user that the system is attempting to mount a new instance with the credentials they provided."
+  },
+  "mountSuccess": {
+    "message": "Mounted successfully.",
+    "description": "Popup notifcation that informs the user that the system successfully mounted a new instance with the credentials they provided."
+  },
+  "mountFail": {
+    "message": "Failed to mount.",
+    "description": "Popup notifcation that informs the user that the system failed to mount a new instance with the credentials they provided."
+  },
+  "serverName": {
+    "message": "Server Host Name / IP Address",
+    "description": "The server's host name or IP address"
+  },
+  "serverPort": {
+    "message": "Server Port Number",
+    "description": "The server's port number"
+  },
+  "username": {
+    "message": "User Name",
+    "description": "The user name"
+  },
+  "password": {
+    "message": "Password",
+    "description": "The user password"
+  },
+  "domainName": {
+    "message": "Domain Name (Need to support NTLMv2 authentication)",
+    "description": "The domain name"
+  },
+  "sharedResourceName": {
+    "message": "Shared Resource Name",
+    "description": "The shared resource name"
+  },
+  "keepPasswordYes": {
+    "message": "Yes",
+    "description": "Keep password"
+  },
+  "keepPasswordNo": {
+    "message": "No",
+    "description": "Don't keep password"
+  },
+  "debugLevelTrace": {
+    "message": "Trace",
+    "description": "Trace"
+  },
+  "debugLevelInfo": {
+    "message": "Info",
+    "description": "Info"
+  },
+  "debugLevelError": {
+    "message": "Error",
+    "description": "Error"
+  }
+}
