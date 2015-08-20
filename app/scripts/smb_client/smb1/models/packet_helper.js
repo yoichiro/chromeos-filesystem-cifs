@@ -1,4 +1,4 @@
-(function(Smb1, Header, Types, Debug) {
+(function(Models, Header, Types, Debug) {
     "use strict";
     
     // Constructor
@@ -77,6 +77,6 @@
     
     // Export
     
-    Smb1.PacketHelper = PacketHelper;
+    Models.PacketHelper = PacketHelper;
     
-})(SmbClient.Models.Smb1, SmbClient.Header, SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Smb1.Models, SmbClient.Smb1.Models.Header, SmbClient.Types, SmbClient.Debug);
