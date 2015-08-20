@@ -1,4 +1,4 @@
-(function(Smb1) {
+(function(Smb2) {
     "use strict";
   
     // Constructor
@@ -7,6 +7,6 @@
   
     // Export
   
-    Smb1.Models = Models;
+    Smb2.Models = Models;
   
-})(SmbClient.Smb1);
+})(SmbClient.Smb2);

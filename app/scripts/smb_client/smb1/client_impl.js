@@ -17,8 +17,8 @@
         var negotiateProtocolRequestPacket =
                 this.protocol_.createNegotiateProtocolRequestPacket(
                     session,
-                    [Constants.DIALECT_NT_LM_0_12]);
-                    // [Constants.DIALECT_NT_LM_0_12, Constants.DIALECT_SMB_2_002]);
+                    // [Constants.DIALECT_NT_LM_0_12]);
+                    [Constants.DIALECT_NT_LM_0_12, Constants.DIALECT_SMB_2_002]);
         Debug.log(negotiateProtocolRequestPacket);
         this.comm_.writePacket(negotiateProtocolRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
