@@ -105,4 +105,4 @@
 
     Models.TransactionResponse = TransactionResponse;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.ResponseUtils, SmbClient.Debug);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Smb1.Models.ResponseUtils, SmbClient.Debug);

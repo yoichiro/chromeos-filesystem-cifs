@@ -85,6 +85,6 @@
 
     // Export
 
-    SmbClient.DceRpcNetShareEnumAllResponse = DceRpcNetShareEnumAllResponse;
+    DceRpc.DceRpcNetShareEnumAllResponse = DceRpcNetShareEnumAllResponse;
 
 })(SmbClient.Types, SmbClient.DceRpc, SmbClient.Debug);

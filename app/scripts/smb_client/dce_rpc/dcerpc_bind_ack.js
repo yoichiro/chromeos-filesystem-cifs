@@ -29,6 +29,6 @@
 
     // Export
 
-    SmbClient.DceRpcBindAck = DceRpcBindAck;
+    DceRpc.DceRpcBindAck = DceRpcBindAck;
 
 })(SmbClient.Types, SmbClient.DceRpc);

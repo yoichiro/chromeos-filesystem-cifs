@@ -114,6 +114,6 @@
 
     // Export
 
-    SmbClient.DceRpcNetShareEnumAllRequest = DceRpcNetShareEnumAllRequest;
+    DceRpc.DceRpcNetShareEnumAllRequest = DceRpcNetShareEnumAllRequest;
 
 })(SmbClient.Types, SmbClient.DceRpc, SmbClient.Constants, SmbClient.Debug);

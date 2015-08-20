@@ -69,4 +69,4 @@
 
     Models.FindNext2Request = FindNext2Request;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.RequestUtils, SmbClient.Constants);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Smb1.Models.RequestUtils, SmbClient.Constants);

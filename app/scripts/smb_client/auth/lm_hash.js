@@ -1,4 +1,4 @@
-(function(Debug, Types, BinaryUtils, Base) {
+(function(Auth, Debug, Types, BinaryUtils, Base) {
     "use strict";
 
     // Constructor
@@ -45,6 +45,6 @@
 
     // Export
 
-    SmbClient.LmHash = LmHash;
+    Auth.LmHash = LmHash;
 
-})(SmbClient.Debug, SmbClient.Types, SmbClient.BinaryUtils, SmbClient.HashResponseBase);
+})(SmbClient.Auth, SmbClient.Debug, SmbClient.Types, SmbClient.BinaryUtils, SmbClient.Auth.HashResponseBase);

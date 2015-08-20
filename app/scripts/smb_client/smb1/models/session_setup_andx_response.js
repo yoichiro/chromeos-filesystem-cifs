@@ -54,4 +54,4 @@
 
     Models.SessionSetupAndxResponse = SessionSetupAndxResponse;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Type2Message, SmbClient.ResponseUtils);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Auth.Type2Message, SmbClient.Smb1.Models.ResponseUtils);

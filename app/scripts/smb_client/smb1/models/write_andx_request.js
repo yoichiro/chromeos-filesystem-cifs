@@ -81,4 +81,4 @@
 
     Models.WriteAndxRequest = WriteAndxRequest;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.RequestUtils);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Smb1.Models.RequestUtils);

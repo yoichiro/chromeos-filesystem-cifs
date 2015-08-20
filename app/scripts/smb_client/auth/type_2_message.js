@@ -1,4 +1,4 @@
-(function(Types, Debug, Constants) {
+(function(Auth, Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -81,6 +81,6 @@
 
     // Export
 
-    SmbClient.Type2Message = Type2Message;
+    Auth.Type2Message = Type2Message;
 
-})(SmbClient.Types, SmbClient.Debug, SmbClient.Constants);
+})(SmbClient.Auth, SmbClient.Types, SmbClient.Debug, SmbClient.Constants);

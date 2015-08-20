@@ -84,6 +84,6 @@
 
     // Export
 
-    SmbClient.DceRpcBind = DceRpcBind;
+    DceRpc.DceRpcBind = DceRpcBind;
 
 })(SmbClient.Types, SmbClient.DceRpc, SmbClient.Constants, SmbClient.Debug);

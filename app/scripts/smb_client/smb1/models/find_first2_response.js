@@ -66,4 +66,4 @@
 
     Models.FindFirst2Response = FindFirst2Response;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.ResponseUtils, SmbClient.File);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Smb1.Models.ResponseUtils, SmbClient.File);

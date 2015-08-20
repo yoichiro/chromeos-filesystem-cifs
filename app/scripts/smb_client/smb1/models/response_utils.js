@@ -1,4 +1,4 @@
-(function(Types, File) {
+(function(Models, Types, File) {
     "use strict";
 
     // Constructor
@@ -90,6 +90,6 @@
 
     // Export
 
-    SmbClient.ResponseUtils = ResponseUtils;
+    Models.ResponseUtils = ResponseUtils;
 
-})(SmbClient.Types, SmbClient.File);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.File);

@@ -60,4 +60,4 @@
 
     Models.QueryPathInfoResponse = QueryPathInfoResponse;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.File, SmbClient.ResponseUtils);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Debug, SmbClient.File, SmbClient.Smb1.Models.ResponseUtils);

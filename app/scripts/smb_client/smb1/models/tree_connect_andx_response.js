@@ -39,4 +39,4 @@
 
     Models.TreeConnectAndxResponse = TreeConnectAndxResponse;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.ResponseUtils);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Smb1.Models.ResponseUtils);

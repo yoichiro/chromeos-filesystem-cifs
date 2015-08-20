@@ -48,4 +48,4 @@
 
     Models.CreateDirectoryRequest = CreateDirectoryRequest;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Constants, SmbClient.RequestUtils);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.Constants, SmbClient.Smb1.Models.RequestUtils);
