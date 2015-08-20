@@ -1,4 +1,4 @@
-(function(Smb1, Constants, Debug, Protocol) {
+(function(Smb1, Constants, Debug, Protocol, Packet) {
     "use strict";
     
     // Constructor
@@ -1057,4 +1057,5 @@
 })(SmbClient.Smb1,
    SmbClient.Constants,
    SmbClient.Debug,
-   SmbClient.Smb1.Protocol);
+   SmbClient.Smb1.Protocol,
+   SmbClient.Packet);
