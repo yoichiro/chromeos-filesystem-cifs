@@ -26,8 +26,6 @@
     NegotiateResponse.prototype.load = function(packet) {
         var array = packet.getPacketHelper().getSmbDataUint8Array();
         
-        var headerStructureSize = packet.getHeader().getStructureSize();
-
         this.structureSize_ = this.types_.getFixed2BytesValue(array, 0);
         this.securityMode_ = this.types_.getFixed2BytesValue(array, 2);
         this.dialectRevision_ = this.types_.getFixed2BytesValue(array, 4);
@@ -40,8 +38,7 @@
         this.serverStartTime_ = this.types_.getDateFromArray(array, 48);
         this.securityBufferOffset_ = this.types_.getFixed2BytesValue(array, 56);
         this.securityBufferLength_ = this.types_.getFixed2BytesValue(array, 58);
-        this.buffer_ = array.subarray(this.securityBufferOffset_ - headerStructureSize, array.length);
-        console.log(this);
+        this.buffer_ = array.subarray(this.securityBufferOffset_ - Constants.SMB2_HEADER_SIZE, array.length);
     };
     
     NegotiateResponse.prototype.getStructureSize = function() {

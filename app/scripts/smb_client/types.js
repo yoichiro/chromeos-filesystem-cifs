@@ -94,6 +94,15 @@
         // Return the next position.
         return offset + uniSourceArray.length + 2;
     };
+    
+    Types.prototype.setUnicodeString = function(source, array, offset) {
+        var uniSourceWordArray = CryptoJS.enc.Utf16LE.parse(source);
+        var uniSourceArrayBuffer = uniSourceWordArray.toArrayBuffer();
+        var uniSourceArray = new Uint8Array(uniSourceArrayBuffer);
+        this.copyArray(uniSourceArray, array, offset, uniSourceArray.length);
+        // Return the next position.
+        return offset + uniSourceArray.length;
+    };
 
     // source: String
     Types.prototype.createDialectStringArrayBuffer = function(dialect) {

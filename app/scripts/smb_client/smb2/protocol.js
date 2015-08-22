@@ -13,7 +13,9 @@
           NtlmV2Response,
           LmHash,
           LmResponse,
-          NtlmHash) {
+          NtlmHash,
+          TreeConnectRequest,
+          TreeConnectResponse) {
 
     "use strict";
 
@@ -132,6 +134,28 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, sessionSetupRequest);
         return packet;
     };
+    
+    Protocol.prototype.createTreeConnectRequestPacket = function(session, path) {
+        var header = createHeader.call(this, Constants.SMB2_TREE_CONNECT, {
+            processId: session.getProcessId(),
+            userId: session.getUserId()
+        });
+
+        var treeConnectRequest = new TreeConnectRequest();
+        treeConnectRequest.setPath("\\\\" + session.getServerName() + "\\" + path);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, treeConnectRequest);
+        return packet;
+    };
+
+    Protocol.prototype.parseTreeConnectResponse = function(packet) {
+        var treeConnectResponse = new TreeConnectResponse();
+        treeConnectResponse.load(packet);
+        return treeConnectResponse;
+    };
+
+    // Private functions
 
     // options: userId
     var createHeader = function(command, options) {
@@ -172,4 +196,6 @@
    SmbClient.Auth.NtlmV2Response,
    SmbClient.Auth.LmHash,
    SmbClient.Auth.LmResponse,
-   SmbClient.Auth.NtlmHash);
+   SmbClient.Auth.NtlmHash,
+   SmbClient.Smb2.Models.TreeConnectRequest,
+   SmbClient.Smb2.Models.TreeConnectResponse);

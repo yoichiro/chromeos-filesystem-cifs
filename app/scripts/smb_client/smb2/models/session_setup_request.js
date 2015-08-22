@@ -41,7 +41,7 @@
         // channel
         this.types_.setFixed4BytesValue(0, array, 8);
         // security_blog_offset
-        this.types_.setFixed2BytesValue(64 + 24, array, 12);
+        this.types_.setFixed2BytesValue(Constants.SMB2_HEADER_SIZE + 24, array, 12);
         // security_blob_length
         this.types_.setFixed2BytesValue(this.securityBlobLength_, array, 14);
         // previous_session_id

@@ -1,4 +1,4 @@
-(function(Models, Types, Debug, Type2Message) {
+(function(Models, Types, Debug, Type2Message, Constants) {
     "use strict";
 
     // Constructor
@@ -15,14 +15,13 @@
 
     SessionSetupResponse.prototype.load = function(packet) {
         var array = packet.getPacketHelper().getSmbDataUint8Array();
-        var header = packet.getHeader();
-        
+
         this.structureSize_ = this.types_.getFixed2BytesValue(array, 0);
         this.sessionFlags_ = this.types_.getFixed2BytesValue(array, 2);
         
         var securityBlobOffset = this.types_.getFixed2BytesValue(array, 4);
         var securityBlobLength = this.types_.getFixed2BytesValue(array, 6);
-        var securityBlob = array.subarray(securityBlobOffset - header.getStructureSize(), securityBlobLength);
+        var securityBlob = array.subarray(securityBlobOffset - Constants.SMB2_HEADER_SIZE, securityBlobLength);
         this.type2Message_ = new Type2Message();
         this.type2Message_.load(securityBlob);
         console.log(this);
@@ -46,4 +45,4 @@
 
     Models.SessionSetupResponse = SessionSetupResponse;
 
-})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Auth.Type2Message);
+})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Auth.Type2Message, SmbClient.Constants);
