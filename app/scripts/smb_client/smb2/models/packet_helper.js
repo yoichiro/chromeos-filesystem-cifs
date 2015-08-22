@@ -26,6 +26,7 @@
         return header;
     };
 
+    // This result includes the structure_size value.
     PacketHelper.prototype.getSmbDataUint8Array = function() {
         var array = new Uint8Array(this.packet_.getData());
         var header = this.getHeader();
@@ -42,7 +43,6 @@
         var smbDataArrayBuffer = request.createArrayBuffer();
         var totalSize =
                 headerArrayBuffer.byteLength +
-                2 + // structure_size
                 smbDataArrayBuffer.byteLength;
         var buffer = new ArrayBuffer(totalSize);
 
@@ -53,9 +53,7 @@
 
         // Copy SMB Data
         var pos = headerArrayBuffer.byteLength;
-        this.types_.setFixed2BytesValue(smbDataArrayBuffer.byteLength + 2, array, pos);
-        pos += 2;
-        array.set(smbDataArray, pos);
+        array.set(new Uint8Array(smbDataArrayBuffer), pos);
 
         this.packet_.setData(buffer);
     };

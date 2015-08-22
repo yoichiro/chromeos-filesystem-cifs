@@ -23,6 +23,7 @@
     Constants.DIALECT_NT_LM_0_12 = "NT LM 0.12";
     Constants.DIALECT_SMB_2_002 = "SMB 2.002";
     Constants.NO_SUPPORTED_DIALECT = 65535;
+    Constants.DIALECT_SMB_2_002_REVISION = 0x0202;
 
     // - Command
 
@@ -43,6 +44,8 @@
     Constants.SMB_COM_RENAME = 0x07;
     Constants.SMB_COM_TREE_DISCONNECT = 0x71;
     Constants.SMB_COM_LOGOFF_ANDX = 0x74;
+    
+    Constants.SMB2_SESSION_SETUP = 0x0001;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
@@ -61,6 +64,14 @@
     Constants.SMB_FLAGS_CASELESS_PATHNAMES = 0x08; // 0: case-sensitive 1: caseless
     Constants.SMB_FLAGS_CLIENT_BUF_AVAIL = 0x02; // 0: Not posted 1: Buffer posted
     Constants.SMB_FLAGS_SUPPORT_LOCKREAD = 0x01; // 0: Not supported 1: Supported
+    
+    Constants.SMB2_FLAGS_SERVER_TO_REDIR = 0x00000001;
+    Constants.SMB2_FLAGS_ASYNC_COMMAND = 0x00000002;
+    Constants.SMB2_FLAGS_RELATED_OPERATIONS = 0x00000004;
+    Constants.SMB2_FLAGS_SIGNED = 0x00000008;
+    Constants.SMB2_FLAGS_PRIORITY_MASK = 0x00000070;
+    Constants.SMB2_FLAGS_DFS_OPERATIONS = 0x10000000;
+    Constants.SMB2_FLAGS_REPLAY_OPERATION = 0x20000000;
 
     // - Flag2
     Constants.SMB_FLAGS2_UNICODE_STRINGS = 0x8000; // 0:ASCII 1:Unicode

@@ -1,4 +1,4 @@
-(function(Header, Types, Debug, Constants, Smb1PacketHelper) {
+(function(Header, Types, Debug, Constants, Smb1PacketHelper, Smb2PacketHelper) {
     "use strict";
 
     // Constructor
@@ -77,7 +77,7 @@
         if (version === Constants.PROTOCOL_VERSION_SMB1) {
             this.packetHelper_ = new Smb1PacketHelper(this);
         } else if (version === Constants.PROTOCOL_VERSION_SMB2) {
-            // TODO Create Smb2PacketHelper
+            this.packetHelper_ = new Smb2PacketHelper(this);
         } else {
             throw new Error("Invalid version: " + version);
         }
@@ -106,7 +106,7 @@
         if (protocolVersion === Constants.PROTOCOL_VERSION_SMB1) {
             this.packetHelper_ = new Smb1PacketHelper(this);
         } else if (protocolVersion === Constants.PROTOCOL_VERSION_SMB2) {
-            // TODO Create Smb2PacketHelper
+            this.packetHelper_ = new Smb2PacketHelper(this);
         }
     };
 
@@ -118,4 +118,5 @@
    SmbClient.Types,
    SmbClient.Debug,
    SmbClient.Constants,
-   SmbClient.Smb1.Models.PacketHelper);
+   SmbClient.Smb1.Models.PacketHelper,
+   SmbClient.Smb2.Models.PacketHelper);

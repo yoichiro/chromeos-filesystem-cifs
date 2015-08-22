@@ -54,6 +54,7 @@
     Communication.prototype.writePacket = function(packet, callback, errorCallback) {
         Debug.trace("writePacket");
         if (this.isConnected()) {
+            Debug.outputArrayBuffer(packet.getData());
             this.socketImpl.write(packet, callback, errorCallback);
         } else {
             errorCallback("Writing packet failed (Lost connection?)");

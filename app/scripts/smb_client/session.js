@@ -9,7 +9,7 @@
         this.maxBufferSize_ = null;
         this.userId_ = null;
         this.treeId_ = null;
-        this.processId_ = null;
+        this.processId_ = (new Date()).getTime() % 0xffffffff;
         this.protocolVersion_ = Constants.PROTOCOL_VERSION_SMB1;
     };
 

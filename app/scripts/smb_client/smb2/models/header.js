@@ -11,7 +11,7 @@
         this.channelSequence_ = 0;
         this.status_ = 0;
         this.command_ = 0;
-        this.creditsRequested_ = 0;
+        this.creditsRequested_ = 1;
         this.creditsGranted_ = 0;
         this.flags_ = 0;
         this.chainOffset_ = 0;
@@ -39,7 +39,7 @@
         this.messageId_ = this.types_.getFixed8BytesValue(array, 24);
         this.processId_ = this.types_.getFixed4BytesValue(array, 32);
         this.treeId_ = this.types_.getFixed4BytesValue(array, 36);
-        this.sessionId_ = this.types_.getFixedLengthString(array, 40, 8);
+        this.sessionId_ = this.types_.getFixed8BytesValue(array, 40);
         this.signature_ = array.subarray(48, 64);
     };
 
@@ -62,7 +62,7 @@
         this.types_.setFixed8BytesValue(this.messageId_, array, 24);
         this.types_.setFixed4BytesValue(this.processId_, array, 32);
         this.types_.setFixed4BytesValue(this.treeId_, array, 36);
-        this.types_.setSimpleStringTo(this.sessionId_, array, 40, 8);
+        this.types_.setFixed8BytesValue(this.sessionId_, array, 40);
         this.types_.copyArray(this.signature_, array, 48, 16);
 
         // This returns the result as ArrayBuffer.
@@ -137,7 +137,7 @@
         return this.flags_;
     };
 
-    Header.prototype.setFlags = function(flag) {
+    Header.prototype.setFlags = function(flags) {
         this.flags_ = flags;
     };
 

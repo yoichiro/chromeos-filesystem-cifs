@@ -1,24 +1,21 @@
-(function(Protocol,
-          Communication,
+(function(Communication,
           ChromeSocket2,
           Session,
           Constants,
           Debug,
-          BinaryUtils,
-          Packet,
-          Smb1ClientImpl) {
+          Smb1ClientImpl,
+          Smb2ClientImpl) {
 
     "use strict";
 
     // Constructor
 
     var Client = function() {
-        this.protocol_ = new Protocol();
         this.comm_ = new Communication();
         this.comm_.setSocketImpl(new ChromeSocket2());
-        this.binaryUtils_ = new BinaryUtils();
-        
+
         this.smb1ClientImpl_ = new Smb1ClientImpl(this);
+        this.smb2ClientImpl_ = new Smb2ClientImpl(this);
 
         this.session_ = null;
     };
@@ -254,9 +251,18 @@
                         onSuccess();
                     }.bind(this), onError);
             }.bind(this), onError);
-        } else if (packet.getSmbProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
+        } else if (packet.getSmbProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {
             this.session_.setProtocolVersion(Constants.PROTOCOL_VERSION_SMB2);
-            // TODO Handle SMB2 NEGOTIATE Response
+            this.smb2ClientImpl_.handleNegotiateResponse(
+                    packet, function(negotiateResponseHeader, negotiateResponse) {
+                Debug.log(negotiateResponseHeader);
+                Debug.log(negotiateResponse);
+                this.smb2ClientImpl_.sessionSetup(
+                    negotiateResponse, userName, password, domainName,
+                    function() {
+                        onSuccess();
+                    }.bind(this), onError);
+            }.bind(this), onError);
         } else {
             throw new Error("Unknown protocol version");
         }
@@ -266,12 +272,10 @@
 
     SmbClient.Client = Client;
 
-})(SmbClient.Smb1.Protocol,
-   SmbClient.Communication,
+})(SmbClient.Communication,
    SmbClient.ChromeSocket2,
    SmbClient.Session,
    SmbClient.Constants,
    SmbClient.Debug,
-   SmbClient.BinaryUtils,
-   SmbClient.Packet,
-   SmbClient.Smb1.ClientImpl);
+   SmbClient.Smb1.ClientImpl,
+   SmbClient.Smb2.ClientImpl);
