@@ -246,7 +246,11 @@
         var n = ((i + m) & ~m) - i;
         return n;
     };
-
+    
+    Types.prototype.copyArrayWithPadding = function(source, target, offset, length, padding) {
+        this.copyArray(source, target, offset, length);
+        return offset + length + this.getPaddingLength(offset + length, padding);
+    };
 
     // Export
 

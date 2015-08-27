@@ -15,7 +15,10 @@
           LmResponse,
           NtlmHash,
           TreeConnectRequest,
-          TreeConnectResponse) {
+          TreeConnectResponse,
+          CreateRequest,
+          CreateContext,
+          CreateResponse) {
 
     "use strict";
 
@@ -155,6 +158,43 @@
         return treeConnectResponse;
     };
 
+    // options: (requestedOpLockLevel), (impersonationLevel), desiredAccess, fileAttributes, 
+    //          shareAccess, createDisposition, (createOptions), name, (createContexts)
+    Protocol.prototype.createCreateRequestPacket = function(session, options) {
+        var header = createHeader.call(this, Constants.SMB2_CREATE, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var createRequest = new CreateRequest();
+        createRequest.setRequestedOplockLevel(options.requestedOplockLevel || 0);
+        createRequest.setImpersonationLevel(options.impersonationLevel || Constants.SEC_IMPERSONATE);
+        createRequest.setDesiredAccess(options.desiredAccess);
+        createRequest.setFileAttributes(options.fileAttributes);
+        createRequest.setShareAccess(options.shareAccess);
+        createRequest.setCreateDisposition(options.createDisposition);
+        createRequest.setCreateOptions(options.createOptions || 0);
+        createRequest.setName(options.name);
+        createRequest.setCreateContexts(options.createContexts || []);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, createRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.createCreateContext = function(next, name, data) {
+        var createContext = new CreateContext();
+        createContext.set(next, name, data);
+        return createContext;
+    };
+    
+    Protocol.prototype.parseCreateResponse = function(packet) {
+        var createResponse = new CreateResponse();
+        createResponse.load(packet);
+        return createResponse;
+    };
+
     // Private functions
 
     // options: userId
@@ -198,4 +238,7 @@
    SmbClient.Auth.LmResponse,
    SmbClient.Auth.NtlmHash,
    SmbClient.Smb2.Models.TreeConnectRequest,
-   SmbClient.Smb2.Models.TreeConnectResponse);
+   SmbClient.Smb2.Models.TreeConnectResponse,
+   SmbClient.Smb2.Models.CreateRequest,
+   SmbClient.Smb2.Models.CreateContext,
+   SmbClient.Smb2.Models.CreateResponse);

@@ -48,6 +48,7 @@
     
     Constants.SMB2_SESSION_SETUP = 0x0001;
     Constants.SMB2_TREE_CONNECT = 0x0003;
+    Constants.SMB2_CREATE = 0x0005;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
@@ -210,13 +211,18 @@
     Constants.NT_CREATE_REQUEST_OPBATCH = 0x00000004; // If set, the client requests an exclusive batch OpLock.
     Constants.NT_CREATE_OPEN_TARGET_DIR = 0x00000008; // If set, the client indicates that the parent directory of the target is to be opened.
 
-    // -- SMB_COM_NT_CREATE_ANDX DesiredAccess
+    // -- SMB_COM_NT_CREATE_ANDX, SMB2_CREATE DesiredAccess
     Constants.FILE_READ_DATA = 0x00000001; // Indicates the right to read data from the file.
+    Constants.FILE_LIST_DIRECTORY = 0x00000001;
     Constants.FILE_WRITE_DATA = 0x00000002; // Indicates the right to write data into the file beyond the end of the file.
+    Constants.FILE_ADD_FILE = 0x00000002;
     Constants.FILE_APPEND_DATA = 0x00000004; // Indicates the right to append data to the file beyond the end of the file only.
+    Constants.FILE_ADD_SUBDIRECTORY = 0x00000004;
     Constants.FILE_READ_EA = 0x00000008; // Indicates the right to read the extended attributes (EAs) of the file.
     Constants.FILE_WRITE_EA = 0x00000010; // Indicates the right to write or change the extended attributes (EAs) of the file.
     Constants.FILE_EXECUTE = 0x00000020; // Indicates the right to execute the file.
+    Constants.FILE_TRAVERSE = 0x00000020;
+    Constants.FILE_DELETE_CHILD = 0x00000040;
     Constants.FILE_READ_ATTRIBUTES = 0x00000080; // Indicates the right to read the attributes of the file.
     Constants.FILE_WRITE_ATTRIBUTES = 0x00000100; // Indicates the right to change the attributes of the file.
     Constants.DELETE = 0x00010000; // Indicates the right to delete or to rename the file.
@@ -247,6 +253,23 @@
     Constants.SMB_EXT_FILE_ATTR_RANDOM_ACCESS = 0x10000000; // Indicates that the application is designed to access the file randomly. The server can use this flag to optimize file caching.
     Constants.SMB_EXT_FILE_ATTR_NO_BUFFERING = 0x20000000; // Requests that the server open the file with no intermediate buffering or caching; the server might not honor the request. The application MUST meet certain requirements when working with files opened with FILE_FLAG_NO_BUFFERING. File access MUST begin at offsets within the file that are integer multiples of the volume's sector size and MUST be for numbers of bytes that are integer multiples of the volume's sector size. For example, if the sector size is 512 bytes, an application can request reads and writes of 512, 1024, or 2048 bytes, but not of 335, 981, or 7171 bytes.
     Constants.SMB_EXT_FILE_ATTR_WRITE_THROUGH = 0x80000000; // Instructs the operating system to write through any intermediate cache and go directly to the file. The operating system can still cache write operations, but cannot lazily flush them.
+
+    // -- SMB2 FileAttributes
+    Constants.SMB2_FILE_ATTRIBUTE_READONLY = 0x00000001; // A file or directory that is read-only. For a file, applications can read the file but cannot write to it or delete it. For a directory, applications cannot delete it, but applications can create and delete files from that directory.
+    Constants.SMB2_FILE_ATTRIBUTE_HIDDEN = 0x00000002; // A file or directory that is hidden. Files and directories marked with this attribute do not appear in an ordinary directory listing.
+    Constants.SMB2_FILE_ATTRIBUTE_SYSTEM = 0x00000004; // A file or directory that the operating system uses a part of or uses exclusively.
+    Constants.SMB2_FILE_ATTRIBUTE_DIRECTORY = 0x00000010; // This item is a directory.
+    Constants.SMB2_FILE_ATTRIBUTE_ARCHIVE = 0x00000020; // A file or directory that requires to be archived. Applications use this attribute to mark files for backup or removal.
+    Constants.SMB2_FILE_ATTRIBUTE_NORMAL = 0x00000080; // A file that does not have other attributes set. This flag is used to clear all other flags by specifying it with no other flags set. This flag MUST be ignored if other flags are set.<159>
+    Constants.SMB2_FILE_ATTRIBUTE_TEMPORARY = 0x00000100; // A file that is being used for temporary storage. The operating system may choose to store this file's data in memory rather than on mass storage, writing the data to mass storage only if data remains in the file when the file is closed.
+    Constants.SMB2_FILE_ATTRIBUTE_SPARSE_FILE = 0x00000200; // A file that is a sparse file.
+    Constants.SMB2_FILE_ATTRIBUTE_REPARSE_POINT = 0x00000400; // A file or directory that has an associated reparse point.
+    Constants.SMB2_FILE_ATTRIBUTE_COMPRESSED = 0x00000800; // A file or directory that is compressed. For a file, all of the data in the file is compressed. For a directory, compression is the default for newly created files and subdirectories.
+    Constants.SMB2_FILE_ATTRIBUTE_OFFLINE = 0x00001000; // The data in this file is not available immediately. This attribute indicates that the file data is physically moved to offline storage. This attribute is used by Remote Storage, which is hierarchical storage management software.
+    Constants.SMB2_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED = 0x00002000; // A file or directory that is not indexed by the content indexing service.
+    Constants.SMB2_FILE_ATTRIBUTE_ENCRYPTED = 0x00004000; // A file or directory that is encrypted. For a file, all data streams in the file are encrypted. For a directory, encryption is the default for newly created files and subdirectories.
+    Constants.SMB2_FILE_ATTRIBUTE_INTEGRITY_STREAM = 0x00008000; // A file or directory that is configured with integrity support. For a file, all data streams in the file have integrity support. For a directory, integrity support is the default for newly created files and subdirectories, unless the caller specifies otherwise.<160>
+    Constants.SMB2_FILE_ATTRIBUTE_NO_SCRUB_DATA = 0x00020000; // A file or directory that is configured to be excluded from the data integrity scan. For a directory configured with FILE_ATTRIBUTE_NO_SCRUB_DATA, the default for newly created files and subdirectories is to inherit the FILE_ATTRIBUTE_NO_SCRUB_DATA attribute.<161>
 
     // -- SMB_COM_NT_CREATE_ANDX ShareAccess
     Constants.FILE_SHARE_NONE = 0x00000000; // (No bits set.)Prevents the file from being shared.
@@ -282,6 +305,29 @@
     Constants.FILE_RESERVE_OPFILTER = 0x00100000; // This option SHOULD NOT be sent by the clients, and this option MUST be ignored if received by the server.
     Constants.FILE_OPEN_NO_RECALL = 0x00400000; // In a hierarchical storage management environment, this option requests that the file SHOULD NOT be recalled from tertiary storage such as tape. A file recall can take up to several minutes in a hierarchical storage management environment. The clients can specify this option to avoid such delays.
     Constants.FILE_OPEN_FOR_FREE_SPACE_QUERY = 0x00800000; // This option SHOULD NOT be sent by the clients, and this option MUST be ignored if received by the server.
+
+    // -- SMB2 CreateOptions
+    Constants.SMB2_FILE_DIRECTORY_FILE = 0x00000001; // The file being created or opened is a directory file. With this flag, the CreateDisposition field MUST be set to FILE_CREATE, FILE_OPEN_IF, or FILE_OPEN. With this flag, only the following CreateOptions values are valid: FILE_WRITE_THROUGH, FILE_OPEN_FOR_BACKUP_INTENT, FILE_DELETE_ON_CLOSE, and FILE_OPEN_REPARSE_POINT. If the file being created or opened already exists and is not a directory file and FILE_CREATE is specified in the CreateDisposition field, then the server MUST fail the request with STATUS_OBJECT_NAME_COLLISION. If the file being created or opened already exists and is not a directory file and FILE_CREATE is not specified in the CreateDisposition field, then the server MUST fail the request with STATUS_NOT_A_DIRECTORY. The server MUST fail an invalid CreateDisposition field or an invalid combination of CreateOptions flags with STATUS_INVALID_PARAMETER.
+    Constants.SMB2_FILE_WRITE_THROUGH = 0x00000002; // The server MUST propagate writes to this open to persistent storage before returning success to the client on write operations.
+    Constants.SMB2_FILE_SEQUENTIAL_ONLY = 0x00000004; // This indicates that the application intends to read or write at sequential offsets using this handle, so the server SHOULD optimize for sequential access. However, the server MUST accept any access pattern. This flag value is incompatible with the FILE_RANDOM_ACCESS value.
+    Constants.SMB2_FILE_NO_INTERMEDIATE_BUFFERING = 0x00000008; // The server or underlying object store SHOULD NOT cache data at intermediate layers and SHOULD allow it to flow through to persistent storage.
+    Constants.SMB2_FILE_SYNCHRONOUS_IO_ALERT = 0x00000010; // This bit SHOULD be set to 0 and MUST be ignored by the server.<36>
+    Constants.SMB2_FILE_SYNCHRONOUS_IO_NONALERT = 0x00000020; // This bit SHOULD be set to 0 and MUST be ignored by the server.<37>
+    Constants.SMB2_FILE_NON_DIRECTORY_FILE = 0x00000040; // If the name of the file being created or opened matches with an existing directory file, the server MUST fail the request with STATUS_FILE_IS_A_DIRECTORY. This flag MUST NOT be used with FILE_DIRECTORY_FILE or the server MUST fail the request with STATUS_INVALID_PARAMETER.
+    Constants.SMB2_FILE_COMPLETE_IF_OPLOCKED = 0x00000100; // This bit SHOULD be set to 0 and MUST be ignored by the server.<38>
+    Constants.SMB2_FILE_NO_EA_KNOWLEDGE = 0x00000200; // The caller does not understand how to handle extended attributes. If the request includes an SMB2_CREATE_EA_BUFFER create context, then the server MUST fail this request with STATUS_ACCESS_DENIED. If extended attributes with the FILE_NEED_EA flag (see [MS-FSCC] section 2.4.15) set are associated with the file being opened, then the server MUST fail this request with STATUS_ACCESS_DENIED.
+    Constants.SMB2_FILE_RANDOM_ACCESS = 0x00000800; // This indicates that the application intends to read or write at random offsets using this handle, so the server SHOULD optimize for random access. However, the server MUST accept any access pattern. This flag value is incompatible with the FILE_SEQUENTIAL_ONLY value. If both FILE_RANDOM_ACCESS and FILE_SEQUENTIAL_ONLY are set, then FILE_SEQUENTIAL_ONLY is ignored.
+    Constants.SMB2_FILE_DELETE_ON_CLOSE = 0x00001000; // The file MUST be automatically deleted when the last open request on this file is closed. When this option is set, the DesiredAccess field MUST include the DELETE flag. This option is often used for temporary files.
+    Constants.SMB2_FILE_OPEN_BY_FILE_ID = 0x00002000; // This bit SHOULD be set to 0 and the server MUST fail the request with a STATUS_NOT_SUPPORTED error if this bit is set.<39>
+    Constants.SMB2_FILE_OPEN_FOR_BACKUP_INTENT = 0x00004000; // The file is being opened for backup intent. That is, it is being opened or created for the purposes of either a backup or a restore operation. The server can check to ensure that the caller is capable of overriding whatever security checks have been placed on the file to allow a backup or restore operation to occur. The server can check for access rights to the file before checking the DesiredAccess field.
+    Constants.SMB2_FILE_NO_COMPRESSION = 0x00008000; // The file cannot be compressed. This bit is ignored when FILE_DIRECTORY_FILE is set in CreateOptions.
+    Constants.SMB2_FILE_OPEN_REMOTE_INSTANCE = 0x00000400; // This bit SHOULD be set to 0 and MUST be ignored by the server.
+    Constants.SMB2_FILE_OPEN_REQUIRING_OPLOCK = 0x00010000; // This bit SHOULD be set to 0 and MUST be ignored by the server.
+    Constants.SMB2_FILE_DISALLOW_EXCLUSIVE = 0x00020000; // This bit SHOULD be set to 0 and MUST be ignored by the server.
+    Constants.SMB2_FILE_RESERVE_OPFILTER = 0x00100000; // This bit SHOULD be set to 0 and the server MUST fail the request with a STATUS_NOT_SUPPORTED error if this bit is set.<40>
+    Constants.SMB2_FILE_OPEN_REPARSE_POINT = 0x00200000; // If the file or directory being opened is a reparse point, open the reparse point itself rather than the target that the reparse point references.
+    Constants.SMB2_FILE_OPEN_NO_RECALL = 0x00400000; // In an HSM (Hierarchical Storage Management) environment, this flag means the file SHOULD NOT be recalled from tertiary storage such as tape. The recall can take several minutes. The caller can specify this flag to avoid those delays.
+    Constants.SMB2_FILE_OPEN_FOR_FREE_SPACE_QUERY = 0x00800000; // Open file to query for free space. The client SHOULD set this to 0 and the server MUST ignore it.<41>
 
     // -- SMB_COM_NT_CREATE_ANDX ImpersonationLevel
     Constants.SEC_ANONYMOUS = 0x00000000; // The application-requested impersonation level is Anonymous.
@@ -363,6 +409,33 @@
     Constants.SMB_FIND_FILE_FULL_DIRECTORY_INFO = 0x0102; // Returns the SMB_FIND_FILE_DIRECTORY_INFO data along with the size of a file's EAs.
     Constants.SMB_FIND_FILE_NAMES_INFO = 0x0103; // Returns the name(s) of the file(s).
     Constants.SMB_FIND_FILE_BOTH_DIRECTORY_INFO = 0x0104; // Returns a combination of the data from SMB_FIND_FILE_FULL_DIRECTORY_INFO and SMB_FIND_FILE_NAMES_INFO.
+
+    // -- SMB2 RequestedOplockLevel
+    Constants.SMB2_OPLOCK_LEVEL_NONE = 0x00; // No oplock is requested.
+    Constants.SMB2_OPLOCK_LEVEL_II = 0x01; // A level II oplock is requested.
+    Constants.SMB2_OPLOCK_LEVEL_EXCLUSIVE = 0x08; // An exclusive oplock is requested.
+    Constants.SMB2_OPLOCK_LEVEL_BATCH = 0x09; // A batch oplock is requested.
+    Constants.SMB2_OPLOCK_LEVEL_LEASE = 0xFF; // A lease is requested. If set, the request packet MUST contain an SMB2_CREATE_REQUEST_LEASE (section 2.2.13.2.8) create context. This value is not valid for the SMB 2.0.2 dialect.
+
+    // -- SMB2 CreateContext
+    Constants.SMB2_CREATE_EA_BUFFER = new Uint8Array([0x45, 0x78, 0x74, 0x41]); // ("ExtA")
+    Constants.SMB2_CREATE_SD_BUFFER = new Uint8Array([0x53, 0x65, 0x63, 0x44]); // ("SecD")
+    Constants.SMB2_CREATE_DURABLE_HANDLE_REQUEST = new Uint8Array([0x44, 0x48, 0x6e, 0x51]); // ("DHnQ")
+    Constants.SMB2_CREATE_DURABLE_HANDLE_RECONNECT = new Uint8Array([0x44, 0x48, 0x6e, 0x43]); // ("DHnC")
+    Constants.SMB2_CREATE_ALLOCATION_SIZE = new Uint8Array([0x41, 0x6c, 0x53, 0x69]); // ("AISi")
+    Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST = new Uint8Array([0x4d, 0x78, 0x41, 0x63]); // ("MxAc")
+    Constants.SMB2_CREATE_TIMEWARP_TOKEN = new Uint8Array([0x54, 0x57, 0x72, 0x70]); // ("TWrp")
+    Constants.SMB2_CREATE_QUERY_ON_DISK_ID = new Uint8Array([0x51, 0x46, 0x69, 0x64]); // ("QFid")
+    Constants.SMB2_CREATE_REQUEST_LEASE = new Uint8Array([0x52, 0x71, 0x4c, 0x73]); // ("RqLs")
+    Constants.SMB2_CREATE_REQUEST_LEASE_V2 = new Uint8Array([0x52, 0x71, 0x4c, 0x73]); // ("RqLs")
+    Constants.SMB2_CREATE_DURABLE_HANDLE_REQUEST_V2 = new Uint8Array([0x44, 0x48, 0x32, 0x51]); // ("DH2Q")
+    Constants.SMB2_CREATE_DURABLE_HANDLE_RECONNECT_V2 = new Uint8Array([0x44, 0x48, 0x32, 0x43]); // ("DH2C")
+    Constants.SMB2_CREATE_APP_INSTANCE_ID = new Uint8Array([0x45, 0xBC, 0xA6, 0x6A, 0xEF, 0xA7, 0xF7, 0x4A,
+                                                            0x90, 0x08, 0xFA, 0x46, 0x2E, 0x14, 0x4D, 0x74]);
+    Constants.SMB2_CREATE_APP_INSTANCE_VERSION = new Uint8Array([0xB9, 0x82, 0xD0 ,0xB7, 0x3B, 0x56, 0x07, 0x4F,
+                                                                 0xA0, 0x7B, 0x52, 0x4A, 0x81, 0x16, 0xA0, 0x10]);
+    Constants.SVHDX_OPEN_DEVICE_CONTEXT = new Uint8Array([0x9C, 0xCB, 0xCF, 0x9E, 0x04, 0xC1, 0xE6, 0x43,
+                                                          0x98, 0x0E, 0x15, 0x8D, 0xA1, 0xF6, 0xEC, 0x83]);
 
     SmbClient.Constants = Constants;
 

@@ -56,32 +56,27 @@
             treeConnectResponseHeader, treeConnectResponse) {
             Debug.log(treeConnectResponseHeader);
             Debug.log(treeConnectResponse);
-            /*
             var options = {
-                flags: 0x16,
                 desiredAccess:
-                    Constants.FILE_READ_DATA |
-                    Constants.FILE_WRITE_DATA |
-                    Constants.FILE_APPEND_DATA |
-                    Constants.FILE_READ_EA |
-                    Constants.FILE_WRITE_EA |
-                    Constants.FILE_READ_ATTRIBUTES |
-                    Constants.FILE_WRITE_ATTRIBUTES |
-                    Constants.READ_CONTROL,
-                extFileAttributes: Constants.SMB_EXT_FILE_ATTR_ATTR_NORMAL,
+                    Constants.GENERIC_WRITE | Constants.GENERIC_READ,
+                fileAttributes:
+                    Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
                 shareAccess:
                     Constants.FILE_SHARE_READ |
-                    Constants.FILE_SHARE_WRITE |
-                    Constants.FILE_SHARE_DELETE,
+                    Constants.FILE_SHARE_WRITE,
                 createDisposition: Constants.FILE_OPEN,
-                createOptions: Constants.FILE_NON_DIRECTORY_FILE,
-                fileName: "\\srvsvc"
+                name: "\\srvsvc",
+                createContexts: [
+                    this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+                ]
             };
-            ntCreate.call(this, options, function(
-                ntCreateAndxResponseHeader, ntCreateAndxResponse) {
-                Debug.log(ntCreateAndxResponseHeader);
-                Debug.log(ntCreateAndxResponse);
-                var fid = ntCreateAndxResponse.getFId();
+            create.call(this, options, function(
+                createResponseHeader, createResponse) {
+                Debug.log(createResponseHeader);
+                Debug.log(createResponse);
+                var fid = createResponse.getFileId();
+                console.log(fid);
+                /*
                 dceRpcBind.call(this, fid, function(
                     dceRpcBindResponseHeader, dceRpcBindAck) {
                     Debug.log(dceRpcBindResponseHeader);
@@ -96,8 +91,8 @@
                         }.bind(this), errorHandler);
                     }.bind(this), errorHandler);
                 }.bind(this), errorHandler);
+                */
             }.bind(this), errorHandler);
-            */
         }.bind(this), errorHandler);
     };
     
@@ -186,6 +181,27 @@
                     var treeConnectResponse =
                             this.protocol_.parseTreeConnectResponse(packet);
                     onSuccess(header, treeConnectResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var create = function(options, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var createRequestPacket = this.protocol_.createCreateRequestPacket(
+            session, options);
+        Debug.log(createRequestPacket);
+        this.comm_.writePacket(createRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    var createResponse =
+                            this.protocol_.parseCreateResponse(packet);
+                    onSuccess(header, createResponse);
                 }
             }.bind(this), function(error) {
                 onError(error);

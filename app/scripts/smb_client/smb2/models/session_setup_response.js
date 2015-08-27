@@ -24,7 +24,6 @@
         var securityBlob = array.subarray(securityBlobOffset - Constants.SMB2_HEADER_SIZE, securityBlobLength);
         this.type2Message_ = new Type2Message();
         this.type2Message_.load(securityBlob);
-        console.log(this);
     };
 
     SessionSetupResponse.prototype.getStructureSize = function() {
