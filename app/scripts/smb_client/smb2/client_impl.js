@@ -79,6 +79,7 @@
                     dceRpcBindResponseHeader, dceRpcBindAck) {
                     Debug.log(dceRpcBindResponseHeader);
                     Debug.log(dceRpcBindAck);
+                    /*
                     netShareEnumAll.call(this, fid, function(
                         dceRpcNetShareEnumAllResponseHeader, dceRpcNetShareEnumAllResponse) {
                         Debug.log(dceRpcNetShareEnumAllResponseHeader);
@@ -88,6 +89,7 @@
                             onSuccess(dceRpcNetShareEnumAllResponse.getNetShareEnums());
                         }.bind(this), errorHandler);
                     }.bind(this), errorHandler);
+                    */
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
