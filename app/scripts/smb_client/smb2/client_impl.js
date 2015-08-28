@@ -75,8 +75,6 @@
                 Debug.log(createResponseHeader);
                 Debug.log(createResponse);
                 var fid = createResponse.getFileId();
-                console.log(fid);
-                /*
                 dceRpcBind.call(this, fid, function(
                     dceRpcBindResponseHeader, dceRpcBindAck) {
                     Debug.log(dceRpcBindResponseHeader);
@@ -91,7 +89,6 @@
                         }.bind(this), errorHandler);
                     }.bind(this), errorHandler);
                 }.bind(this), errorHandler);
-                */
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
@@ -202,6 +199,25 @@
                     var createResponse =
                             this.protocol_.parseCreateResponse(packet);
                     onSuccess(header, createResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var dceRpcBind = function(fid, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var dceRpcBindRequestPacket = this.protocol_.createDceRpcBindRequestPacket(session, fid);
+        Debug.log(dceRpcBindRequestPacket);
+        this.comm_.writePacket(dceRpcBindRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    var dceRpcBindAck = this.protocol_.parseDceRpcBindAckPacket(packet);
+                    onSuccess(header, dceRpcBindAck);
                 }
             }.bind(this), function(error) {
                 onError(error);

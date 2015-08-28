@@ -18,7 +18,11 @@
           TreeConnectResponse,
           CreateRequest,
           CreateContext,
-          CreateResponse) {
+          CreateResponse,
+          IoctlRequest,
+          DceRpcBind,
+          IoctlResponse,
+          DceRpcBindAck) {
 
     "use strict";
 
@@ -194,6 +198,32 @@
         createResponse.load(packet);
         return createResponse;
     };
+    
+    Protocol.prototype.createDceRpcBindRequestPacket = function(session, fid) {
+        var header = createHeader.call(this, Constants.SMB2_IOCTL, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var ioctlRequest = new IoctlRequest();
+        ioctlRequest.setFileId(fid);
+        var dceRpcBind = new DceRpcBind();
+        ioctlRequest.setSubMessage(dceRpcBind);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, ioctlRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.parseDceRpcBindAckPacket = function(packet) {
+        var ioctlResponse = new IoctlResponse();
+        ioctlResponse.load(packet);
+        var dataArray = ioctlResponse.getBuffer();
+        var dceRpcBindAck = new DceRpcBindAck();
+        dceRpcBindAck.load(dataArray);
+        return dceRpcBindAck;
+    };
 
     // Private functions
 
@@ -241,4 +271,8 @@
    SmbClient.Smb2.Models.TreeConnectResponse,
    SmbClient.Smb2.Models.CreateRequest,
    SmbClient.Smb2.Models.CreateContext,
-   SmbClient.Smb2.Models.CreateResponse);
+   SmbClient.Smb2.Models.CreateResponse,
+   SmbClient.Smb2.Models.IoctlRequest,
+   SmbClient.DceRpc.DceRpcBind,
+   SmbClient.Smb2.Models.IoctlResponse,
+   SmbClient.DceRpc.DceRpcBindAck);

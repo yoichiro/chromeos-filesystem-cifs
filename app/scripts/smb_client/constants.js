@@ -49,6 +49,7 @@
     Constants.SMB2_SESSION_SETUP = 0x0001;
     Constants.SMB2_TREE_CONNECT = 0x0003;
     Constants.SMB2_CREATE = 0x0005;
+    Constants.SMB2_IOCTL = 0x000b;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
@@ -436,6 +437,26 @@
                                                                  0xA0, 0x7B, 0x52, 0x4A, 0x81, 0x16, 0xA0, 0x10]);
     Constants.SVHDX_OPEN_DEVICE_CONTEXT = new Uint8Array([0x9C, 0xCB, 0xCF, 0x9E, 0x04, 0xC1, 0xE6, 0x43,
                                                           0x98, 0x0E, 0x15, 0x8D, 0xA1, 0xF6, 0xEC, 0x83]);
+
+    // -- SMB2 IOCTL CtlCode
+    Constants.FSCTL_DFS_GET_REFERRALS = 0x00060194;
+    Constants.FSCTL_PIPE_PEEK = 0x0011400C;
+    Constants.FSCTL_PIPE_WAIT = 0x00110018;
+    Constants.FSCTL_PIPE_TRANSCEIVE = 0x0011C017;
+    Constants.FSCTL_SRV_COPYCHUNK = 0x001440F2;
+    Constants.FSCTL_SRV_ENUMERATE_SNAPSHOTS = 0x00144064;
+    Constants.FSCTL_SRV_REQUEST_RESUME_KEY = 0x00140078;
+    Constants.FSCTL_SRV_READ_HASH = 0x001441bb;
+    Constants.FSCTL_SRV_COPYCHUNK_WRITE = 0x001480F2;
+    Constants.FSCTL_LMR_REQUEST_RESILIENCY = 0x001401D4;
+    Constants.FSCTL_QUERY_NETWORK_INTERFACE_INFO = 0x001401FC;
+    Constants.FSCTL_SET_REPARSE_POINT = 0x000900A4;
+    Constants.FSCTL_DFS_GET_REFERRALS_EX = 0x000601B0;
+    Constants.FSCTL_FILE_LEVEL_TRIM = 0x00098208;
+    Constants.FSCTL_VALIDATE_NEGOTIATE_INFO = 0x00140204;
+    
+    // -- SMB2 IOCTL Flags
+    Constants.SMB2_0_IOCTL_IS_FSCTL = 0x00000001; // If Flags is set to this value, the request is an FSCTL request.
 
     SmbClient.Constants = Constants;
 
