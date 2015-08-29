@@ -19,7 +19,7 @@
 
     // Public functions
 
-    IoctlResponse.prototype.load = function(packet) {
+    IoctlResponse.prototype.load = function(packet, appendedDataCount) {
         var array = packet.getPacketHelper().getSmbDataUint8Array();
 
         this.structureSize_ = this.types_.getFixed2BytesValue(array, 0);
@@ -33,7 +33,7 @@
         this.flags_ = this.types_.getFixed4BytesValue(array, 40);
         // UINT reserved
         var pos = this.outputOffset_ - Constants.SMB2_HEADER_SIZE;
-        this.buffer_ = array.subarray(pos, pos + this.outputCount_);
+        this.buffer_ = array.subarray(pos, pos + this.outputCount_ + appendedDataCount);
     };
 
     IoctlResponse.prototype.getStructureSize = function() {

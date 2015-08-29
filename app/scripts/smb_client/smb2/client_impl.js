@@ -79,17 +79,17 @@
                     dceRpcBindResponseHeader, dceRpcBindAck) {
                     Debug.log(dceRpcBindResponseHeader);
                     Debug.log(dceRpcBindAck);
-                    /*
                     netShareEnumAll.call(this, fid, function(
                         dceRpcNetShareEnumAllResponseHeader, dceRpcNetShareEnumAllResponse) {
                         Debug.log(dceRpcNetShareEnumAllResponseHeader);
                         Debug.log(dceRpcNetShareEnumAllResponse);
+                        /*
                         close.call(this, fid, function(closeResponseHeader) {
                             Debug.log(closeResponseHeader);
                             onSuccess(dceRpcNetShareEnumAllResponse.getNetShareEnums());
                         }.bind(this), errorHandler);
+                        */
                     }.bind(this), errorHandler);
-                    */
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
@@ -220,6 +220,41 @@
                 if (checkError.call(this, header, onError)) {
                     var dceRpcBindAck = this.protocol_.parseDceRpcBindAckPacket(packet);
                     onSuccess(header, dceRpcBindAck);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var netShareEnumAll = function(fid, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var dceRpcNetShareEnumAllRequestPacket =
+                this.protocol_.createDceRpcNetShareEnumAllRequestPacket(
+                    session, fid);
+        Debug.log(dceRpcNetShareEnumAllRequestPacket);
+        this.comm_.writePacket(dceRpcNetShareEnumAllRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (header.getStatus() === Constants.STATUS_BUFFER_OVERFLOW) {
+                    read.call(this, fid, 0, Constants.TRANSACTION_MAX_APPEND_READ_SIZE, function(buffer) {
+                        var newBuffer = this.binaryUtils_.concatBuffers([packet.getData(), buffer]);
+                        var dceRpcNetShareEnumAllResponse =
+                                this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(
+                                    new Packet(newBuffer), buffer.byteLength);
+                        onSuccess(header, dceRpcNetShareEnumAllResponse);
+                    }.bind(this), function(error) {
+                        onError(error);
+                    }.bind(this));
+                } else {
+                    if (checkError.call(this, header, onError)) {
+                        var dceRpcNetShareEnumAllResponse =
+                                this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(packet, 0);
+                        onSuccess(header, dceRpcNetShareEnumAllResponse);
+                    }
                 }
             }.bind(this), function(error) {
                 onError(error);

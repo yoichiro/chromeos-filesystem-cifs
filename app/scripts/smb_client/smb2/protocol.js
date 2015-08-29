@@ -22,7 +22,9 @@
           IoctlRequest,
           DceRpcBind,
           IoctlResponse,
-          DceRpcBindAck) {
+          DceRpcBindAck,
+          DceRpcNetShareEnumAllRequest,
+          DceRpcNetShareEnumAllResponse) {
 
     "use strict";
 
@@ -218,11 +220,39 @@
     
     Protocol.prototype.parseDceRpcBindAckPacket = function(packet) {
         var ioctlResponse = new IoctlResponse();
-        ioctlResponse.load(packet);
+        ioctlResponse.load(packet, 0);
         var dataArray = ioctlResponse.getBuffer();
         var dceRpcBindAck = new DceRpcBindAck();
         dceRpcBindAck.load(dataArray);
         return dceRpcBindAck;
+    };
+
+    Protocol.prototype.createDceRpcNetShareEnumAllRequestPacket = function(session, fid) {
+        var header = createHeader.call(this, Constants.SMB2_IOCTL, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var ioctlRequest = new IoctlRequest();
+        ioctlRequest.setFileId(fid);
+        var dceRpcNetShareEnumAll = new DceRpcNetShareEnumAllRequest();
+        dceRpcNetShareEnumAll.setServerName(session.getServerName());
+        ioctlRequest.setSubMessage(dceRpcNetShareEnumAll);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, ioctlRequest);
+        return packet;
+    };
+
+    Protocol.prototype.parseDceRpcNetShareEnumAllResponsePacket = function(packet, appendedDataCount) {
+        var ioctlResponse = new IoctlResponse();
+        ioctlResponse.load(packet, appendedDataCount);
+        var dataArray = ioctlResponse.getBuffer();
+        var dataOffset = ioctlResponse.getOutputOffset();
+        var dceRpcNetShareEnumAllResponse = new DceRpcNetShareEnumAllResponse();
+        dceRpcNetShareEnumAllResponse.load(dataArray, dataOffset);
+        return dceRpcNetShareEnumAllResponse;
     };
 
     // Private functions
@@ -275,4 +305,6 @@
    SmbClient.Smb2.Models.IoctlRequest,
    SmbClient.DceRpc.DceRpcBind,
    SmbClient.Smb2.Models.IoctlResponse,
-   SmbClient.DceRpc.DceRpcBindAck);
+   SmbClient.DceRpc.DceRpcBindAck,
+   SmbClient.DceRpc.DceRpcNetShareEnumAllRequest,
+   SmbClient.DceRpc.DceRpcNetShareEnumAllResponse);
