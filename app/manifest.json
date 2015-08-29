@@ -97,6 +97,7 @@
                 "scripts/smb_client/smb1/models/transaction_response.js",
                 "scripts/smb_client/smb2/models/ioctl_response.js",
                 "scripts/smb_client/smb1/models/close_request.js",
+                "scripts/smb_client/smb2/models/close_request.js",
                 "scripts/smb_client/smb1/models/query_path_info_request.js",
                 "scripts/smb_client/smb1/models/query_path_info_response.js",
                 "scripts/smb_client/smb1/models/find_first2_request.js",

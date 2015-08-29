@@ -83,12 +83,10 @@
                         dceRpcNetShareEnumAllResponseHeader, dceRpcNetShareEnumAllResponse) {
                         Debug.log(dceRpcNetShareEnumAllResponseHeader);
                         Debug.log(dceRpcNetShareEnumAllResponse);
-                        /*
                         close.call(this, fid, function(closeResponseHeader) {
                             Debug.log(closeResponseHeader);
                             onSuccess(dceRpcNetShareEnumAllResponse.getNetShareEnums());
                         }.bind(this), errorHandler);
-                        */
                     }.bind(this), errorHandler);
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
@@ -240,6 +238,8 @@
                 var header = packet.getHeader();
                 Debug.log(header);
                 if (header.getStatus() === Constants.STATUS_BUFFER_OVERFLOW) {
+                    // TODO Support STATUS_BUFFER_OVERFLOW
+                    /*
                     read.call(this, fid, 0, Constants.TRANSACTION_MAX_APPEND_READ_SIZE, function(buffer) {
                         var newBuffer = this.binaryUtils_.concatBuffers([packet.getData(), buffer]);
                         var dceRpcNetShareEnumAllResponse =
@@ -249,12 +249,32 @@
                     }.bind(this), function(error) {
                         onError(error);
                     }.bind(this));
+                    */
                 } else {
                     if (checkError.call(this, header, onError)) {
                         var dceRpcNetShareEnumAllResponse =
                                 this.protocol_.parseDceRpcNetShareEnumAllResponsePacket(packet, 0);
                         onSuccess(header, dceRpcNetShareEnumAllResponse);
                     }
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var close = function(fid, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var closeRequestPacket = this.protocol_.createCloseRequestPacket(
+            session, fid);
+        Debug.log(closeRequestPacket);
+        this.comm_.writePacket(closeRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    onSuccess(header);
                 }
             }.bind(this), function(error) {
                 onError(error);

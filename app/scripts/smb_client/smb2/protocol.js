@@ -24,7 +24,8 @@
           IoctlResponse,
           DceRpcBindAck,
           DceRpcNetShareEnumAllRequest,
-          DceRpcNetShareEnumAllResponse) {
+          DceRpcNetShareEnumAllResponse,
+          CloseRequest) {
 
     "use strict";
 
@@ -255,6 +256,21 @@
         return dceRpcNetShareEnumAllResponse;
     };
 
+    Protocol.prototype.createCloseRequestPacket = function(session, fid) {
+        var header = createHeader.call(this, Constants.SMB2_CLOSE, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var closeRequest = new CloseRequest();
+        closeRequest.setFileId(fid);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, closeRequest);
+        return packet;
+    };
+
     // Private functions
 
     // options: userId
@@ -307,4 +323,5 @@
    SmbClient.Smb2.Models.IoctlResponse,
    SmbClient.DceRpc.DceRpcBindAck,
    SmbClient.DceRpc.DceRpcNetShareEnumAllRequest,
-   SmbClient.DceRpc.DceRpcNetShareEnumAllResponse);
+   SmbClient.DceRpc.DceRpcNetShareEnumAllResponse,
+   SmbClient.Smb2.Models.CloseRequest);

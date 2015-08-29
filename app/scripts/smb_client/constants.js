@@ -50,6 +50,7 @@
     Constants.SMB2_TREE_CONNECT = 0x0003;
     Constants.SMB2_CREATE = 0x0005;
     Constants.SMB2_IOCTL = 0x000b;
+    Constants.SMB2_CLOSE = 0x0006;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;

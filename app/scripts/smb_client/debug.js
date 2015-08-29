@@ -39,6 +39,7 @@
     };
 
     Debug.outputUint8Array = function(array) {
+        var lines = "";
         var out = "";
         var ascii = "";
         for (var i = 0; i < array.length; i++) {
@@ -57,14 +58,15 @@
                 ascii += ".";
             }
             if (((i + 1) % 16) === 0) {
-                Debug.log(out + " " + ascii + "\n");
+                lines += out + " " + ascii + "\n";
                 out = "";
                 ascii = "";
             }
         }
         if (out) {
-            Debug.log(out + " " + ascii + "\n");
+            lines += out + " " + ascii + "\n";
         }
+        Debug.log(lines);
     };
 
     Debug.outputArrayBuffer = function(buffer) {
