@@ -69,7 +69,11 @@
                 }.bind(this), onError);
             }.bind(this), onError);
         } else if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {
-            // TODO Delegate this process to Smb2ClientImpl.
+            this.smb2ClientImpl_.logout(function() {
+                disconnect.call(this, function() {
+                    onSuccess();
+                }.bind(this), onError);
+            }.bind(this), onError);
         } else {
             throw new Error("Unknown protocol version");
         }

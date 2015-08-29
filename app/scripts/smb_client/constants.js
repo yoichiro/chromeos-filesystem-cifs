@@ -51,6 +51,8 @@
     Constants.SMB2_CREATE = 0x0005;
     Constants.SMB2_IOCTL = 0x000b;
     Constants.SMB2_CLOSE = 0x0006;
+    Constants.SMB2_TREE_DISCONNECT = 0x0004;
+    Constants.SMB2_LOGOFF = 0x0002;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;

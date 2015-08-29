@@ -25,7 +25,8 @@
           DceRpcBindAck,
           DceRpcNetShareEnumAllRequest,
           DceRpcNetShareEnumAllResponse,
-          CloseRequest) {
+          CloseRequest,
+          EmptyRequest) {
 
     "use strict";
 
@@ -270,6 +271,33 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, closeRequest);
         return packet;
     };
+    
+    Protocol.prototype.createTreeDisconnectRequestPacket = function(session) {
+        var header = createHeader.call(this, Constants.SMB2_TREE_DISCONNECT, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var emptyRequest = new EmptyRequest();
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, emptyRequest);
+        return packet;
+    };
+
+    Protocol.prototype.createLogoffRequestPacket = function(session) {
+        var header = createHeader.call(this, Constants.SMB2_LOGOFF, {
+            processId: session.getProcessId(),
+            userId: session.getUserId()
+        });
+
+        var emptyRequest = new EmptyRequest();
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, emptyRequest);
+        return packet;
+    };
 
     // Private functions
 
@@ -324,4 +352,5 @@
    SmbClient.DceRpc.DceRpcBindAck,
    SmbClient.DceRpc.DceRpcNetShareEnumAllRequest,
    SmbClient.DceRpc.DceRpcNetShareEnumAllResponse,
-   SmbClient.Smb2.Models.CloseRequest);
+   SmbClient.Smb2.Models.CloseRequest,
+   SmbClient.Smb2.Models.EmptyRequest);

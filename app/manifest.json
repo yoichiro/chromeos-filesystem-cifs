@@ -116,6 +116,7 @@
                 "scripts/smb_client/smb1/models/delete_directory_request.js",
                 "scripts/smb_client/smb1/models/rename_request.js",
                 "scripts/smb_client/smb1/models/empty_request.js",
+                "scripts/smb_client/smb2/models/empty_request.js",
                 "scripts/smb_client/smb1/models/logoff_andx_request.js",
                 "scripts/smb_client/smb1/protocol.js",
                 "scripts/smb_client/smb2/protocol.js",

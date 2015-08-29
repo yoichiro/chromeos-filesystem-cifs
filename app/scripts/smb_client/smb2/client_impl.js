@@ -93,6 +93,26 @@
         }.bind(this), errorHandler);
     };
     
+    ClientImpl.prototype.logout = function(onSuccess, onError) {
+        var session = this.client_.getSession();
+        
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        var logoffAndDisconnect = function() {
+            logoff.call(this, function() {
+                onSuccess();
+            }.bind(this), errorHandler);
+        }.bind(this);
+
+        if (session.getTreeId()) {
+            disconnectTree.call(this, logoffAndDisconnect, errorHandler);
+        } else {
+            logoffAndDisconnect();
+        }
+    };
+    
     // Private functions
     
     var checkError = function(header, onError, expected) {
@@ -284,6 +304,43 @@
         }.bind(this));
     };
 
+    var disconnectTree = function(onSuccess, onError) {
+        var session = this.client_.getSession();
+        var treeDisconnectRequestPacket = this.protocol_.createTreeDisconnectRequestPacket(session);
+        Debug.log(treeDisconnectRequestPacket);
+        this.comm_.writePacket(treeDisconnectRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    session.setTreeId(null);
+                    onSuccess(header);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var logoff = function(onSuccess, onError) {
+        var session = this.client_.getSession();
+        var logoffRequestPacket = this.protocol_.createLogoffRequestPacket(session);
+        this.comm_.writePacket(logoffRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    onSuccess(header);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
     // Export
     
     Smb2.ClientImpl = ClientImpl;
