@@ -26,7 +26,9 @@
           DceRpcNetShareEnumAllRequest,
           DceRpcNetShareEnumAllResponse,
           CloseRequest,
-          EmptyRequest) {
+          EmptyRequest,
+          QueryInfoRequest,
+          QueryInfoResponse) {
 
     "use strict";
 
@@ -298,6 +300,27 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, emptyRequest);
         return packet;
     };
+    
+    Protocol.prototype.createQueryInfoRequestPacket = function(session, fileId) {
+        var header = createHeader.call(this, Constants.SMB2_QUERY_INFO, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var queryInfoRequest = new QueryInfoRequest();
+        queryInfoRequest.setFileId(fileId);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, queryInfoRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.parseQueryInfoResponsePacket = function(packet) {
+        var queryInfoResponse = new QueryInfoResponse();
+        queryInfoResponse.load(packet);
+        return queryInfoResponse;
+    };
 
     // Private functions
 
@@ -353,4 +376,6 @@
    SmbClient.DceRpc.DceRpcNetShareEnumAllRequest,
    SmbClient.DceRpc.DceRpcNetShareEnumAllResponse,
    SmbClient.Smb2.Models.CloseRequest,
-   SmbClient.Smb2.Models.EmptyRequest);
+   SmbClient.Smb2.Models.EmptyRequest,
+   SmbClient.Smb2.Models.QueryInfoRequest,
+   SmbClient.Smb2.Models.QueryInfoResponse);

@@ -53,6 +53,7 @@
     Constants.SMB2_CLOSE = 0x0006;
     Constants.SMB2_TREE_DISCONNECT = 0x0004;
     Constants.SMB2_LOGOFF = 0x0002;
+    Constants.SMB2_QUERY_INFO = 0x0010;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
@@ -460,6 +461,16 @@
     
     // -- SMB2 IOCTL Flags
     Constants.SMB2_0_IOCTL_IS_FSCTL = 0x00000001; // If Flags is set to this value, the request is an FSCTL request.
+
+    // -- SMB2 Info Type
+    Constants.SMB2_0_INFO_FILE = 0x01; // The file information is requested.
+    Constants.SMB2_0_INFO_FILESYSTEM = 0x02; // The underlying object store information is requested.
+    Constants.SMB2_0_INFO_SECURITY = 0x03; // The security information is requested.
+    Constants.SMB2_0_INFO_QUOTA = 0x04; // The underlying object store quota information is requested.
+    
+    // --SMB2 File Info Class
+    Constants.SMB2_0_FILE_ALL_INFORMATION = 0x12;
+    Constants.SMB2_0_FILE_ID_BOTH_DIRECTORY_INFORMATION = 0x25;
 
     SmbClient.Constants = Constants;
 

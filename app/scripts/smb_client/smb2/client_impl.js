@@ -113,6 +113,54 @@
         }
     };
     
+    ClientImpl.prototype.connectSharedResource = function(path, onSuccess, onError) {
+        connectTree.call(this, path/*.toUpperCase()*/, function(
+            treeConnectResponseHeader, treeConnectResponse) {
+            Debug.log(treeConnectResponseHeader);
+            Debug.log(treeConnectResponse);
+            onSuccess();
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    ClientImpl.prototype.getMetadata = function(fileName, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        var options = {
+                desiredAccess:
+                    Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
+                fileAttributes:
+                    Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
+                shareAccess:
+                    Constants.FILE_SHARE_READ |
+                    Constants.FILE_SHARE_WRITE |
+                    Constants.FILE_SHARE_DELETE,
+                createDisposition: Constants.FILE_OPEN,
+                name: fileName,
+                createContexts: [
+                    this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+                ]
+            };
+            create.call(this, options, function(
+                createResponseHeader, createResponse) {
+                Debug.log(createResponseHeader);
+                Debug.log(createResponse);
+                var fileId = createResponse.getFileId();
+                queryInfo.call(this, fileId, function(
+                    queryInfoResponseHeader, queryInfoResponse) {
+                    Debug.log(queryInfoResponseHeader);
+                    Debug.log(queryInfoResponse);
+                    close.call(this, fileId, function(closeResponseHeader) {
+                        Debug.log(closeResponseHeader);
+                        onSuccess(queryInfoResponse.getFile());
+                    }.bind(this), errorHandler);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+    };
+    
     // Private functions
     
     var checkError = function(header, onError, expected) {
@@ -341,6 +389,34 @@
         }.bind(this));
     };
     
+    var queryInfo = function(fileId, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var queryInfoRequestPacket = this.protocol_.createQueryInfoRequestPacket(session, fileId);
+        Debug.log(queryInfoRequestPacket);
+        this.comm_.writePacket(queryInfoRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (checkError.call(this, header, onError)) {
+                    var queryInfoResponse =
+                            this.protocol_.parseQueryInfoResponsePacket(packet);
+                    var file = queryInfoResponse.getFile();
+                    file.setFileName(getNameFromPath.call(this, file.getFullFileName()));
+                    onSuccess(header, queryInfoResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var getNameFromPath = function(path) {
+        var names = path.split("\\");
+        var name = names[names.length - 1];
+        return name;
+    };
+
     // Export
     
     Smb2.ClientImpl = ClientImpl;

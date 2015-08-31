@@ -1,4 +1,4 @@
-(function(Models, Types, Debug, Constants) {
+(function(Models, Types, Debug, Constants, CreateContext) {
     "use strict";
     
     // Constructor
@@ -42,7 +42,7 @@
         var createContextsOffset = this.types_.getFixed4BytesValue(array, 80);
         var createContextsLength = this.types_.getFixed4BytesValue(array, 84);
         if (createContextsOffset !== 0) {
-            loadCreateContexts.call(this, createContextsOffset);
+            loadCreateContexts.call(this, array, createContextsOffset - Constants.SMB2_HEADER_SIZE);
         }
     };
     
@@ -120,4 +120,4 @@
     
     Models.CreateResponse = CreateResponse;
     
-})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Constants);
+})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Constants, SmbClient.Smb2.Models.CreateContext);
