@@ -130,35 +130,86 @@
         }.bind(this);
 
         var options = {
-                desiredAccess:
-                    Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
-                fileAttributes:
-                    Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
-                shareAccess:
-                    Constants.FILE_SHARE_READ |
-                    Constants.FILE_SHARE_WRITE |
-                    Constants.FILE_SHARE_DELETE,
-                createDisposition: Constants.FILE_OPEN,
-                name: fileName,
-                createContexts: [
-                    this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
-                ]
-            };
-            create.call(this, options, function(
-                createResponseHeader, createResponse) {
-                Debug.log(createResponseHeader);
-                Debug.log(createResponse);
-                var fileId = createResponse.getFileId();
-                queryInfo.call(this, fileId, function(
-                    queryInfoResponseHeader, queryInfoResponse) {
-                    Debug.log(queryInfoResponseHeader);
-                    Debug.log(queryInfoResponse);
-                    close.call(this, fileId, function(closeResponseHeader) {
-                        Debug.log(closeResponseHeader);
-                        onSuccess(queryInfoResponse.getFile());
-                    }.bind(this), errorHandler);
+            desiredAccess:
+                Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
+            fileAttributes:
+                Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
+            shareAccess:
+                Constants.FILE_SHARE_READ |
+                Constants.FILE_SHARE_WRITE |
+                Constants.FILE_SHARE_DELETE,
+            createDisposition: Constants.FILE_OPEN,
+            name: fileName,
+            createContexts: [
+                this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+            ]
+        };
+        create.call(this, options, function(
+            createResponseHeader, createResponse) {
+            Debug.log(createResponseHeader);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            queryInfo.call(this, fileId, function(
+                queryInfoResponseHeader, queryInfoResponse) {
+                Debug.log(queryInfoResponseHeader);
+                Debug.log(queryInfoResponse);
+                close.call(this, fileId, function(closeResponseHeader) {
+                    Debug.log(closeResponseHeader);
+                    onSuccess(queryInfoResponse.getFile());
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.readDirectory = function(directoryName, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+        
+        var trimFirstDelimiter = function(path) {
+            if (path && path.charAt(0) === '\\') {
+                return path.substring(1);
+            } else {
+                return path;
+            }
+        };
+
+        var options = {
+            desiredAccess:
+                Constants.FILE_READ_DATA | Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
+            fileAttributes:
+                Constants.SMB2_FILE_ATTRIBUTE_DIRECTORY,
+            shareAccess:
+                Constants.FILE_SHARE_READ |
+                Constants.FILE_SHARE_WRITE |
+                Constants.FILE_SHARE_DELETE,
+            createDisposition: Constants.FILE_OPEN,
+            createOptions: Constants.FILE_DIRECTORY_FILE,
+            name: trimFirstDelimiter(directoryName),
+            createContexts: [
+                this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+            ]
+        };
+        create.call(this, options, function(
+            createResponseHeader, createResponse) {
+            Debug.log(createResponseHeader);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            var files = [];
+            queryDirectoryInfo.call(this, fileId, files, Constants.SMB2_RESTART_SCANS, function() {
+                close.call(this, fileId, function(closeResponseHeader) {
+                    Debug.log(closeResponseHeader);
+                    var result = [];
+                    for (var i = 0; i < files.length; i++) {
+                        if ((files[i].getFileName() !== ".") && (files[i].getFileName() !== "..")) {
+                            files[i].setFullFileName(directoryName + "\\" + files[i].getFileName());
+                            result.push(files[i]);
+                        }
+                    }
+                    onSuccess(result);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
     };
     
     // Private functions
@@ -402,6 +453,35 @@
                     var file = queryInfoResponse.getFile();
                     file.setFileName(getNameFromPath.call(this, file.getFullFileName()));
                     onSuccess(header, queryInfoResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var queryDirectoryInfo = function(fileId, files, flags, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var queryDirectoryInfoRequestPacket = this.protocol_.createQueryDirectoryInfoRequestPacket(
+            session, fileId, flags);
+        this.comm_.writePacket(queryDirectoryInfoRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                if (header.getStatus() === Constants.SMB2_STATUS_NO_MORE_FILES) {
+                    onSuccess();
+                } else {
+                    if (checkError.call(this, header, onError)) {
+                        var queryDirectoryInfoResponse =
+                                this.protocol_.parseQueryDirectoryInfoResponsePacket(packet);
+                        for (var i = 0; i < queryDirectoryInfoResponse.getFiles().length; i++) {
+                            files.push(queryDirectoryInfoResponse.getFiles()[i]);
+                        }
+                        Debug.log(header);
+                        Debug.log(queryDirectoryInfoResponse);
+                        queryDirectoryInfo.call(this, fileId, files, 0, onSuccess, onError);
+                    }
                 }
             }.bind(this), function(error) {
                 onError(error);

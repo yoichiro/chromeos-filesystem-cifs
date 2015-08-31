@@ -107,6 +107,8 @@
                 "scripts/smb_client/smb1/models/find_first2_response.js",
                 "scripts/smb_client/smb1/models/find_next2_request.js",
                 "scripts/smb_client/smb1/models/find_next2_response.js",
+                "scripts/smb_client/smb2/models/query_directory_info_request.js",
+                "scripts/smb_client/smb2/models/query_directory_info_response.js",
                 "scripts/smb_client/smb1/models/find_close2_request.js",
                 "scripts/smb_client/smb1/models/seek_request.js",
                 "scripts/smb_client/smb1/models/seek_response.js",

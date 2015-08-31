@@ -28,7 +28,9 @@
           CloseRequest,
           EmptyRequest,
           QueryInfoRequest,
-          QueryInfoResponse) {
+          QueryInfoResponse,
+          QueryDirectoryInfoRequest,
+          QueryDirectoryInfoResponse) {
 
     "use strict";
 
@@ -321,6 +323,28 @@
         queryInfoResponse.load(packet);
         return queryInfoResponse;
     };
+    
+    Protocol.prototype.createQueryDirectoryInfoRequestPacket = function(session, fileId, flags) {
+        var header = createHeader.call(this, Constants.SMB2_QUERY_DIRECTORY_INFO, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var queryDirectoryInfoRequest = new QueryDirectoryInfoRequest();
+        queryDirectoryInfoRequest.setFileId(fileId);
+        queryDirectoryInfoRequest.setFlags(flags);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, queryDirectoryInfoRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.parseQueryDirectoryInfoResponsePacket = function(packet) {
+        var queryDirectoryInfoResponse = new QueryDirectoryInfoResponse();
+        queryDirectoryInfoResponse.load(packet);
+        return queryDirectoryInfoResponse;
+    };
 
     // Private functions
 
@@ -378,4 +402,6 @@
    SmbClient.Smb2.Models.CloseRequest,
    SmbClient.Smb2.Models.EmptyRequest,
    SmbClient.Smb2.Models.QueryInfoRequest,
-   SmbClient.Smb2.Models.QueryInfoResponse);
+   SmbClient.Smb2.Models.QueryInfoResponse,
+   SmbClient.Smb2.Models.QueryDirectoryInfoRequest,
+   SmbClient.Smb2.Models.QueryDirectoryInfoResponse);

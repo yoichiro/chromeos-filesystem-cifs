@@ -54,6 +54,7 @@
     Constants.SMB2_TREE_DISCONNECT = 0x0004;
     Constants.SMB2_LOGOFF = 0x0002;
     Constants.SMB2_QUERY_INFO = 0x0010;
+    Constants.SMB2_QUERY_DIRECTORY_INFO = 0x000e;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;
@@ -210,6 +211,9 @@
 
     // -- DCERPC ERROR CODEs
     Constants.STATUS_BUFFER_OVERFLOW = 0x80000005;
+    
+    // -- SMB2 STATUS CODEs
+    Constants.SMB2_STATUS_NO_MORE_FILES = 0x80000006;
 
     // -- SMB_COM_NT_CREATE_ANDX Flags
     Constants.NT_CREATE_REQUEST_OPLOCK = 0x00000002; // If set, the client requests an exclusive OpLock.
@@ -468,9 +472,15 @@
     Constants.SMB2_0_INFO_SECURITY = 0x03; // The security information is requested.
     Constants.SMB2_0_INFO_QUOTA = 0x04; // The underlying object store quota information is requested.
     
-    // --SMB2 File Info Class
+    // -- SMB2 File Info Class
     Constants.SMB2_0_FILE_ALL_INFORMATION = 0x12;
     Constants.SMB2_0_FILE_ID_BOTH_DIRECTORY_INFORMATION = 0x25;
+    
+    // -- SMB2 QueryDirectoryInfo Flags
+    Constants.SMB2_RESTART_SCANS = 0x01; // The server MUST restart the enumeration from the beginning, but the search pattern is not changed.
+    Constants.SMB2_RETURN_SINGLE_ENTRY = 0x02; // The server MUST only return the first entry of the search results.
+    Constants.SMB2_INDEX_SPECIFIED = 0x04; // The server SHOULD<66> return entries beginning at the byte number specified by FileIndex.
+    Constants.SMB2_REOPEN = 0x10; // The server MUST restart the enumeration from the beginning, and the search pattern MUST be changed to the provided value. This often involves silently closing and reopening the directory on the server side.
 
     SmbClient.Constants = Constants;
 
