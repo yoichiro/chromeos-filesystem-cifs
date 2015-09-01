@@ -134,7 +134,7 @@
         if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
             this.smb1ClientImpl_.readFile(fileName, offset, length, onSuccess, onError);
         } else if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {
-            // TODO Delegate this process to Smb2ClientImpl.
+            this.smb2ClientImpl_.readFile(fileName, offset, length, onSuccess, onError);
         } else {
             throw new Error("Unknown protocol version");
         }

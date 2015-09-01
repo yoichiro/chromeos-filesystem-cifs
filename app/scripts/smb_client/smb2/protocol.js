@@ -30,7 +30,9 @@
           QueryInfoRequest,
           QueryInfoResponse,
           QueryDirectoryInfoRequest,
-          QueryDirectoryInfoResponse) {
+          QueryDirectoryInfoResponse,
+          ReadRequest,
+          ReadResponse) {
 
     "use strict";
 
@@ -345,6 +347,30 @@
         queryDirectoryInfoResponse.load(packet);
         return queryDirectoryInfoResponse;
     };
+    
+    Protocol.prototype.createReadRequestPacket = function(
+        session, fileId, offset, length) {
+        var header = createHeader.call(this, Constants.SMB2_READ, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+
+        var readRequest = new ReadRequest();
+        readRequest.setFileId(fileId);
+        readRequest.setOffset(offset);
+        readRequest.setLength(length);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, readRequest);
+        return packet;
+    };
+    
+    Protocol.prototype.parseReadResponsePacket = function(packet) {
+        var readResponse = new ReadResponse();
+        readResponse.load(packet);
+        return readResponse;
+    };
 
     // Private functions
 
@@ -404,4 +430,6 @@
    SmbClient.Smb2.Models.QueryInfoRequest,
    SmbClient.Smb2.Models.QueryInfoResponse,
    SmbClient.Smb2.Models.QueryDirectoryInfoRequest,
-   SmbClient.Smb2.Models.QueryDirectoryInfoResponse);
+   SmbClient.Smb2.Models.QueryDirectoryInfoResponse,
+   SmbClient.Smb2.Models.ReadRequest,
+   SmbClient.Smb2.Models.ReadResponse);

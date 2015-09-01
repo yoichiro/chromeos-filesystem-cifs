@@ -39,6 +39,10 @@
     };
 
     Debug.outputUint8Array = function(array) {
+        if (Debug.Level > 0) {
+            return;
+        }
+        
         var lines = "";
         var out = "";
         var ascii = "";
@@ -70,6 +74,10 @@
     };
 
     Debug.outputArrayBuffer = function(buffer) {
+        if (Debug.Level > 0) {
+            return;
+        }
+
         var array = new Uint8Array(buffer);
         Debug.outputUint8Array(array);
     };

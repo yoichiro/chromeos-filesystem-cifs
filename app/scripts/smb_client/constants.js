@@ -10,6 +10,7 @@
     // Constants
 
     Constants.READ_ANDX_BUFFER_SIZE = 8192 * 7;
+    Constants.SMB2_READ_BUFFER_SIZE = 8192 * 5;
     Constants.TRANSACTION_BUFFER_SIZE = 1024;
     Constants.TRANSACTION_MAX_APPEND_READ_SIZE = 65535;
     Constants.SMB2_HEADER_SIZE = 64;
@@ -55,6 +56,7 @@
     Constants.SMB2_LOGOFF = 0x0002;
     Constants.SMB2_QUERY_INFO = 0x0010;
     Constants.SMB2_QUERY_DIRECTORY_INFO = 0x000e;
+    Constants.SMB2_READ = 0x0008;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;

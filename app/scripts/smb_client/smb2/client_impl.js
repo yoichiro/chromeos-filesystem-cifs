@@ -212,6 +212,20 @@
         }.bind(this), errorHandler);
     };
     
+    ClientImpl.prototype.readFile = function(filename, offset, length, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        openFile.call(this, filename, "READ", {}, function(fileId) {
+            read.call(this, fileId, offset, length, function(buffer) {
+                close.call(this, fileId, function() {
+                    onSuccess(buffer);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
     // Private functions
     
     var checkError = function(header, onError, expected) {
@@ -482,6 +496,113 @@
                         Debug.log(queryDirectoryInfoResponse);
                         queryDirectoryInfo.call(this, fileId, files, 0, onSuccess, onError);
                     }
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    // options: truncate(boolean)
+    var openFile = function(filename, mode, options, onSuccess, onError) {
+        var params = {
+            fileAttributes:
+                Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
+            shareAccess:
+                Constants.FILE_SHARE_READ |
+                Constants.FILE_SHARE_WRITE |
+                Constants.FILE_SHARE_DELETE,
+            createOptions: Constants.FILE_NON_DIRECTORY_FILE,
+            name: filename,
+            createContexts: [
+                this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+            ]
+        };
+        if (mode === "READ") {
+            params.desiredAccess =
+                Constants.FILE_READ_DATA |
+                Constants.FILE_READ_EA |
+                Constants.FILE_READ_ATTRIBUTES;
+            params.createDisposition = Constants.FILE_OPEN;
+        } else if (mode === "WRITE") {
+            params.desiredAccess =
+                Constants.FILE_READ_DATA |
+                Constants.FILE_WRITE_DATA |
+                Constants.FILE_APPEND_DATA |
+                Constants.FILE_READ_EA |
+                Constants.FILE_WRITE_EA |
+                Constants.FILE_READ_ATTRIBUTES |
+                Constants.FILE_WRITE_ATTRIBUTES;
+            if (options.truncate) {
+                params.createDisposition = Constants.FILE_OVERWRITE_IF;
+            } else {
+                params.createDisposition = Constants.FILE_OPEN_IF;
+            }
+        } else {
+            throw new Error("Unknown mode: " + mode);
+        }
+        create.call(this, params, function(
+            header, createResponse) {
+            Debug.log(header);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            onSuccess(fileId);
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var read = function(fileId, offset, length, onSuccess, onError) {
+        read_.call(this, fileId, offset, length, [], function(dataList) {
+            var total = 0;
+            for (var i = 0; i < dataList.length; i++) {
+                total += dataList[i].length;
+            }
+            var buffer = new ArrayBuffer(total);
+            var array = new Uint8Array(buffer);
+            var pos = 0;
+            for (i = 0; i < dataList.length; i++) {
+                array.set(dataList[i], pos);
+                pos += dataList[i].length;
+            }
+            onSuccess(buffer);
+        }.bind(this), onError);
+    };
+
+    var read_ = function(fileId, readOffset, remaining, dataList, onSuccess, onError) {
+        var readLength = Math.min(Constants.SMB2_READ_BUFFER_SIZE, remaining);
+        doRead.call(this, fileId, readOffset, readLength, function(readResponseHeader, readResponse) {
+            var actualReadLength = readResponse.getDataLength();
+            readOffset += actualReadLength;
+            remaining -= actualReadLength;
+            if (actualReadLength === 0) {
+                onSuccess(dataList);
+            } else if (remaining === 0) {
+                dataList.push(readResponse.getData());
+                onSuccess(dataList);
+            } else {
+                dataList.push(readResponse.getData());
+                read_.call(this, fileId, readOffset, remaining, dataList, onSuccess, onError);
+            }
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var doRead = function(fileId, offset, length, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var readRequestPacket = this.protocol_.createReadRequestPacket(
+            session, fileId, offset, length);
+        this.comm_.writePacket(readRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    var readResponse = this.protocol_.parseReadResponsePacket(packet);
+                    Debug.log(readResponse);
+                    onSuccess(header, readResponse);
                 }
             }.bind(this), function(error) {
                 onError(error);
