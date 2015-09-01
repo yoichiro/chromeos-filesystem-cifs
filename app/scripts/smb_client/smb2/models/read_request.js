@@ -21,7 +21,7 @@
         // structure_size
         this.types_.setFixed2BytesValue(49, array, 0);
         // padding
-        array[2] = Constants.SMB2_HEADER_SIZE + 16;
+        array[2] = 0;
         // flags
         array[3] = 0;
         // length

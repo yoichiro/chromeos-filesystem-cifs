@@ -10,7 +10,7 @@
     // Constants
 
     Constants.READ_ANDX_BUFFER_SIZE = 8192 * 7;
-    Constants.SMB2_READ_BUFFER_SIZE = 8192 * 5;
+    Constants.SMB2_READ_BUFFER_SIZE = 8192 * 7;
     Constants.TRANSACTION_BUFFER_SIZE = 1024;
     Constants.TRANSACTION_MAX_APPEND_READ_SIZE = 65535;
     Constants.SMB2_HEADER_SIZE = 64;
