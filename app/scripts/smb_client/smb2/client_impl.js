@@ -139,7 +139,7 @@
                 Constants.FILE_SHARE_WRITE |
                 Constants.FILE_SHARE_DELETE,
             createDisposition: Constants.FILE_OPEN,
-            name: fileName,
+            name: trimFirstDelimiter.call(this, fileName),
             createContexts: [
                 this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
             ]
@@ -166,14 +166,6 @@
             onError(error);
         }.bind(this);
         
-        var trimFirstDelimiter = function(path) {
-            if (path && path.charAt(0) === '\\') {
-                return path.substring(1);
-            } else {
-                return path;
-            }
-        };
-
         var options = {
             desiredAccess:
                 Constants.FILE_READ_DATA | Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
@@ -185,7 +177,7 @@
                 Constants.FILE_SHARE_DELETE,
             createDisposition: Constants.FILE_OPEN,
             createOptions: Constants.FILE_DIRECTORY_FILE,
-            name: trimFirstDelimiter(directoryName),
+            name: trimFirstDelimiter.call(this, directoryName),
             createContexts: [
                 this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
             ]
@@ -221,6 +213,66 @@
             read.call(this, fileId, offset, length, function(buffer) {
                 close.call(this, fileId, function() {
                     onSuccess(buffer);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.createFile = function(filename, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        openFile.call(this, filename, "WRITE", {truncate: false}, function(fileId) {
+            close.call(this, fileId, function() {
+                onSuccess();
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.truncate = function(filename, length, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        openFile.call(this, filename, "READ", {}, function(fileId) {
+            read.call(this, fileId, 0, length, function(buffer) {
+                close.call(this, fileId, function() {
+                    var array = new Uint8Array(buffer);
+                    var readLength = array.length;
+                    var newArray;
+                    if (readLength < length) {
+                        var newBuffer = new ArrayBuffer(length);
+                        newArray = new Uint8Array(newBuffer);
+                        newArray.set(array, 0);
+                    } else if (length === readLength) {
+                        newArray = array;
+                    } else { // Never
+                        throw new Error("length < readLength");
+                    }
+                    openFile.call(this, filename, "WRITE", {
+                        truncate: true
+                    }, function(fileId) {
+                        write.call(this, fileId, 0, newArray, function() {
+                            close.call(this, fileId, function() {
+                                onSuccess();
+                            }.bind(this), errorHandler);
+                        }.bind(this), errorHandler);
+                    }.bind(this), errorHandler);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.writeFile = function(filename, offset, array, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        openFile.call(this, filename, "WRITE", {}, function(fileId) {
+            write.call(this, fileId, offset, array, function() {
+                close.call(this, fileId, function() {
+                    onSuccess();
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
@@ -515,7 +567,7 @@
                 Constants.FILE_SHARE_WRITE |
                 Constants.FILE_SHARE_DELETE,
             createOptions: Constants.FILE_NON_DIRECTORY_FILE,
-            name: filename,
+            name: trimFirstDelimiter.call(this, filename),
             createContexts: [
                 this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
             ]
@@ -574,17 +626,21 @@
     var read_ = function(fileId, readOffset, remaining, dataList, onSuccess, onError) {
         var readLength = Math.min(Constants.SMB2_READ_BUFFER_SIZE, remaining);
         doRead.call(this, fileId, readOffset, readLength, function(readResponseHeader, readResponse) {
-            var actualReadLength = readResponse.getDataLength();
-            readOffset += actualReadLength;
-            remaining -= actualReadLength;
-            if (actualReadLength === 0) {
-                onSuccess(dataList);
-            } else if (remaining === 0) {
-                dataList.push(readResponse.getData());
+            if (readResponseHeader.getStatus() === Constants.NT_STATUS_END_OF_FILE) {
                 onSuccess(dataList);
             } else {
-                dataList.push(readResponse.getData());
-                read_.call(this, fileId, readOffset, remaining, dataList, onSuccess, onError);
+                var actualReadLength = readResponse.getDataLength();
+                readOffset += actualReadLength;
+                remaining -= actualReadLength;
+                if (actualReadLength === 0) {
+                    onSuccess(dataList);
+                } else if (remaining === 0) {
+                    dataList.push(readResponse.getData());
+                    onSuccess(dataList);
+                } else {
+                    dataList.push(readResponse.getData());
+                    read_.call(this, fileId, readOffset, remaining, dataList, onSuccess, onError);
+                }
             }
         }.bind(this), function(error) {
             onError(error);
@@ -599,10 +655,54 @@
             this.comm_.readPacket(function(packet) {
                 var header = packet.getHeader();
                 Debug.log(header);
-                if (checkError.call(this, header, onError)) {
+                if (header.getStatus() === Constants.NT_STATUS_END_OF_FILE) {
+                    onSuccess(header, null);
+                } else if (checkError.call(this, header, onError)) {
                     var readResponse = this.protocol_.parseReadResponsePacket(packet);
                     Debug.log(readResponse);
                     onSuccess(header, readResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var write = function(fileId, offset, data, onSuccess, onError) {
+        write_.call(this, fileId, offset, 0, data, onSuccess, onError);
+    };
+
+    var write_ = function(fileId, offset, pos, data, onSuccess, onError) {
+        var writeLength = Math.min(Constants.SMB2_READ_BUFFER_SIZE, data.length - pos);
+        var array = data.subarray(pos, pos + writeLength);
+        doWrite.call(this, fileId, offset, array, function(writeResponseHeader, writeResponse) {
+            var actualWriteLength = writeResponse.getCount();
+            offset += actualWriteLength;
+            pos += actualWriteLength;
+            if (pos === data.length) {
+                onSuccess();
+            } else {
+                write_.call(this, fileId, offset, pos, data, onSuccess, onError);
+            }
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var doWrite = function(fileId, offset, data, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var writeRequestPacket = this.protocol_.createWriteRequestPacket(
+            session, fileId, offset, data);
+        this.comm_.writePacket(writeRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    var writeResponse = this.protocol_.parseWriteResponsePacket(packet);
+                    Debug.log(writeResponse);
+                    onSuccess(header, writeResponse);
                 }
             }.bind(this), function(error) {
                 onError(error);
@@ -616,6 +716,14 @@
         var names = path.split("\\");
         var name = names[names.length - 1];
         return name;
+    };
+    
+    var trimFirstDelimiter = function(path) {
+        if (path && path.charAt(0) === '\\') {
+            return path.substring(1);
+        } else {
+            return path;
+        }
     };
 
     // Export
