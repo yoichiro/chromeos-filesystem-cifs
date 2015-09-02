@@ -195,7 +195,7 @@
         if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
             this.smb1ClientImpl_.deleteEntry(fileName, onSuccess, onError);
         } else if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {
-            // TODO Delegate this process to Smb2ClientImpl.
+            this.smb2ClientImpl_.deleteEntry(fileName, onSuccess, onError);
         } else {
             throw new Error("Unknown protocol version");
         }

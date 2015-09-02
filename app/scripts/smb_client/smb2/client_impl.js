@@ -1,4 +1,4 @@
-(function(Smb2, Constants, Debug, Protocol, Packet) {
+(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation) {
     "use strict";
     
     // Constructor
@@ -275,6 +275,25 @@
                     onSuccess();
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.deleteEntry = function(filename, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        this.getMetadata(filename, function(file) {
+            if (file.isDirectory()) {
+                deepDelete.call(this, [file], 0, 0, [], function() {
+                    onSuccess();
+                }.bind(this), errorHandler);
+            } else {
+                deleteFile.call(this, filename, function(deleteResponseHeader) {
+                    Debug.log(deleteResponseHeader);
+                    onSuccess();
+                }.bind(this), errorHandler);
+            }
         }.bind(this), errorHandler);
     };
     
@@ -592,6 +611,9 @@
             } else {
                 params.createDisposition = Constants.FILE_OPEN_IF;
             }
+        } else if (mode === "DELETE") {
+            params.desiredAccess = Constants.DELETE;
+            params.createDisposition = Constants.FILE_OPEN;
         } else {
             throw new Error("Unknown mode: " + mode);
         }
@@ -711,6 +733,115 @@
             onError(error);
         }.bind(this));
     };
+    
+    var deleteFile = function(filename, onSuccess, onError) {
+        var session = this.client_.getSession();
+        openFile.call(this, filename, "DELETE", {}, function(fileId) {
+            var fileDispositionInformation = new FileDispositionInformation();
+            var setInfoRequestPacket = this.protocol_.createSetInfoRequestPacket(
+                session, fileId, fileDispositionInformation);
+            this.comm_.writePacket(setInfoRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    var header = packet.getHeader();
+                    Debug.log(header);
+                    if (checkError.call(this, header, onError)) {
+                        close.call(this, fileId, function() {
+                            onSuccess();
+                        }.bind(this), function(error) {
+                            onError(error);
+                        }.bind(this));
+                    }
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
+    var deleteDirectory = function(directoryName, onSuccess, onError) {
+        var session = this.client_.getSession();
+
+        var options = {
+            desiredAccess: Constants.DELETE,
+            fileAttributes:
+                Constants.SMB2_FILE_ATTRIBUTE_DIRECTORY,
+            shareAccess:
+                Constants.FILE_SHARE_READ |
+                Constants.FILE_SHARE_WRITE |
+                Constants.FILE_SHARE_DELETE,
+            createDisposition: Constants.FILE_OPEN,
+            createOptions: Constants.FILE_DIRECTORY_FILE,
+            name: trimFirstDelimiter.call(this, directoryName),
+            createContexts: [
+                this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+            ]
+        };
+        create.call(this, options, function(
+            createResponseHeader, createResponse) {
+            Debug.log(createResponseHeader);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            var fileDispositionInformation = new FileDispositionInformation();
+            var setInfoRequestPacket = this.protocol_.createSetInfoRequestPacket(
+                session, fileId, fileDispositionInformation);
+            this.comm_.writePacket(setInfoRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    var header = packet.getHeader();
+                    Debug.log(header);
+                    if (checkError.call(this, header, onError)) {
+                        close.call(this, fileId, function() {
+                            onSuccess();
+                        }.bind(this), function(error) {
+                            onError(error);
+                        }.bind(this));
+                    }
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var deepDelete = function(files, index, depth, stack, onSuccess, onError) {
+        if (files.length === index) {
+            if (depth === 0) {
+                onSuccess();
+            } else {
+                var prev = stack.pop();
+                deleteDirectory.call(this, prev.files[prev.index].getFullFileName(), function() {
+                    deepDelete.call(this, prev.files, prev.index + 1, prev.depth,
+                                    stack, onSuccess, onError);
+                }.bind(this), onError);
+            }
+        } else {
+            var file = files[index];
+            if (file.isDirectory()) {
+                // Recursive for each child
+                this.readDirectory(file.getFullFileName(), function(children) {
+                    stack.push({
+                        files: files,
+                        index: index,
+                        depth: depth
+                    });
+                    deepDelete.call(this, children, 0, depth + 1, stack, onSuccess, onError);
+                }.bind(this), onError);
+            } else {
+                // Delete file
+                deleteFile.call(this, file.getFullFileName(), function(deleteResponseHeader) {
+                    Debug.log(deleteResponseHeader);
+                    deepDelete.call(this, files, index + 1, depth, stack, onSuccess, onError);
+                }.bind(this), onError);
+            }
+        }
+    };
 
     var getNameFromPath = function(path) {
         var names = path.split("\\");
@@ -735,4 +866,5 @@
    SmbClient.Constants,
    SmbClient.Debug,
    SmbClient.Smb2.Protocol,
-   SmbClient.Packet);
+   SmbClient.Packet,
+   SmbClient.Smb2.Models.FileDispositionInformation);

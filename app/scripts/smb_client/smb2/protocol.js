@@ -34,7 +34,8 @@
           ReadRequest,
           ReadResponse,
           WriteRequest,
-          WriteResponse) {
+          WriteResponse,
+          SetInfoRequest) {
 
     "use strict";
 
@@ -397,6 +398,22 @@
         return writeResponse;
     };
     
+    Protocol.prototype.createSetInfoRequestPacket = function(session, fileId, fileInfoClass) {
+        var header = createHeader.call(this, Constants.SMB2_SET_INFO, {
+            processId: session.getProcessId(),
+            userId: session.getUserId(),
+            treeId: session.getTreeId()
+        });
+        
+        var setInfoRequest = new SetInfoRequest();
+        setInfoRequest.setFileId(fileId);
+        setInfoRequest.setFileInfoClass(fileInfoClass);
+        
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, setInfoRequest);
+        return packet;
+    };
+    
     // Private functions
 
     // options: userId
@@ -459,4 +476,5 @@
    SmbClient.Smb2.Models.ReadRequest,
    SmbClient.Smb2.Models.ReadResponse,
    SmbClient.Smb2.Models.WriteRequest,
-   SmbClient.Smb2.Models.WriteResponse);
+   SmbClient.Smb2.Models.WriteResponse,
+   SmbClient.Smb2.Models.SetInfoRequest);
