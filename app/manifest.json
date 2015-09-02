@@ -128,6 +128,7 @@
                 "scripts/smb_client/smb2/models/empty_request.js",
                 "scripts/smb_client/smb1/models/logoff_andx_request.js",
                 "scripts/smb_client/smb2/models/file_disposition_information.js",
+                "scripts/smb_client/smb2/models/file_rename_information.js",
                 "scripts/smb_client/smb2/models/set_info_request.js",
                 "scripts/smb_client/smb1/protocol.js",
                 "scripts/smb_client/smb2/protocol.js",

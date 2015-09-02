@@ -1,4 +1,4 @@
-(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation) {
+(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation, FileRenameInformation) {
     "use strict";
     
     // Constructor
@@ -297,6 +297,73 @@
         }.bind(this), errorHandler);
     };
     
+    ClientImpl.prototype.createDirectory = function(directoryName, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        var options = {
+            desiredAccess:
+                Constants.FILE_READ_DATA | Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
+            fileAttributes:
+                Constants.SMB2_FILE_ATTRIBUTE_DIRECTORY,
+            shareAccess:
+                Constants.FILE_SHARE_READ |
+                Constants.FILE_SHARE_WRITE |
+                Constants.FILE_SHARE_DELETE,
+            createDisposition: Constants.FILE_OPEN_IF,
+            createOptions: Constants.FILE_DIRECTORY_FILE,
+            name: trimFirstDelimiter.call(this, directoryName),
+            createContexts: [
+                this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+            ]
+        };
+        create.call(this, options, function(
+            createResponseHeader, createResponse) {
+            Debug.log(createResponseHeader);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            close.call(this, fileId, function(closeResponseHeader) {
+                Debug.log(closeResponseHeader);
+                onSuccess();
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+    
+    ClientImpl.prototype.move = function(source, target, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        if (getParentPath.call(this, source) === getParentPath.call(this, target)) {
+            this.getMetadata(source, function(file) {
+                rename.call(this, source, target, file.isDirectory(), function() {
+                    onSuccess();
+                }.bind(this), errorHandler);
+            }.bind(this));
+        } else {
+            this.getMetadata(source, function(file) {
+                deepCopy.call(this, [file], 0, getParentPath.call(this, target), 0, [], function() {
+                    deepDelete.call(this, [file], 0, 0, [], function() {
+                        onSuccess();
+                    }.bind(this), errorHandler);
+                }.bind(this), errorHandler);
+            }.bind(this), errorHandler);
+        }
+    };
+    
+    ClientImpl.prototype.copy = function(source, target, onSuccess, onError) {
+        var errorHandler = function(error) {
+            onError(error);
+        }.bind(this);
+
+        this.getMetadata(source, function(file) {
+            deepCopy.call(this, [file], 0, getParentPath.call(this, target), 0, [], function() {
+                onSuccess();
+            }.bind(this), errorHandler);
+        }.bind(this), errorHandler);
+    };
+
     // Private functions
     
     var checkError = function(header, onError, expected) {
@@ -842,6 +909,121 @@
             }
         }
     };
+    
+    var rename = function(source, target, isDirectory, onSuccess, onError) {
+        var session = this.client_.getSession();
+        var options = null;
+        if (isDirectory) {
+            options = {
+                desiredAccess:
+                    Constants.FILE_READ_DATA | Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
+                fileAttributes:
+                    Constants.SMB2_FILE_ATTRIBUTE_DIRECTORY,
+                shareAccess:
+                    Constants.FILE_SHARE_READ |
+                    Constants.FILE_SHARE_WRITE |
+                    Constants.FILE_SHARE_DELETE,
+                createDisposition: Constants.FILE_OPEN,
+                createOptions: Constants.FILE_DIRECTORY_FILE,
+                name: trimFirstDelimiter.call(this, source),
+                createContexts: [
+                    this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+                ]
+            };
+        } else {
+            options = {
+                desiredAccess:
+                    Constants.FILE_READ_DATA |
+                    Constants.FILE_WRITE_DATA |
+                    Constants.FILE_APPEND_DATA |
+                    Constants.FILE_READ_EA |
+                    Constants.FILE_WRITE_EA |
+                    Constants.FILE_READ_ATTRIBUTES |
+                    Constants.FILE_WRITE_ATTRIBUTES,
+                fileAttributes:
+                    Constants.SMB2_FILE_ATTRIBUTE_NORMAL,
+                shareAccess:
+                    Constants.FILE_SHARE_READ |
+                    Constants.FILE_SHARE_WRITE |
+                    Constants.FILE_SHARE_DELETE,
+                createDisposition: Constants.FILE_OPEN,
+                name: trimFirstDelimiter.call(this, source),
+                createContexts: [
+                    this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
+                ]
+            };
+        }
+        create.call(this, options, function(
+            createResponseHeader, createResponse) {
+            Debug.log(createResponseHeader);
+            Debug.log(createResponse);
+            var fileId = createResponse.getFileId();
+            var fileRenameInformation = new FileRenameInformation();
+            fileRenameInformation.setFilename(target);
+            var setInfoRequestPacket = this.protocol_.createSetInfoRequestPacket(
+                session, fileId, fileRenameInformation);
+            this.comm_.writePacket(setInfoRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    var header = packet.getHeader();
+                    Debug.log(header);
+                    if (checkError.call(this, header, onError)) {
+                        close.call(this, fileId, function() {
+                            onSuccess();
+                        }.bind(this), function(error) {
+                            onError(error);
+                        }.bind(this));
+                    }
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+    
+    var deepCopy = function(files, index, target, depth, stack, onSuccess, onError) {
+        if (files.length === index) {
+            if (depth === 0) {
+                onSuccess();
+            } else {
+                var prev = stack.pop();
+                deepCopy.call(this, prev.files, prev.index + 1, prev.target, prev.depth,
+                              stack, onSuccess, onError);
+            }
+        } else {
+            var file = files[index];
+            if (file.isDirectory()) {
+                // Create target directory
+                var targetDirectoryName = target + "\\" + file.getFileName();
+                this.createDirectory(targetDirectoryName, function() {
+                    // Recursive for each child
+                    this.readDirectory(file.getFullFileName(), function(children) {
+                        stack.push({
+                            files: files,
+                            index: index,
+                            target: target,
+                            depth: depth
+                        });
+                        deepCopy.call(this, children, 0, targetDirectoryName, depth + 1, stack,
+                                      onSuccess, onError);
+                    }.bind(this), onError);
+                }.bind(this), onError);
+            } else {
+                // Copy file
+                this.readFile(file.getFullFileName(), 0, file.getEndOfFile(), function(buffer) {
+                    var targetFileName = target + "\\" + file.getFileName();
+                    this.createFile(targetFileName, function() {
+                        this.writeFile(targetFileName, 0, new Uint8Array(buffer), function() {
+                            deepCopy.call(this, files, index + 1, target, depth, stack, onSuccess, onError);
+                        }.bind(this), onError);
+                    }.bind(this), onError);
+                }.bind(this), onError);
+            }
+        }
+    };
 
     var getNameFromPath = function(path) {
         var names = path.split("\\");
@@ -856,6 +1038,21 @@
             return path;
         }
     };
+    
+    var getParentPath = function(path) {
+        if (path === "\\") {
+            return null;
+        } else {
+            var names = path.split("\\");
+            var name = "";
+            for (var i = 0; i < names.length - 1; i++) {
+                if (names[i].length > 0) {
+                    name += "\\" + names[i];
+                }
+            }
+            return name;
+        }
+    };
 
     // Export
     
@@ -867,4 +1064,5 @@
    SmbClient.Debug,
    SmbClient.Smb2.Protocol,
    SmbClient.Packet,
-   SmbClient.Smb2.Models.FileDispositionInformation);
+   SmbClient.Smb2.Models.FileDispositionInformation,
+   SmbClient.Smb2.Models.FileRenameInformation);

@@ -9,6 +9,7 @@
         this.data_ = null;
         this.dataRemaining_ = null;
         this.dataLength_ = null;
+        this.dataOffset_ = null;
     };
     
     // Public functions
@@ -17,12 +18,12 @@
         var array = packet.getPacketHelper().getSmbDataUint8Array();
         
         var structureSize = this.types_.getFixed2BytesValue(array, 0);
-        var dataOffset = array[2];
+        this.dataOffset_ = array[2];
         // UCHAR reserved
         this.dataLength_ = this.types_.getFixed4BytesValue(array, 4);
         this.dataRemaining_ = this.types_.getFixed4BytesValue(array, 8);
         // UINT reserved
-        var pos = dataOffset - Constants.SMB2_HEADER_SIZE;
+        var pos = this.dataOffset_ - Constants.SMB2_HEADER_SIZE;
         this.data_ = array.subarray(pos, pos + this.dataLength_);
     };
     

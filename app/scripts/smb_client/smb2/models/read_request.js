@@ -21,7 +21,7 @@
         // structure_size
         this.types_.setFixed2BytesValue(49, array, 0);
         // padding
-        array[2] = 0;
+        array[2] = 80;
         // flags
         array[3] = 0;
         // length
@@ -31,7 +31,7 @@
         // file_id
         this.types_.copyArray(this.fileId_, array, 16, 16);
         // minimum_count
-        this.types_.setFixed4BytesValue(Constants.SMB2_READ_BUFFER_SIZE, array, 32);
+        this.types_.setFixed4BytesValue(1, array, 32);
         // channel
         this.types_.setFixed4BytesValue(0, array, 36);
         // remaining_bytes

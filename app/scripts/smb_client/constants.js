@@ -481,6 +481,7 @@
     Constants.SMB2_0_FILE_ALL_INFORMATION = 0x12;
     Constants.SMB2_0_FILE_ID_BOTH_DIRECTORY_INFORMATION = 0x25;
     Constants.SMB2_0_FILE_DISPOSITION_INFORMATION = 0x0d;
+    Constants.SMB2_0_FILE_RENAME_INFORMATION = 0x0a;
     
     // -- SMB2 QueryDirectoryInfo Flags
     Constants.SMB2_RESTART_SCANS = 0x01; // The server MUST restart the enumeration from the beginning, but the search pattern is not changed.
