@@ -1,10 +1,11 @@
-(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation, FileRenameInformation) {
+(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation, FileRenameInformation, BinaryUtils) {
     "use strict";
     
     // Constructor
     
     var ClientImpl = function(client) {
         this.protocol_ = new Protocol();
+        this.binaryUtils_ = new BinaryUtils();
       
         this.client_ = client;
         this.comm_ = client.getCommunication();
@@ -510,7 +511,6 @@
                 Debug.log(header);
                 if (header.getStatus() === Constants.STATUS_BUFFER_OVERFLOW) {
                     // TODO Support STATUS_BUFFER_OVERFLOW
-                    /*
                     read.call(this, fid, 0, Constants.TRANSACTION_MAX_APPEND_READ_SIZE, function(buffer) {
                         var newBuffer = this.binaryUtils_.concatBuffers([packet.getData(), buffer]);
                         var dceRpcNetShareEnumAllResponse =
@@ -520,7 +520,6 @@
                     }.bind(this), function(error) {
                         onError(error);
                     }.bind(this));
-                    */
                 } else {
                     if (checkError.call(this, header, onError)) {
                         var dceRpcNetShareEnumAllResponse =
@@ -1065,4 +1064,5 @@
    SmbClient.Smb2.Protocol,
    SmbClient.Packet,
    SmbClient.Smb2.Models.FileDispositionInformation,
-   SmbClient.Smb2.Models.FileRenameInformation);
+   SmbClient.Smb2.Models.FileRenameInformation,
+   SmbClient.BinaryUtils);
