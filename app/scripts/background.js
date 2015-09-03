@@ -11,7 +11,7 @@
             var settings = items.settings;
             var debugLevel = settings.debugLevel;
             if (typeof debugLevel === "undefined") {
-                debugLevel = 2;
+                debugLevel = 1;
             }
             Debug.Level = debugLevel;
         });
