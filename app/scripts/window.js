@@ -318,7 +318,7 @@
 
             var debugLevel = settings.debugLevel;
             if (typeof debugLevel === "undefined") {
-                debugLevel = 2;
+                debugLevel = 1;
             }
             if (debugLevel === 0) {
                 document.querySelector("#debugLevel").selected = "debugLevelTrace";
