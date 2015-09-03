@@ -1,4 +1,4 @@
-(function(Debug, Types, Base, NtlmHash) {
+(function(Auth, Debug, Types, Base, NtlmHash) {
     "use strict";
 
     // Constructor
@@ -29,6 +29,6 @@
 
     // Export
 
-    SmbClient.NtlmV2Hash = NtlmV2Hash;
+    Auth.NtlmV2Hash = NtlmV2Hash;
 
-})(SmbClient.Debug, SmbClient.Types, SmbClient.HashResponseBase, SmbClient.NtlmHash);
+})(SmbClient.Auth, SmbClient.Debug, SmbClient.Types, SmbClient.Auth.HashResponseBase, SmbClient.Auth.NtlmHash);

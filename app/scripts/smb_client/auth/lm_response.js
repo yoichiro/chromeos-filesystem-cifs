@@ -1,4 +1,4 @@
-(function(Debug, Base) {
+(function(Auth, Debug, Base) {
     "use strict";
 
     // Constructor
@@ -36,6 +36,6 @@
 
     // Export
 
-    SmbClient.LmResponse = LmResponse;
+    Auth.LmResponse = LmResponse;
 
-})(SmbClient.Debug, SmbClient.HashResponseBase);
+})(SmbClient.Auth, SmbClient.Debug, SmbClient.Auth.HashResponseBase);

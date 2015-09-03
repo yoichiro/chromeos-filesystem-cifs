@@ -39,22 +39,45 @@
     };
 
     Debug.outputUint8Array = function(array) {
+        if (Debug.Level > 0) {
+            return;
+        }
+        
+        var lines = "";
         var out = "";
+        var ascii = "";
         for (var i = 0; i < array.length; i++) {
             // out += String.fromCharCode(array[i]);
             var value = (Number(array[i])).toString(16).toUpperCase();
             if (value.length === 1) {
                 value = "0" + value;
             }
-            out += value + " ";
+            out += value;
+            if (i % 2 !== 0) {
+                out += " ";
+            }
+            if (0x20 <= array[i] && array[i] <= 0x7e) {
+                ascii += String.fromCharCode(array[i]);
+            } else {
+                ascii += ".";
+            }
             if (((i + 1) % 16) === 0) {
-                out += "\n";
+                lines += out + " " + ascii + "\n";
+                out = "";
+                ascii = "";
             }
         }
-        Debug.log(out);
+        if (out) {
+            lines += out + " " + ascii + "\n";
+        }
+        Debug.log(lines);
     };
 
     Debug.outputArrayBuffer = function(buffer) {
+        if (Debug.Level > 0) {
+            return;
+        }
+
         var array = new Uint8Array(buffer);
         Debug.outputUint8Array(array);
     };

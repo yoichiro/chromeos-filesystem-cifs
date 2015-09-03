@@ -94,6 +94,15 @@
         // Return the next position.
         return offset + uniSourceArray.length + 2;
     };
+    
+    Types.prototype.setUnicodeString = function(source, array, offset) {
+        var uniSourceWordArray = CryptoJS.enc.Utf16LE.parse(source);
+        var uniSourceArrayBuffer = uniSourceWordArray.toArrayBuffer();
+        var uniSourceArray = new Uint8Array(uniSourceArrayBuffer);
+        this.copyArray(uniSourceArray, array, offset, uniSourceArray.length);
+        // Return the next position.
+        return offset + uniSourceArray.length;
+    };
 
     // source: String
     Types.prototype.createDialectStringArrayBuffer = function(dialect) {
@@ -237,7 +246,11 @@
         var n = ((i + m) & ~m) - i;
         return n;
     };
-
+    
+    Types.prototype.copyArrayWithPadding = function(source, target, offset, length, padding) {
+        this.copyArray(source, target, offset, length);
+        return offset + length + this.getPaddingLength(offset + length, padding);
+    };
 
     // Export
 

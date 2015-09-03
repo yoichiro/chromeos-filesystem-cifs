@@ -1,4 +1,4 @@
-(function() {
+(function(Auth) {
     "use strict";
 
     // Constructor
@@ -74,6 +74,6 @@
 
     // Export
 
-    SmbClient.HashResponseBase = HashResponseBase;
+    Auth.HashResponseBase = HashResponseBase;
 
-})();
+})(SmbClient.Auth);

@@ -744,7 +744,9 @@
 
     var handleError = function(reason, errorCode, onError) {
         Debug.error(reason);
-        if (reason === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") {
+        if (reason === "3221225524: NT_STATUS_OBJECT_NAME_NOT_FOUND") { // for SMB1
+            onError("NOT_FOUND");
+        } else if (reason === "c0000034: NT_STATUS_OBJECT_NAME_NOT_FOUND") { // for SMB2
             onError("NOT_FOUND");
         } else if (reason === "Sending data failed: -15" ||
                    reason === "Reading packet failed (Lost connection?)" ||

@@ -36,7 +36,7 @@
     CifsClient.prototype.getPassword = function() {
         return this.password_;
     };
-    
+
     CifsClient.prototype.getDomainName = function() {
         return this.domainName_;
     };
@@ -170,7 +170,7 @@
     CifsClient.prototype.copyEntry = function(options) {
         moveOrCopyEntry.call(this, "copy", options);
     };
-    
+
     CifsClient.prototype.createFile = function(options) {
         createOrDeleteEntry.call(this, "createFile", options);
     };
@@ -216,7 +216,7 @@
             options.onError(error);
         }.bind(this));
     };
-    
+
     var getNameFromPath = function(path) {
         var names = path.split("/");
         var name = names[names.length - 1];

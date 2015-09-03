@@ -1,4 +1,4 @@
-(function(Header, Types, Debug) {
+(function(Header, Types, Debug, Constants, Smb1PacketHelper, Smb2PacketHelper) {
     "use strict";
 
     // Constructor
@@ -8,6 +8,8 @@
         this.types_ = new Types();
         this.data_ = null;
         this.dataLength_ = null;
+        this.packetHelper_ = null;
+        
         if (buffer) {
             this.data_ = buffer;
             this.dataLength_ = buffer.byteLength;
@@ -15,11 +17,9 @@
             this.data_ = new ArrayBuffer();
             this.dataLength_ = 0;
         }
+        
+        createPacketHelper.call(this);
     };
-
-    // Constants
-
-    Packet.HEADER_LENGTH = 32; // bytes
 
     // Public methods
 
@@ -42,66 +42,53 @@
         return this.dataLength_;
     };
 
-    Packet.prototype.getHeaderUint8Array = function() {
-        var array = new Uint8Array(this.data_);
-        var subarray = array.subarray(0, Packet.HEADER_LENGTH);
-        // This returns the result as Uint8Array.
-        return subarray;
-    };
-
-    Packet.prototype.getHeader = function() {
-        var header = new Header();
-        header.load(this);
-        return header;
-    };
-
-    Packet.prototype.getSmbParametersAndSmbDataUint8Array = function() {
-        var array = new Uint8Array(this.data_);
-        var subarray = array.subarray(Packet.HEADER_LENGTH,
-                                      this.dataLength_);
-        // This returns the result as Uint8Array.
-        return subarray;
-    };
-
-    Packet.prototype.set = function(header, request) {
-        Debug.log(header);
-        Debug.log(request);
-        var headerArrayBuffer = header.createArrayBuffer();
-        var smbParametersArrayBuffer = request.createSmbParametersArrayBuffer();
-        var smbDataArrayBuffer = request.createSmbDataArrayBuffer();
-        var totalSize =
-                headerArrayBuffer.byteLength +
-                1 + // Word count
-                smbParametersArrayBuffer.byteLength +
-                2 + // Byte count
-                smbDataArrayBuffer.byteLength;
-        var buffer = new ArrayBuffer(totalSize);
-
-        // Copy header
-        var array = new Uint8Array(buffer);
-        var headerArray = new Uint8Array(headerArrayBuffer);
-        array.set(headerArray, 0);
-
-        // Copy SMB Parameters
-        if (smbParametersArrayBuffer.byteLength > 0) {
-            array[32] = smbParametersArrayBuffer.byteLength / 2;
-            var smbParametersArray = new Uint8Array(smbParametersArrayBuffer);
-            array.set(smbParametersArray, 33);
+    Packet.prototype.getSmbProtocolVersion = function() {
+        if (this.dataLength_ > 0) {
+            var array = new Uint8Array(this.data_);
+            if (array[0] === 0xff) {
+                return Constants.PROTOCOL_VERSION_SMB1;
+            } else if (array[0] === 0xfe) {
+                return Constants.PROTOCOL_VERSION_SMB2;
+            } else {
+                return Constants.PROTOCOL_VERSION_UNKNOWN;
+            }
         } else {
-            array[32] = 0;
+            return Constants.PROTOCOL_VERSION_UNKNOWN;
         }
-
-        // Copy SMB Data
-        var pos = 32 + 1 + smbParametersArrayBuffer.byteLength;
-        this.types_.setFixed2BytesValue(smbDataArrayBuffer.byteLength, array, pos);
-        pos += 2;
-        var smbDataArray = new Uint8Array(smbDataArrayBuffer);
-        array.set(smbDataArray, pos);
-
-        this.data_ = buffer;
-        this.dataLength_ = buffer.byteLength;
     };
-
+    
+    Packet.prototype.getPacketHelper = function() {
+        return this.packetHelper_;
+    };
+    
+    Packet.prototype.setPacketHelper = function(packetHelper) {
+        this.packetHelper_ = packetHelper;
+    };
+    
+    Packet.prototype.getHeader = function() {
+        return this.packetHelper_.getHeader();
+    };
+    
+    Packet.prototype.getHeaderUint8Array = function() {
+        return this.packetHelper_.getHeaderUint8Array();
+    };
+    
+    Packet.prototype.set = function(version, header, request) {
+        if (version === Constants.PROTOCOL_VERSION_SMB1) {
+            this.packetHelper_ = new Smb1PacketHelper(this);
+        } else if (version === Constants.PROTOCOL_VERSION_SMB2) {
+            this.packetHelper_ = new Smb2PacketHelper(this);
+        } else {
+            throw new Error("Invalid version: " + version);
+        }
+        this.packetHelper_.set(header, request);
+    };
+    
+    Packet.prototype.setData = function(data) {
+        this.data_ = data;
+        this.dataLength_ = data.byteLength;
+    };
+    
     // Private methods
 
     var createPacketLengthArray = function(value) {
@@ -113,9 +100,23 @@
         // This returns the result as Uint8Array.
         return array;
     };
+    
+    var createPacketHelper = function() {
+        var protocolVersion = this.getSmbProtocolVersion();
+        if (protocolVersion === Constants.PROTOCOL_VERSION_SMB1) {
+            this.packetHelper_ = new Smb1PacketHelper(this);
+        } else if (protocolVersion === Constants.PROTOCOL_VERSION_SMB2) {
+            this.packetHelper_ = new Smb2PacketHelper(this);
+        }
+    };
 
     // Export
 
     SmbClient.Packet = Packet;
 
-})(SmbClient.Header, SmbClient.Types, SmbClient.Debug);
+})(SmbClient.Header,
+   SmbClient.Types,
+   SmbClient.Debug,
+   SmbClient.Constants,
+   SmbClient.Smb1.Models.PacketHelper,
+   SmbClient.Smb2.Models.PacketHelper);

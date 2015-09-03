@@ -1,4 +1,4 @@
-(function() {
+(function(Constants) {
 
     "use strict";
 
@@ -9,7 +9,8 @@
         this.maxBufferSize_ = null;
         this.userId_ = null;
         this.treeId_ = null;
-        this.processId_ = null;
+        this.processId_ = (new Date()).getTime() % 0xffffffff;
+        this.protocolVersion_ = Constants.PROTOCOL_VERSION_SMB1;
     };
 
     // Public functions
@@ -54,8 +55,16 @@
         return this.processId_;
     };
 
+    Session.prototype.setProtocolVersion = function(protocolVersion) {
+        this.protocolVersion_ = protocolVersion;
+    };
+
+    Session.prototype.getProtocolVersion = function() {
+        return this.protocolVersion_;
+    };
+
     // Export
 
     SmbClient.Session = Session;
 
-})();
+})(SmbClient.Constants);
