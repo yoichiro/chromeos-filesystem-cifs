@@ -244,6 +244,7 @@
 
     var handleNegotiateProtocolResponse = function(userName, password, domainName, packet, onSuccess, onError) {
         if (packet.getSmbProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
+            Debug.info("Negotiated with SMB1/CIFS");
             this.session_.setProtocolVersion(Constants.PROTOCOL_VERSION_SMB1);
             this.smb1ClientImpl_.handleNegotiateProtocolResponse(
                     packet, function(negotiateProtocolResponseHeader, negotiateProtocolResponse) {
@@ -256,6 +257,7 @@
                     }.bind(this), onError);
             }.bind(this), onError);
         } else if (packet.getSmbProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {
+            Debug.info("Negotiated with SMB2");
             this.session_.setProtocolVersion(Constants.PROTOCOL_VERSION_SMB2);
             this.smb2ClientImpl_.handleNegotiateResponse(
                     packet, function(negotiateResponseHeader, negotiateResponse) {

@@ -17,7 +17,7 @@
             Debug.Level = debugLevel;
         });
         */
-        Debug.Level = 0;
+        Debug.Level = 1;
     };
 
     var openWindow = function() {
