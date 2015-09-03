@@ -7,7 +7,6 @@
     var cifs_fs_ = new CifsFS();
     
     var setDebugLevel = function() {
-        /*
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings;
             var debugLevel = settings.debugLevel;
@@ -16,8 +15,6 @@
             }
             Debug.Level = debugLevel;
         });
-        */
-        Debug.Level = 1;
     };
 
     var openWindow = function() {
