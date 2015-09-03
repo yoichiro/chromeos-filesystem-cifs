@@ -15,6 +15,10 @@
         }
         this.directories_[directoryPath] = entries;
     };
+    
+    MetadataCache.prototype.dir = function(directoryPath) {
+        return this.directories_[directoryPath];
+    };
 
     MetadataCache.prototype.get = function(entryPath) {
         if (entryPath === "/") {
