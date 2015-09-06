@@ -46,6 +46,11 @@
         debugLevelInfo.addEventListener("core-change", onChangeDebugLevel);
         var debugLevelError = document.querySelector("#debugLevelError");
         debugLevelError.addEventListener("core-change", onChangeDebugLevel);
+        
+        var maxProtocolVersionSmb1 = document.querySelector("#maxProtocolVersionSmb1");
+        maxProtocolVersionSmb1.addEventListener("core-change", onChangeMaxProtocolVersion);
+        var maxProtocolVersionSmb2 = document.querySelector("#maxProtocolVersionSmb2");
+        maxProtocolVersionSmb2.addEventListener("core-change", onChangeMaxProtocolVersion);
 
         // Search dialog
         var btnSearch = document.querySelector("#btnSearch");
@@ -327,6 +332,18 @@
             } else {
                 document.querySelector("#debugLevel").selected = "debugLevelError";
             }
+            
+            var maxProtocolVersion = settings.maxProtocolVersion;
+            if (typeof maxProtocolVersion === "undefined") {
+                maxProtocolVersion = 2;
+            }
+            if (maxProtocolVersion === 1) {
+                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb1";
+            } else if (maxProtocolVersion === 2) {
+                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb2";
+            } else {
+                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb2";
+            }
 
             document.querySelector("#settingsDialog").toggle();
         });
@@ -359,6 +376,23 @@
                     type: "refreshDebugLevel"
                 };
                 chrome.runtime.sendMessage(request);
+            });
+        });
+    };
+    
+    var onChangeMaxProtocolVersion = function(evt) {
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var maxProtocolVersion = document.querySelector("#maxProtocolVersion").selected;
+            if (maxProtocolVersion === "maxProtocolVersionSmb1") {
+                settings.maxProtocolVersion = 1;
+            } else if (maxProtocolVersion === "maxProtocolVersionSmb2") {
+                settings.maxProtocolVersion = 2;
+            } else {
+                settings.maxProtocolVersion = 2;
+            }
+            chrome.storage.local.set({settings: settings}, function() {
+                console.log("Saving settings done.");
             });
         });
     };
