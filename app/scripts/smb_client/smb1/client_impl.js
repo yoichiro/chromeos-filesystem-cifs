@@ -14,20 +14,32 @@
     
     ClientImpl.prototype.negotiateProtocol = function(onSuccess, onError) {
         var session = this.client_.getSession();
-        var negotiateProtocolRequestPacket =
-                this.protocol_.createNegotiateProtocolRequestPacket(
-                    session,
-                    // [Constants.DIALECT_NT_LM_0_12]);
-                    [Constants.DIALECT_NT_LM_0_12, Constants.DIALECT_SMB_2_002]);
-        Debug.log(negotiateProtocolRequestPacket);
-        this.comm_.writePacket(negotiateProtocolRequestPacket, function() {
-            this.comm_.readPacket(function(packet) {
-                onSuccess(packet);
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var maxProtocolVersion = settings.maxProtocolVersion;
+            if (typeof maxProtocolVersion === "undefined") {
+                maxProtocolVersion = 2;
+            }
+            var dialects = null;
+            if (maxProtocolVersion === 1) {
+                dialects = [Constants.DIALECT_NT_LM_0_12];
+            } else {
+                dialects = [Constants.DIALECT_NT_LM_0_12, Constants.DIALECT_SMB_2_002];
+            }
+            var negotiateProtocolRequestPacket =
+                    this.protocol_.createNegotiateProtocolRequestPacket(
+                        session,
+                        dialects);
+            Debug.log(negotiateProtocolRequestPacket);
+            this.comm_.writePacket(negotiateProtocolRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    onSuccess(packet);
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
             }.bind(this), function(error) {
                 onError(error);
             }.bind(this));
-        }.bind(this), function(error) {
-            onError(error);
         }.bind(this));
     };
     

@@ -78,5 +78,13 @@
   "debugLevelError": {
     "message": "Error",
     "description": "Error"
+  },
+  "maxProtocolVersionSmb1": {
+    "message": "SMB1/CIFS",
+    "description": "SMB1/CIFS"
+  },
+  "maxProtocolVersionSmb2": {
+    "message": "SMB2",
+    "description": "SMB2"
   }
 }
