@@ -1,4 +1,4 @@
-(function(Models, Types, Constants, Debug) {
+(function(Models, Types, Constants, Debug, Asn1Obj) {
     "use strict";
 
     // Constructor
@@ -39,6 +39,10 @@
         this.securityBufferOffset_ = this.types_.getFixed2BytesValue(array, 56);
         this.securityBufferLength_ = this.types_.getFixed2BytesValue(array, 58);
         this.buffer_ = array.subarray(this.securityBufferOffset_ - Constants.SMB2_HEADER_SIZE, array.length);
+        
+        var asn1Obj = Asn1Obj.load(this.buffer_);
+        console.log(asn1Obj);
+        
     };
     
     NegotiateResponse.prototype.getStructureSize = function() {
@@ -102,4 +106,4 @@
 
     Models.NegotiateResponse = NegotiateResponse;
 
-})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Constants, SmbClient.Debug);
+})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Constants, SmbClient.Debug, SmbClient.Spnego.Asn1Obj);
