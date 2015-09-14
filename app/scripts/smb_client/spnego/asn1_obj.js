@@ -35,6 +35,7 @@
         return this.children_;
     };
     
+    /*jslint bitwise: true */
     Asn1Obj.prototype.isPrimitive = function() {
         return (this.tag_ & 0x20) === 0; // If 6th bit === 1, it's constructed.
     };
@@ -54,6 +55,7 @@
             result.push(0);
             result.push(this.value_[0]);
         }
+        // TODO
         return result.join(".");
     };
     
@@ -89,6 +91,7 @@
     };
     
     var loadValueAndNext = function(array, pos) {
+        var view = new DataView(array.buffer);
         var value = null;
         var length1 = array[pos];
         var next = null;
