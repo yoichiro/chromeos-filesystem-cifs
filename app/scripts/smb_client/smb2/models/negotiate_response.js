@@ -19,6 +19,8 @@
         this.securityBufferOffset_ = 0;
         this.securityBufferLength_ = 0;
         this.buffer_ = null;
+        
+        this.mechTypes_ = [];
     };
 
     // Public functions
@@ -41,8 +43,16 @@
         this.buffer_ = array.subarray(this.securityBufferOffset_ - Constants.SMB2_HEADER_SIZE, array.length);
         
         var asn1Obj = Asn1Obj.load(this.buffer_);
-        console.log(asn1Obj);
-        
+        Debug.log(asn1Obj);
+        var spnego = asn1Obj.getChild(0).getValueAsObjectIdentifier();
+        Debug.info("SPNEGO = " + (spnego === Constants.ASN1_OID_SPNEGO));
+        var seq = asn1Obj.getChild(1).getChildren();
+        var oids = seq[0].getChild(0).getChild(0).getChildren();
+        for (var i = 0; i < oids.length; i++) {
+            var oid = oids[i].getValueAsObjectIdentifier();
+            Debug.info("Supported mechType: " + oid);
+            this.mechTypes_.push(oid);
+        }
     };
     
     NegotiateResponse.prototype.getStructureSize = function() {
@@ -100,6 +110,10 @@
 
     NegotiateResponse.prototype.getBuffer = function() {
         return this.buffer_;
+    };
+    
+    NegotiateResponse.prototype.isSupportedMechType = function(mechType) {
+        return this.mechTypes_.indexOf(mechType) !== -1;
     };
 
     // Export

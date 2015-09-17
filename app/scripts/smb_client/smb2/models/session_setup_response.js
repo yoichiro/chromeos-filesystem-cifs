@@ -1,4 +1,4 @@
-(function(Models, Types, Debug, Type2Message, Constants) {
+(function(Models, Types, Debug, Constants) {
     "use strict";
 
     // Constructor
@@ -8,7 +8,7 @@
 
         this.structureSize_ = 0;
         this.sessionFlags_ = 0;
-        this.type2Message_ = null;
+        this.securityBlob_ = null;
     };
 
     // Public functions
@@ -21,9 +21,8 @@
         
         var securityBlobOffset = this.types_.getFixed2BytesValue(array, 4);
         var securityBlobLength = this.types_.getFixed2BytesValue(array, 6);
-        var securityBlob = array.subarray(securityBlobOffset - Constants.SMB2_HEADER_SIZE, securityBlobLength);
-        this.type2Message_ = new Type2Message();
-        this.type2Message_.load(securityBlob);
+        var pos = securityBlobOffset - Constants.SMB2_HEADER_SIZE;
+        this.securityBlob_ = array.subarray(pos, pos + securityBlobLength);
     };
 
     SessionSetupResponse.prototype.getStructureSize = function() {
@@ -34,8 +33,8 @@
         return this.sessionFlags_;
     };
 
-    SessionSetupResponse.prototype.getType2Message = function() {
-        return this.type2Message_;
+    SessionSetupResponse.prototype.getSecurityBlob = function() {
+        return this.securityBlob_;
     };
 
     // Private functions
@@ -44,4 +43,4 @@
 
     Models.SessionSetupResponse = SessionSetupResponse;
 
-})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Auth.Type2Message, SmbClient.Constants);
+})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Debug, SmbClient.Constants);
