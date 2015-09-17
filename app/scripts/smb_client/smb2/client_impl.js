@@ -76,7 +76,7 @@
                     Constants.FILE_SHARE_READ |
                     Constants.FILE_SHARE_WRITE,
                 createDisposition: Constants.FILE_OPEN,
-                name: "\\srvsvc",
+                name: "srvsvc",
                 createContexts: [
                     this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
                 ]
@@ -166,7 +166,11 @@
                 Debug.log(queryInfoResponse);
                 close.call(this, fileId, function(closeResponseHeader) {
                     Debug.log(closeResponseHeader);
-                    onSuccess(queryInfoResponse.getFile());
+                    // Update file name (because FreeNAS and Win7 return different path...)
+                    var file = queryInfoResponse.getFile();
+                    file.setFullFileName(fileName);
+                    file.setFileName(getNameFromPath.call(this, fileName));
+                    onSuccess(file);
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
