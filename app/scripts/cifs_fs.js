@@ -763,7 +763,7 @@
     };
 
     var showNotification = function(message) {
-        chrome.notifications.create("", {
+        chrome.notifications.create(message, {
             type: "basic",
             title: "SMB/CIFS File System",
             message: message,

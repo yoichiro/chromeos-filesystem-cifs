@@ -1,4 +1,4 @@
-(function(Models, Types, Constants, Debug) {
+(function(Models, Types, Constants, Debug, Asn1Obj) {
     "use strict";
 
     // Constructor
@@ -19,6 +19,8 @@
         this.securityBufferOffset_ = 0;
         this.securityBufferLength_ = 0;
         this.buffer_ = null;
+        
+        this.mechTypes_ = [];
     };
 
     // Public functions
@@ -39,6 +41,18 @@
         this.securityBufferOffset_ = this.types_.getFixed2BytesValue(array, 56);
         this.securityBufferLength_ = this.types_.getFixed2BytesValue(array, 58);
         this.buffer_ = array.subarray(this.securityBufferOffset_ - Constants.SMB2_HEADER_SIZE, array.length);
+        
+        var asn1Obj = Asn1Obj.load(this.buffer_);
+        Debug.log(asn1Obj);
+        var spnego = asn1Obj.getChild(0).getValueAsObjectIdentifier();
+        Debug.info("SPNEGO = " + (spnego === Constants.ASN1_OID_SPNEGO));
+        var seq = asn1Obj.getChild(1).getChildren();
+        var oids = seq[0].getChild(0).getChild(0).getChildren();
+        for (var i = 0; i < oids.length; i++) {
+            var oid = oids[i].getValueAsObjectIdentifier();
+            Debug.info("Supported mechType: " + oid);
+            this.mechTypes_.push(oid);
+        }
     };
     
     NegotiateResponse.prototype.getStructureSize = function() {
@@ -97,9 +111,13 @@
     NegotiateResponse.prototype.getBuffer = function() {
         return this.buffer_;
     };
+    
+    NegotiateResponse.prototype.isSupportedMechType = function(mechType) {
+        return this.mechTypes_.indexOf(mechType) !== -1;
+    };
 
     // Export
 
     Models.NegotiateResponse = NegotiateResponse;
 
-})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Constants, SmbClient.Debug);
+})(SmbClient.Smb2.Models, SmbClient.Types, SmbClient.Constants, SmbClient.Debug, SmbClient.Spnego.Asn1Obj);

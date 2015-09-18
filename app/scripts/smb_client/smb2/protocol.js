@@ -7,6 +7,7 @@
           Type1Message,
           SessionSetupRequest,
           SessionSetupResponse,
+          Type2Message,
           Type3Message,
           NtlmV2Hash,
           LmV2Response,
@@ -35,7 +36,9 @@
           ReadResponse,
           WriteRequest,
           WriteResponse,
-          SetInfoRequest) {
+          SetInfoRequest,
+          Asn1Obj,
+          Debug) {
 
     "use strict";
 
@@ -73,10 +76,39 @@
         );
         type1Message.setSuppliedDomain("?");
         type1Message.setSuppliedWorkstation("FSP_CIFS");
+        
+        var root = Asn1Obj.create(Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST)
+            .addChild(
+                Asn1Obj.create(Constants.ASN1_TAG_OBJECT_IDENTIFIER)
+                    .setValue(Constants.ASN1_OID_SPNEGO_BINARY)
+            )
+            .addChild(
+                Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_0)
+                    .addChild(
+                        Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE)
+                            .addChild(
+                                Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_0)
+                                    .addChild(
+                                        Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE)
+                                            .addChild(
+                                                Asn1Obj.create(Constants.ASN1_TAG_OBJECT_IDENTIFIER)
+                                                    .setValue(Constants.ASN1_OID_NLMP_BINARY)
+                                            )
+                                    )
+                            )
+                            .addChild(
+                                Asn1Obj.create(Constants.ASN1_TAG_RETURN_RESULT_STRUCTURE_WITHIN_COMPONENT)
+                                    .addChild(
+                                        Asn1Obj.create(Constants.ASN1_TAG_OCTET_STRING)
+                                            .setValue(new Uint8Array(type1Message.createArrayBuffer()))
+                                    )
+                            )
+                    )
+            );
 
         var sessionSetupRequest = new SessionSetupRequest();
         sessionSetupRequest.load(negotiateResponse, {
-            ntlmMessage: type1Message
+            ntlmMessage: root
         });
 
         var packet = new Packet();
@@ -88,6 +120,18 @@
         var sessionSetupResponse = new SessionSetupResponse();
         sessionSetupResponse.load(packet);
         return sessionSetupResponse;
+    };
+    
+    Protocol.prototype.parseType2Message = function(sessionSetupResponse) {
+        var securityBlob = sessionSetupResponse.getSecurityBlob();
+        var root = Asn1Obj.load(securityBlob);
+        Debug.log(root);
+        var children = root.getChildren()[0].getChildren();
+        Debug.info("Response OID = " + children[1].getChildren()[0].getValueAsObjectIdentifier());
+        var type2MessageBuffer = children[2].getChildren()[0].getValue();
+        var type2Message = new Type2Message();
+        type2Message.load(new Uint8Array(type2MessageBuffer));
+        return type2Message;
     };
     
     Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, domainName, negotiateResponse, type2Message) {
@@ -144,10 +188,32 @@
         type3Message.setWorkstationName("FSP_CIFS");
         type3Message.setSessionKey(null);
         type3Message.load(type2Message);
+        
+        var root = Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_1)
+            .addChild(
+                Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE)
+                    .addChild(
+                        Asn1Obj.create(Constants.ASN1_TAG_RETURN_RESULT_STRUCTURE_WITHIN_COMPONENT)
+                            .addChild(
+                                Asn1Obj.create(Constants.ASN1_TAG_OCTET_STRING)
+                                    .setValue(new Uint8Array(type3Message.createArrayBuffer()))
+                            )
+                    )
+                    // TODO: Should append mechListMIC value
+                    /*
+                    .addChild(
+                        Asn1Obj.create(Constants.ASN1_TAG_HANDLE_MICROSOFT_V3_SASL_BIND_REQUEST)
+                            .addChild(
+                                Asn1Obj.create(Constants.ASN1_TAG_OCTET_STRING)
+                                    .setValue(new Uint8Array([0]))
+                            )
+                    )
+                    */
+            );
 
         var sessionSetupRequest = new SessionSetupRequest();
         sessionSetupRequest.load(negotiateResponse, {
-            ntlmMessage: type3Message
+            ntlmMessage: root
         });
 
         var packet = new Packet();
@@ -449,6 +515,7 @@
    SmbClient.Auth.Type1Message,
    SmbClient.Smb2.Models.SessionSetupRequest,
    SmbClient.Smb2.Models.SessionSetupResponse,
+   SmbClient.Auth.Type2Message,
    SmbClient.Auth.Type3Message,
    SmbClient.Auth.NtlmV2Hash,
    SmbClient.Auth.LmV2Response,
@@ -477,4 +544,6 @@
    SmbClient.Smb2.Models.ReadResponse,
    SmbClient.Smb2.Models.WriteRequest,
    SmbClient.Smb2.Models.WriteResponse,
-   SmbClient.Smb2.Models.SetInfoRequest);
+   SmbClient.Smb2.Models.SetInfoRequest,
+   SmbClient.Spnego.Asn1Obj,
+   SmbClient.Debug);

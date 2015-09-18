@@ -488,7 +488,23 @@
     Constants.SMB2_RETURN_SINGLE_ENTRY = 0x02; // The server MUST only return the first entry of the search results.
     Constants.SMB2_INDEX_SPECIFIED = 0x04; // The server SHOULD<66> return entries beginning at the byte number specified by FileIndex.
     Constants.SMB2_REOPEN = 0x10; // The server MUST restart the enumeration from the beginning, and the search pattern MUST be changed to the provided value. This often involves silently closing and reopening the directory on the server side.
-
+    
+    // -- ASN.1 Object Identifiers
+    Constants.ASN1_OID_SPNEGO = "1.3.6.1.5.5.2";
+    Constants.ASN1_OID_SPNEGO_BINARY = new Uint8Array([0x2b, 0x06, 0x01, 0x05, 0x05, 0x02]);
+    Constants.ASN1_OID_NLMP = "1.3.6.1.4.1.311.2.2.10";
+    Constants.ASN1_OID_NLMP_BINARY = new Uint8Array([0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a]);
+    
+    // -- ASN.1 Tags
+    Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST = 0x60;
+    Constants.ASN1_TAG_OBJECT_IDENTIFIER = 0x06;
+    Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_0 = 0xa0;
+    Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_1 = 0xa1;
+    Constants.ASN1_TAG_SEQUENCE = 0x30;
+    Constants.ASN1_TAG_RETURN_RESULT_STRUCTURE_WITHIN_COMPONENT = 0xa2;
+    Constants.ASN1_TAG_OCTET_STRING = 0x04;
+    Constants.ASN1_TAG_HANDLE_MICROSOFT_V3_SASL_BIND_REQUEST = 0xa3;
+    
     SmbClient.Constants = Constants;
 
 })();

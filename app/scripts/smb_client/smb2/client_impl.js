@@ -1,4 +1,12 @@
-(function(Smb2, Constants, Debug, Protocol, Packet, FileDispositionInformation, FileRenameInformation, BinaryUtils) {
+(function(Smb2,
+          Constants,
+          Debug,
+          Protocol,
+          Packet,
+          FileDispositionInformation,
+          FileRenameInformation,
+          BinaryUtils,
+          Asn1Obj) {
     "use strict";
     
     // Constructor
@@ -21,6 +29,8 @@
                     this.protocol_.parseNegotiateResponse(packet);
             if (negotiateResponse.getDialectRevision() !== Constants.DIALECT_SMB_2_002_REVISION) {
                 onError("Supported dialect not found");
+            } else if (!negotiateResponse.isSupportedMechType(Constants.ASN1_OID_NLMP)) {
+                onError("The server doesn't support NLMP");
             } else {
                 session.setMaxBufferSize(
                     negotiateResponse.getMaxReadSize());
@@ -33,10 +43,10 @@
         sendType1Message.call(this, negotiateResponse, function(
             header, sessionSetupResponse) {
 
-            var type2Message = sessionSetupResponse.getType2Message();
+            var type2Message = this.protocol_.parseType2Message(sessionSetupResponse);
             Debug.outputType2MessageFlags(type2Message);
 
-            sendType3Message.call(this, userName, password, domainName, negotiateResponse, sessionSetupResponse, function() {
+            sendType3Message.call(this, userName, password, domainName, negotiateResponse, type2Message, function() {
                 onSuccess();
             }.bind(this), function(error) {
                 onError(error);
@@ -66,7 +76,7 @@
                     Constants.FILE_SHARE_READ |
                     Constants.FILE_SHARE_WRITE,
                 createDisposition: Constants.FILE_OPEN,
-                name: "\\srvsvc",
+                name: "srvsvc",
                 createContexts: [
                     this.protocol_.createCreateContext(0, Constants.SMB2_CREATE_QUERY_MAXIMAL_ACCESS_REQUEST, null)
                 ]
@@ -156,7 +166,11 @@
                 Debug.log(queryInfoResponse);
                 close.call(this, fileId, function(closeResponseHeader) {
                     Debug.log(closeResponseHeader);
-                    onSuccess(queryInfoResponse.getFile());
+                    // Update file name (because FreeNAS and Win7 return different path...)
+                    var file = queryInfoResponse.getFile();
+                    file.setFullFileName(fileName);
+                    file.setFileName(getNameFromPath.call(this, fileName));
+                    onSuccess(file);
                 }.bind(this), errorHandler);
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
@@ -415,17 +429,22 @@
         }.bind(this));
     };
 
-    var sendType3Message = function(userName, password, domainName, negotiateResponse, sessionSetupResponse, onSuccess, onError) {
+    var sendType3Message = function(userName, password, domainName, negotiateResponse, type2Message, onSuccess, onError) {
         var session = this.client_.getSession();
         var sessionSetupRequestPacket =
                 this.protocol_.createSessionSetupRequestType3Packet(
                     session, userName, password, domainName, negotiateResponse,
-                    sessionSetupResponse.getType2Message());
+                    type2Message);
         Debug.log(sessionSetupRequestPacket);
         this.comm_.writePacket(sessionSetupRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
                 var header = packet.getHeader();
                 if (checkError.call(this, header, onError)) {
+                    var sessionSetupResponse =
+                            this.protocol_.parseSessionSetupResponse(packet);
+                    var securityBlob = sessionSetupResponse.getSecurityBlob();
+                    var root = Asn1Obj.load(securityBlob);
+                    Debug.log(root);
                     onSuccess();
                 }
             }.bind(this), function(error) {
@@ -1065,4 +1084,5 @@
    SmbClient.Packet,
    SmbClient.Smb2.Models.FileDispositionInformation,
    SmbClient.Smb2.Models.FileRenameInformation,
-   SmbClient.BinaryUtils);
+   SmbClient.BinaryUtils,
+   SmbClient.Spnego.Asn1Obj);
