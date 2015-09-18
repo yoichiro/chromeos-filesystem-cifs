@@ -154,5 +154,5 @@
         "multiple_mounts": true,
         "watchable": true
     },
-    "minimum_chrome_version": "45"
+    "minimum_chrome_version": "44"
 }

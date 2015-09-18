@@ -657,12 +657,16 @@
             }.bind(self);
         };
         for (var i = 0; i < funcNameList.length; i++) {
-            chrome.fileSystemProvider[funcNameList[i]].addListener(
-                createEventHandler.call(
-                    this,
-                    caller(this, funcNameList[i])
-                )
-            );
+            if (chrome.fileSystemProvider[funcNameList[i]]) {
+                chrome.fileSystemProvider[funcNameList[i]].addListener(
+                    createEventHandler.call(
+                        this,
+                        caller(this, funcNameList[i])
+                    )
+                );
+            } else {
+                console.info("chrome.fileSystemProvider." + funcNameList[i] + " not supported. Ignore.");
+            }
         }
     };
 
