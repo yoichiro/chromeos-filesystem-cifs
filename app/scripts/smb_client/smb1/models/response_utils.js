@@ -1,4 +1,4 @@
-(function(Models, Types, File) {
+(function(Models, Types, File, Constants) {
     "use strict";
 
     // Constructor
@@ -95,4 +95,4 @@
 
     Models.ResponseUtils = ResponseUtils;
 
-})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.File);
+})(SmbClient.Smb1.Models, SmbClient.Types, SmbClient.File, SmbClient.Constants);
