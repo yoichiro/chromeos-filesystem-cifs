@@ -50,7 +50,10 @@
                 file.setAllocationSize(allocationSize);
                 file.setEndOfFile(endOfFile);
                 file.setFileName(filename);
-                this.files_.push(file);
+                if (!file.isFileAttributesOf(Constants.SMB2_FILE_ATTRIBUTE_HIDDEN) &&
+                    !file.isFileAttributesOf(Constants.SMB2_FILE_ATTRIBUTE_SYSTEM)) {
+                    this.files_.push(file);
+                }
                 
                 if (nextEntryOffset === 0) {
                     break;

@@ -76,7 +76,10 @@
             file.setAllocationSize(allocationSize);
             file.setEndOfFile(endOfFile);
             file.setFileName(fileName);
-            files.push(file);
+            if (!file.isFileAttributesOf(Constants.SMB_FILE_ATTRIBUTE_HIDDEN) &&
+                !file.isFileAttributesOf(Constants.SMB_FILE_ATTRIBUTE_SYSTEM)) {
+                files.push(file);
+            }
 
             if (lastNameOffset <= start) {
                 break;
