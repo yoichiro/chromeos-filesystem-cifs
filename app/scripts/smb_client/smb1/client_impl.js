@@ -1,10 +1,11 @@
-(function(Smb1, Constants, Debug, Protocol, Packet) {
+(function(Smb1, Constants, Debug, Protocol, Packet, BinaryUtils) {
     "use strict";
     
     // Constructor
     
     var ClientImpl = function(client) {
         this.protocol_ = new Protocol();
+        this.binaryUtils_ = new BinaryUtils();
       
         this.client_ = client;
         this.comm_ = client.getCommunication();
@@ -1070,4 +1071,5 @@
    SmbClient.Constants,
    SmbClient.Debug,
    SmbClient.Smb1.Protocol,
-   SmbClient.Packet);
+   SmbClient.Packet,
+   SmbClient.BinaryUtils);
