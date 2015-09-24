@@ -1,18 +1,18 @@
 {
   "appName": {
-    "message": "File System for SMB/CIFS and Windows(R)",
+    "message": "File System for Windows",
     "description": "The name of the application"
   },
   "appDescription": {
-    "message": "Access a shared folder of a SMB/CIFS/Windows(R) server directly from the Files app.",
+    "message": "Access a shared folder of Windows file server (and SMB-based server) directly from the Files app.",
     "description": "The description of the application"
   },
   "shortName": {
-    "message": "SMB/CIFS",
+    "message": "Windows",
     "description": "The short name of the application"
   },
   "mountHeader": {
-    "message": "Mount a new SMB/CIFS/Windows(R) server",
+    "message": "Mount a new Windows file server",
     "description": "Header describing the server mount form."
   },
   "mount": {
