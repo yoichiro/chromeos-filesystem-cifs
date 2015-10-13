@@ -442,6 +442,7 @@
                 if (checkError.call(this, header, onError)) {
                     var sessionSetupResponse =
                             this.protocol_.parseSessionSetupResponse(packet);
+                    session.setUserId(header.getSessionId());
                     var securityBlob = sessionSetupResponse.getSecurityBlob();
                     var root = Asn1Obj.load(securityBlob);
                     Debug.log(root);
