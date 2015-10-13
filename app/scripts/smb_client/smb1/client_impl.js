@@ -424,6 +424,7 @@
             this.comm_.readPacket(function(packet) {
                 var header = packet.getHeader();
                 if (checkError.call(this, header, onError)) {
+                    session.setUserId(header.getUserId());
                     onSuccess();
                 }
             }.bind(this), function(error) {
