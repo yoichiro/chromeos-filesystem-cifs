@@ -82,3 +82,12 @@ core-toolbar {
 core-toolbar paper-icon-button {
   color: white;
 }
+
+#settingsDialog {
+  width: 550px;
+}
+
+#settingsDialog paper-dropdown-menu {
+  margin-top: 0;
+  margin-left: 15px;
+}

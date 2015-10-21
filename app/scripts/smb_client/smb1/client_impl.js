@@ -415,23 +415,30 @@
 
     var sendType3Message = function(userName, password, domainName, negotiateProtocolResponse, sessionSetupResponse, onSuccess, onError) {
         var session = this.client_.getSession();
-        var sessionSetupAndxRequestPacket =
-                this.protocol_.createSessionSetupRequestType3Packet(
-                    session, userName, password, domainName, negotiateProtocolResponse,
-                    sessionSetupResponse.getType2Message());
-        Debug.log(sessionSetupAndxRequestPacket);
-        this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
-            this.comm_.readPacket(function(packet) {
-                var header = packet.getHeader();
-                if (checkError.call(this, header, onError)) {
-                    session.setUserId(header.getUserId());
-                    onSuccess();
-                }
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var lmCompatibilityLevel = settings.lmCompatibilityLevel;
+            if (typeof lmCompatibilityLevel === "undefined") {
+                lmCompatibilityLevel = 5;
+            }
+            var sessionSetupAndxRequestPacket =
+                    this.protocol_.createSessionSetupRequestType3Packet(
+                        session, userName, password, domainName, negotiateProtocolResponse,
+                        sessionSetupResponse.getType2Message(), lmCompatibilityLevel);
+            Debug.log(sessionSetupAndxRequestPacket);
+            this.comm_.writePacket(sessionSetupAndxRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    var header = packet.getHeader();
+                    if (checkError.call(this, header, onError)) {
+                        session.setUserId(header.getUserId());
+                        onSuccess();
+                    }
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
             }.bind(this), function(error) {
                 onError(error);
             }.bind(this));
-        }.bind(this), function(error) {
-            onError(error);
         }.bind(this));
     };
     

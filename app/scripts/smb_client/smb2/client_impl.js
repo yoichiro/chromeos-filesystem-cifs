@@ -431,28 +431,35 @@
 
     var sendType3Message = function(userName, password, domainName, negotiateResponse, type2Message, onSuccess, onError) {
         var session = this.client_.getSession();
-        var sessionSetupRequestPacket =
-                this.protocol_.createSessionSetupRequestType3Packet(
-                    session, userName, password, domainName, negotiateResponse,
-                    type2Message);
-        Debug.log(sessionSetupRequestPacket);
-        this.comm_.writePacket(sessionSetupRequestPacket, function() {
-            this.comm_.readPacket(function(packet) {
-                var header = packet.getHeader();
-                if (checkError.call(this, header, onError)) {
-                    var sessionSetupResponse =
-                            this.protocol_.parseSessionSetupResponse(packet);
-                    session.setUserId(header.getSessionId());
-                    var securityBlob = sessionSetupResponse.getSecurityBlob();
-                    var root = Asn1Obj.load(securityBlob);
-                    Debug.log(root);
-                    onSuccess();
-                }
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var lmCompatibilityLevel = settings.lmCompatibilityLevel;
+            if (typeof lmCompatibilityLevel === "undefined") {
+                lmCompatibilityLevel = 5;
+            }
+            var sessionSetupRequestPacket =
+                    this.protocol_.createSessionSetupRequestType3Packet(
+                        session, userName, password, domainName, negotiateResponse,
+                        type2Message, lmCompatibilityLevel);
+            Debug.log(sessionSetupRequestPacket);
+            this.comm_.writePacket(sessionSetupRequestPacket, function() {
+                this.comm_.readPacket(function(packet) {
+                    var header = packet.getHeader();
+                    if (checkError.call(this, header, onError)) {
+                        var sessionSetupResponse =
+                                this.protocol_.parseSessionSetupResponse(packet);
+                        session.setUserId(header.getSessionId());
+                        var securityBlob = sessionSetupResponse.getSecurityBlob();
+                        var root = Asn1Obj.load(securityBlob);
+                        Debug.log(root);
+                        onSuccess();
+                    }
+                }.bind(this), function(error) {
+                    onError(error);
+                }.bind(this));
             }.bind(this), function(error) {
                 onError(error);
             }.bind(this));
-        }.bind(this), function(error) {
-            onError(error);
         }.bind(this));
     };
     

@@ -22,6 +22,8 @@
   <link rel="import" href="bower_components/paper-item/paper-item.html">
   <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+  <link rel="import" href="bower_components/paper-dropdown/paper-dropdown.html">
+  <link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 
   <link rel="stylesheet" href="styles/style.css">
 </head>
@@ -99,6 +101,21 @@
           <paper-radio-button id="maxProtocolVersionSmb1" name="maxProtocolVersionSmb1" data-message="maxProtocolVersionSmb1"></paper-radio-button>
           <paper-radio-button id="maxProtocolVersionSmb2" name="maxProtocolVersionSmb2" data-message="maxProtocolVersionSmb2"></paper-radio-button>
         </paper-radio-group>
+      </div>
+      <div layout horizontal>
+        <h3>LMCompatibilityLevel</h3>
+        <paper-dropdown-menu data-message="lmCompatibilityLevel">
+          <paper-dropdown class="dropdown">
+            <core-menu class="menu" id="lmCompatibilityLevel">
+              <paper-item>0</paper-item>
+              <paper-item>1</paper-item>
+              <paper-item>2</paper-item>
+              <paper-item>3</paper-item>
+              <paper-item>4</paper-item>
+              <paper-item>5</paper-item>
+            </core-menu>
+          </paper-dropdown>
+        </paper-dropdown-menu>
       </div>
       <paper-button affirmative>Close</paper-button>
     </form>

@@ -91,7 +91,7 @@
             | Constants.NTLMSSP_NEGOTIATE_NTLM
             | Constants.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
             | Constants.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED
-            | Constants.NTLMSSP_NEGOTIATE_NTLM2
+//            | Constants.NTLMSSP_NEGOTIATE_NTLM2_KEY
             | Constants.NTLMSSP_NEGOTIATE_128
         );
         type1Message.setSuppliedDomain("?");
@@ -164,7 +164,8 @@
         return sessionSetupAndxResponse;
     };
 
-    Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, domainName, negotiateProtocolResponse, type2Message) {
+    Protocol.prototype.createSessionSetupRequestType3Packet = function(
+            session, username, password, domainName, negotiateProtocolResponse, type2Message, lmCompatibilityLevel) {
         var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
             processId: session.getProcessId(),
             userId: session.getUserId()
@@ -174,45 +175,58 @@
 
         var type3Message = new Type3Message();
 
-        if (type2Message.isFlagOf(Constants.NTLMSSP_NEGOTIATE_NTLM2)) { // LMv2 and NTLMv2
-            var lmV2HashObj = new NtlmV2Hash();
-            var lmV2Hash = lmV2HashObj.create(username, password, domainName);
-            var lmV2ResponseObj = new LmV2Response();
-            var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
+        // TODO Check whether or not the NEGOTIATE_NTLM2_KEY flag.
+        
+        switch(lmCompatibilityLevel) {
+            case 0:
+            case 1:
+                Debug.info("Use LMv1 and NTLMv1 because LMCompatibilityLevel=" + lmCompatibilityLevel);
+                var lmHashObj = new LmHash();
+                var lmHash = lmHashObj.create(password);
+                var lmResponseObj = new LmResponse();
+                var lmResponse = lmResponseObj.create(lmHash, serverChallenge);
     
-            var ntlmV2HashObj = new NtlmV2Hash();
-            var ntlmV2Hash = ntlmV2HashObj.create(username, password, domainName);
-            var ntlmV2ResponseObj = new NtlmV2Response();
-            var targetInformation = type2Message.getTargetInformation();
-            var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
+                var ntlmHashObj = new NtlmHash();
+                var ntlmHash = ntlmHashObj.create(password);
+                var ntlmResponseObj = new LmResponse();
+                var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
     
-            type3Message.setLmResponse(lmV2Response);
-            type3Message.setNtlmResponse(ntlmV2Response);
-
-            type3Message.setFlag(
-                  Constants.NTLMSSP_NEGOTIATE_UNICODE
-                | Constants.NTLMSSP_NEGOTIATE_NTLM2
-            );
-        } else { // LMv1 and NTLMv1
-            var lmHashObj = new LmHash();
-            var lmHash = lmHashObj.create(password);
-            var lmResponseObj = new LmResponse();
-            var lmResponse = lmResponseObj.create(lmHash, serverChallenge);
-
-            var ntlmHashObj = new NtlmHash();
-            var ntlmHash = ntlmHashObj.create(password);
-            var ntlmResponseObj = new LmResponse();
-            var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
-
-            type3Message.setLmResponse(lmResponse);
-            type3Message.setNtlmResponse(ntlmResponse);
-
-            type3Message.setFlag(
-                  Constants.NTLMSSP_NEGOTIATE_UNICODE
-                | Constants.NTLMSSP_NEGOTIATE_NTLM
-            );
+                type3Message.setLmResponse(lmResponse);
+                type3Message.setNtlmResponse(ntlmResponse);
+                break;
+            case 2:
+                Debug.info("Use both NTLMv1 because LMCompatibilityLevel=" + lmCompatibilityLevel);
+                ntlmHashObj = new NtlmHash();
+                ntlmHash = ntlmHashObj.create(password);
+                ntlmResponseObj = new LmResponse();
+                ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
+    
+                type3Message.setLmResponse(ntlmResponse);
+                type3Message.setNtlmResponse(ntlmResponse);
+                break;
+            case 3:
+            case 4:
+            case 5:
+                Debug.info("Use LMv2 and NTLMv2 because LMCompatibilityLevel=" + lmCompatibilityLevel);
+                var lmV2HashObj = new NtlmV2Hash();
+                var lmV2Hash = lmV2HashObj.create(username, password, domainName);
+                var lmV2ResponseObj = new LmV2Response();
+                var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
+        
+                var ntlmV2HashObj = new NtlmV2Hash();
+                var ntlmV2Hash = ntlmV2HashObj.create(username, password, domainName);
+                var ntlmV2ResponseObj = new NtlmV2Response();
+                var targetInformation = type2Message.getTargetInformation();
+                var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
+        
+                type3Message.setLmResponse(lmV2Response);
+                type3Message.setNtlmResponse(ntlmV2Response);
         }
 
+        type3Message.setFlag(
+              Constants.NTLMSSP_NEGOTIATE_UNICODE
+            | Constants.NTLMSSP_NEGOTIATE_NTLM
+        );
         type3Message.setDomainName(domainName);
         type3Message.setUsername(username);
         type3Message.setWorkstationName("FSP_CIFS");
