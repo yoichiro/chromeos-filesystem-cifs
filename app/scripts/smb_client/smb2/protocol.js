@@ -15,6 +15,7 @@
           LmHash,
           LmResponse,
           NtlmHash,
+          TypeMessageUtils,
           TreeConnectRequest,
           TreeConnectResponse,
           CreateRequest,
@@ -46,6 +47,7 @@
 
     var Protocol = function() {
         this.types_ = new Types();
+        this.typeMessageUtils_ = new TypeMessageUtils();
 
         this.sequenceNumber_ = 1;
     };
@@ -64,18 +66,7 @@
             processId: session.getProcessId()
         });
 
-        var type1Message = new Type1Message();
-        type1Message.setFlag(
-              Constants.NTLMSSP_NEGOTIATE_UNICODE
-            | Constants.NTLMSSP_REQUEST_TARGET
-            | Constants.NTLMSSP_NEGOTIATE_NTLM
-            | Constants.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
-            | Constants.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED
-            | Constants.NTLMSSP_NEGOTIATE_NTLM2
-            | Constants.NTLMSSP_NEGOTIATE_128
-        );
-        type1Message.setSuppliedDomain("?");
-        type1Message.setSuppliedWorkstation("FSP_CIFS");
+        var type1Message = this.typeMessageUtils_.createType1Message();
         
         var root = Asn1Obj.create(Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST)
             .addChild(
@@ -134,7 +125,8 @@
         return type2Message;
     };
     
-    Protocol.prototype.createSessionSetupRequestType3Packet = function(session, username, password, domainName, negotiateResponse, type2Message) {
+    Protocol.prototype.createSessionSetupRequestType3Packet = function(
+            session, username, password, domainName, negotiateResponse, type2Message, lmCompatibilityLevel) {
         var header = createHeader.call(this, Constants.SMB2_SESSION_SETUP, {
             processId: session.getProcessId(),
             userId: session.getUserId()
@@ -142,52 +134,8 @@
 
         var serverChallenge = type2Message.getChallenge();
 
-        var type3Message = new Type3Message();
-
-        if (type2Message.isFlagOf(Constants.NTLMSSP_NEGOTIATE_NTLM2)) { // LMv2 and NTLMv2
-            var lmV2HashObj = new NtlmV2Hash();
-            var lmV2Hash = lmV2HashObj.create(username, password, domainName);
-            var lmV2ResponseObj = new LmV2Response();
-            var lmV2Response = lmV2ResponseObj.create(lmV2Hash, serverChallenge);
-    
-            var ntlmV2HashObj = new NtlmV2Hash();
-            var ntlmV2Hash = ntlmV2HashObj.create(username, password, domainName);
-            var ntlmV2ResponseObj = new NtlmV2Response();
-            var targetInformation = type2Message.getTargetInformation();
-            var ntlmV2Response = ntlmV2ResponseObj.create(ntlmV2Hash, serverChallenge, targetInformation);
-    
-            type3Message.setLmResponse(lmV2Response);
-            type3Message.setNtlmResponse(ntlmV2Response);
-
-            type3Message.setFlag(
-                  Constants.NTLMSSP_NEGOTIATE_UNICODE
-                | Constants.NTLMSSP_NEGOTIATE_NTLM2
-            );
-        } else { // LMv1 and NTLMv1
-            var lmHashObj = new LmHash();
-            var lmHash = lmHashObj.create(password);
-            var lmResponseObj = new LmResponse();
-            var lmResponse = lmResponseObj.create(lmHash, serverChallenge);
-
-            var ntlmHashObj = new NtlmHash();
-            var ntlmHash = ntlmHashObj.create(password);
-            var ntlmResponseObj = new LmResponse();
-            var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
-
-            type3Message.setLmResponse(lmResponse);
-            type3Message.setNtlmResponse(ntlmResponse);
-
-            type3Message.setFlag(
-                  Constants.NTLMSSP_NEGOTIATE_UNICODE
-                | Constants.NTLMSSP_NEGOTIATE_NTLM
-            );
-        }
-
-        type3Message.setDomainName(domainName);
-        type3Message.setUsername(username);
-        type3Message.setWorkstationName("FSP_CIFS");
-        type3Message.setSessionKey(null);
-        type3Message.load(type2Message);
+        var type3Message = this.typeMessageUtils_.createType3Message(
+            username, password, domainName, serverChallenge, type2Message, lmCompatibilityLevel);
         
         var root = Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_1)
             .addChild(
@@ -523,6 +471,7 @@
    SmbClient.Auth.LmHash,
    SmbClient.Auth.LmResponse,
    SmbClient.Auth.NtlmHash,
+   SmbClient.Auth.TypeMessageUtils,
    SmbClient.Smb2.Models.TreeConnectRequest,
    SmbClient.Smb2.Models.TreeConnectResponse,
    SmbClient.Smb2.Models.CreateRequest,

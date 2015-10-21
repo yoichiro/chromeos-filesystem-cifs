@@ -51,6 +51,9 @@
         maxProtocolVersionSmb1.addEventListener("core-change", onChangeMaxProtocolVersion);
         var maxProtocolVersionSmb2 = document.querySelector("#maxProtocolVersionSmb2");
         maxProtocolVersionSmb2.addEventListener("core-change", onChangeMaxProtocolVersion);
+        
+        var lmCompatibilityLevel = document.querySelector("#lmCompatibilityLevel");
+        lmCompatibilityLevel.addEventListener("core-select", onSelectLmCompatibilityLevel);
 
         // Search dialog
         var btnSearch = document.querySelector("#btnSearch");
@@ -185,6 +188,7 @@
             case "paper-input":
             case "paper-input-decorator":
             case "paper-radio-button":
+            case "paper-dropdown-menu":
                 element.setAttribute("label", messageText);
                 break;
             case "paper-toast":
@@ -344,6 +348,12 @@
             } else {
                 document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb2";
             }
+            
+            var lmCompatibilityLevel = settings.lmCompatibilityLevel;
+            if (typeof lmCompatibilityLevel === "undefined") {
+                lmCompatibilityLevel = 5;
+            }
+            document.querySelector("#lmCompatibilityLevel").selected = lmCompatibilityLevel;
 
             document.querySelector("#settingsDialog").toggle();
         });
@@ -391,6 +401,17 @@
             } else {
                 settings.maxProtocolVersion = 2;
             }
+            chrome.storage.local.set({settings: settings}, function() {
+                console.log("Saving settings done.");
+            });
+        });
+    };
+    
+    var onSelectLmCompatibilityLevel = function(evt) {
+        chrome.storage.local.get("settings", function(items) {
+            var settings = items.settings || {};
+            var lmCompatibilityLevel = document.querySelector("#lmCompatibilityLevel").selected;
+            settings.lmCompatibilityLevel = Number(lmCompatibilityLevel);
             chrome.storage.local.set({settings: settings}, function() {
                 console.log("Saving settings done.");
             });
