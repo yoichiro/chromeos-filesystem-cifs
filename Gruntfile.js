@@ -172,6 +172,7 @@ module.exports = function (grunt) {
                     '<%= config.app %>/scripts/smb_client/auth/type_1_message.js',
                     '<%= config.app %>/scripts/smb_client/auth/type_2_message.js',
                     '<%= config.app %>/scripts/smb_client/auth/type_3_message.js',
+                    '<%= config.app %>/scripts/smb_client/auth/type_message_utils.js',
                     '<%= config.app %>/scripts/smb_client/spnego/spnego.js',
                     '<%= config.app %>/scripts/smb_client/spnego/asn1_obj.js',
                     '<%= config.app %>/scripts/smb_client/smb1/models/header.js',
