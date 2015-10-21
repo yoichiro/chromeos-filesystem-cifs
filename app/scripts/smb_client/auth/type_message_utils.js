@@ -16,6 +16,7 @@
     
     // Public functions
     
+    /*jslint bitwise: true */
     TypeMessageUtils.prototype.createType3Message = function(
             username, password, domainName, serverChallenge, type2Message, lmCompatibilityLevel) {
         var type3Message = new Type3Message();
