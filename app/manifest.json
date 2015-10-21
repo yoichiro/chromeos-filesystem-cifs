@@ -59,7 +59,7 @@
                 "scripts/smb_client/auth/ntlm_v2_hash.js",
                 "scripts/smb_client/auth/ntlm_v2_response.js",
                 "scripts/smb_client/auth/lm_v2_response.js",
-                "scripts/smb_client/auth/ntlm_v2_session_response.js",
+                "scripts/smb_client/auth/ntlm2_session_response.js",
                 "scripts/smb_client/auth/type_1_message.js",
                 "scripts/smb_client/auth/type_2_message.js",
                 "scripts/smb_client/auth/type_3_message.js",

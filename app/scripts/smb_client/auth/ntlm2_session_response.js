@@ -3,7 +3,7 @@
 
     // Constructor
 
-    var NtlmV2SessionResponse = function() {
+    var Ntlm2SessionResponse = function() {
         this.base_ = new Base();
         this.types_ = new Types();
     };
@@ -11,7 +11,7 @@
     // Public functions
 
     // password: String, serverChallenge: Uint8Array
-    NtlmV2SessionResponse.prototype.create = function(password, serverChallenge) {
+    Ntlm2SessionResponse.prototype.create = function(password, serverChallenge) {
         var clientNonceBuffer = this.base_.createClientNonce.call(this);
         var lmResponseBuffer = paddingNullBytes.call(this, clientNonceBuffer, 24);
 
@@ -62,6 +62,6 @@
 
     // Export
 
-    Auth.NtlmV2SessionResponse = NtlmV2SessionResponse;
+    Auth.Ntlm2SessionResponse = Ntlm2SessionResponse;
 
 })(SmbClient.Auth, SmbClient.Debug, SmbClient.Auth.HashResponseBase, SmbClient.Types);
