@@ -8,7 +8,8 @@
           NtlmV2Hash,
           NtlmV2Response,
           LmV2Response,
-          Ntlm2SessionResponse) {
+          Ntlm2SessionResponse,
+          Type1Message) {
     "use strict";
     
     // Constructor
@@ -16,6 +17,24 @@
     };
     
     // Public functions
+    
+    /*jslint bitwise: true */
+    TypeMessageUtils.prototype.createType1Message = function() {
+        var type1Message = new Type1Message();
+        type1Message.setFlag(
+              Constants.NTLMSSP_NEGOTIATE_UNICODE
+            | Constants.NTLMSSP_REQUEST_TARGET
+            | Constants.NTLMSSP_NEGOTIATE_NTLM
+            | Constants.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
+            | Constants.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED
+            | Constants.NTLMSSP_NEGOTIATE_NTLM2_KEY
+            | Constants.NTLMSSP_NEGOTIATE_128
+        );
+        type1Message.setSuppliedDomain("?");
+        type1Message.setSuppliedWorkstation("FSP_CIFS");
+        
+        return type1Message;
+    };
     
     /*jslint bitwise: true */
     TypeMessageUtils.prototype.createType3Message = function(
@@ -109,4 +128,5 @@
    SmbClient.Auth.NtlmV2Hash,
    SmbClient.Auth.NtlmV2Response,
    SmbClient.Auth.LmV2Response,
-   SmbClient.Auth.Ntlm2SessionResponse);
+   SmbClient.Auth.Ntlm2SessionResponse,
+   SmbClient.Auth.Type1Message);

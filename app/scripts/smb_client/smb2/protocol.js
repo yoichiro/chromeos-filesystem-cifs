@@ -66,18 +66,7 @@
             processId: session.getProcessId()
         });
 
-        var type1Message = new Type1Message();
-        type1Message.setFlag(
-              Constants.NTLMSSP_NEGOTIATE_UNICODE
-            | Constants.NTLMSSP_REQUEST_TARGET
-            | Constants.NTLMSSP_NEGOTIATE_NTLM
-            | Constants.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
-            | Constants.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED
-            | Constants.NTLMSSP_NEGOTIATE_NTLM2_KEY
-            | Constants.NTLMSSP_NEGOTIATE_128
-        );
-        type1Message.setSuppliedDomain("?");
-        type1Message.setSuppliedWorkstation("FSP_CIFS");
+        var type1Message = this.typeMessageUtils_.createType1Message();
         
         var root = Asn1Obj.create(Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST)
             .addChild(
