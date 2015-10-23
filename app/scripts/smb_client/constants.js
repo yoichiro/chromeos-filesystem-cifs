@@ -478,7 +478,8 @@
     Constants.SMB2_0_INFO_QUOTA = 0x04; // The underlying object store quota information is requested.
     
     // -- SMB2 File Info Class
-    Constants.SMB2_0_FILE_ALL_INFORMATION = 0x12;
+    Constants.SMB2_0_FILE_BASIC_INFORMATION = 0x04;
+    Constants.SMB2_0_FILE_STANDARD_INFORMATION = 0x05;
     Constants.SMB2_0_FILE_ID_BOTH_DIRECTORY_INFORMATION = 0x25;
     Constants.SMB2_0_FILE_DISPOSITION_INFORMATION = 0x0d;
     Constants.SMB2_0_FILE_RENAME_INFORMATION = 0x0a;

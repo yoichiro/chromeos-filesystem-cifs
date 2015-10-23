@@ -7,12 +7,17 @@
         this.types_ = new Types();
         
         this.fileId_ = null;
+        this.fileInfoClass_ = null;
     };
     
     // Public functions
     
     QueryInfoRequest.prototype.setFileId = function(fileId) {
         this.fileId_ = fileId;
+    };
+    
+    QueryInfoRequest.prototype.setFileInfoClass = function(fileInfoClass) {
+        this.fileInfoClass_ = fileInfoClass;
     };
     
     QueryInfoRequest.prototype.createArrayBuffer = function() {
@@ -25,7 +30,7 @@
         // info_type
         array[2] = Constants.SMB2_0_INFO_FILE;
         // file_info_class
-        array[3] = Constants.SMB2_0_FILE_ALL_INFORMATION;
+        array[3] = this.fileInfoClass_;
         // output_buffer_length
         this.types_.setFixed4BytesValue(1124, array, 4);
         // input_buffer_offset

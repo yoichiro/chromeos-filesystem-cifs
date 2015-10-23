@@ -6,7 +6,8 @@
           FileDispositionInformation,
           FileRenameInformation,
           BinaryUtils,
-          Asn1Obj) {
+          Asn1Obj,
+          File) {
     "use strict";
     
     // Constructor
@@ -160,14 +161,9 @@
             Debug.log(createResponseHeader);
             Debug.log(createResponse);
             var fileId = createResponse.getFileId();
-            queryInfo.call(this, fileId, function(
-                queryInfoResponseHeader, queryInfoResponse) {
-                Debug.log(queryInfoResponseHeader);
-                Debug.log(queryInfoResponse);
+            queryInfo.call(this, fileId, function(file) {
                 close.call(this, fileId, function(closeResponseHeader) {
                     Debug.log(closeResponseHeader);
-                    // Update file name (because FreeNAS and Win7 return different path...)
-                    var file = queryInfoResponse.getFile();
                     file.setFullFileName(fileName);
                     file.setFileName(getNameFromPath.call(this, fileName));
                     onSuccess(file);
@@ -619,18 +615,41 @@
     };
     
     var queryInfo = function(fileId, onSuccess, onError) {
+        sendQueryInfoRequest.call(
+            this, fileId, Constants.SMB2_0_FILE_BASIC_INFORMATION, function(basicInfo) {
+                sendQueryInfoRequest.call(
+                    this, fileId, Constants.SMB2_0_FILE_STANDARD_INFORMATION, function(standardInfo) {
+                        var file = new File();
+                        file.setCreated(basicInfo.creationTime);
+                        file.setLastAccess(basicInfo.lastAccessTime);
+                        file.setWrite(basicInfo.lastWriteTime);
+                        file.setChange(basicInfo.changeTime);
+                        file.setFileAttributes(basicInfo.fileAttributes);
+                        file.setAllocationSize(standardInfo.allocationSize);
+                        file.setEndOfFile(standardInfo.endOfFile);
+                        onSuccess(file);
+                    }.bind(this), function(error) {
+                        onError(error);
+                    }.bind(this));
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+    };
+    
+    var sendQueryInfoRequest = function(fileId, fileInfoClass, onSuccess, onError) {
         var session = this.client_.getSession();
-        var queryInfoRequestPacket = this.protocol_.createQueryInfoRequestPacket(session, fileId);
+        var queryInfoRequestPacket =
+            this.protocol_.createQueryInfoRequestPacket(session, fileId, fileInfoClass);
         Debug.log(queryInfoRequestPacket);
         this.comm_.writePacket(queryInfoRequestPacket, function() {
             this.comm_.readPacket(function(packet) {
                 var header = packet.getHeader();
+                Debug.log(header);
                 if (checkError.call(this, header, onError)) {
                     var queryInfoResponse =
-                            this.protocol_.parseQueryInfoResponsePacket(packet);
-                    var file = queryInfoResponse.getFile();
-                    file.setFileName(getNameFromPath.call(this, file.getFullFileName()));
-                    onSuccess(header, queryInfoResponse);
+                            this.protocol_.parseQueryInfoResponsePacket(packet, fileInfoClass);
+                    Debug.log(queryInfoResponse);
+                    onSuccess(queryInfoResponse.getResult());
                 }
             }.bind(this), function(error) {
                 onError(error);
@@ -1093,4 +1112,5 @@
    SmbClient.Smb2.Models.FileDispositionInformation,
    SmbClient.Smb2.Models.FileRenameInformation,
    SmbClient.BinaryUtils,
-   SmbClient.Spnego.Asn1Obj);
+   SmbClient.Spnego.Asn1Obj,
+   SmbClient.File);
