@@ -322,7 +322,7 @@
         return packet;
     };
     
-    Protocol.prototype.createQueryInfoRequestPacket = function(session, fileId) {
+    Protocol.prototype.createQueryInfoRequestPacket = function(session, fileId, fileInfoClass) {
         var header = createHeader.call(this, Constants.SMB2_QUERY_INFO, {
             processId: session.getProcessId(),
             userId: session.getUserId(),
@@ -331,15 +331,16 @@
 
         var queryInfoRequest = new QueryInfoRequest();
         queryInfoRequest.setFileId(fileId);
+        queryInfoRequest.setFileInfoClass(fileInfoClass);
 
         var packet = new Packet();
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, queryInfoRequest);
         return packet;
     };
     
-    Protocol.prototype.parseQueryInfoResponsePacket = function(packet) {
+    Protocol.prototype.parseQueryInfoResponsePacket = function(packet, fileInfoClass) {
         var queryInfoResponse = new QueryInfoResponse();
-        queryInfoResponse.load(packet);
+        queryInfoResponse.load(packet, fileInfoClass);
         return queryInfoResponse;
     };
     
