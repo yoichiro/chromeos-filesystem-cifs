@@ -5,6 +5,7 @@
     var onLoad = function() {
         loadKeptCredentials();
         assignEventHandlers();
+        changeRootDirectoryEnabled();
     };
 
     var assignEventHandlers = function() {
@@ -29,6 +30,10 @@
             if (document.activeElement === this) {
                 onClickedBtnMount(e);
             }
+        });
+        var sharedResourceName = document.querySelector("#sharedResourceName");
+        sharedResourceName.addEventListener("keyup", function(e) {
+            onKeyupSharedResourceName(e);
         });
         // Settings dialog
         var btnSettings = document.querySelector("#btnSettings");
@@ -83,6 +88,10 @@
         if (sharedResourceName) {
             request.type = "mount";
             request.sharedResource = sharedResourceName;
+            var rootDirectory = document.querySelector("#rootDirectory").value;
+            if (rootDirectory) {
+                request.rootDirectory = rootDirectory;
+            }
         } else {
             request.type = "getSharedResources";
         }
@@ -167,6 +176,20 @@
         var btnMount = document.querySelector("#btnMount");
         btnMount.removeAttribute("disabled");
     };
+    
+    var onKeyupSharedResourceName = function(evt) {
+        changeRootDirectoryEnabled();
+    };
+    
+    var changeRootDirectoryEnabled = function() {
+        var rootDirectory = document.querySelector("#rootDirectory");
+        var sharedResourceName = document.querySelector("#sharedResourceName");
+        if (sharedResourceName.value) {
+            rootDirectory.setAttribute("disabled", "false");
+        } else {
+            rootDirectory.setAttribute("disabled", "true");
+        }
+    };
 
     var setMessageResources = function() {
         var selector = "data-message";
@@ -215,6 +238,7 @@
             var password = document.querySelector("#password").value;
             var domainName = document.querySelector("#domainName").value;
             var sharedResourceName = document.querySelector("#sharedResourceName").value;
+            var rootDirectory = document.querySelector("#rootDirectory").value;
             if (serverName && serverPort) {
                 chrome.storage.local.get("keptCredentials", function(items) {
                     var credentials = items.keptCredentials || {};
@@ -224,7 +248,8 @@
                         serverPort: serverPort,
                         username: username,
                         domainName: domainName,
-                        sharedResourceName: sharedResourceName
+                        sharedResourceName: sharedResourceName,
+                        rootDirectory: rootDirectory
                     };
                     if (keepPassword) {
                         credential.password = password;
@@ -300,6 +325,8 @@
         }
         document.querySelector("#domainName").value = credential.domainName;
         document.querySelector("#sharedResourceName").value = credential.sharedResourceName;
+        document.querySelector("#rootDirectory").value = credential.rootDirectory;
+        changeRootDirectoryEnabled();
         document.querySelector("#password").focus();
     };
 

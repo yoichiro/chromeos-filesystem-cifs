@@ -43,7 +43,8 @@
             this,
             options.serverName, options.serverPort,
             options.username, options.password,
-            options.domainName, options.sharedResource);
+            options.domainName, options.sharedResource,
+            options.rootDirectory);
         this.cifsClientMap_[fileSystemId] = cifsClient;
         // createTaskQueue.call(this, fileSystemId);
         cifsClient.setup();
@@ -57,6 +58,7 @@
                     cifsClient.getServerName(), cifsClient.getServerPort(),
                     cifsClient.getUsername(), cifsClient.getPassword(),
                     cifsClient.getDomainName(), cifsClient.getSharedResource(),
+                    cifsClient.getRootDirectory(),
                     function() {
                         options.onSuccess();
                     }.bind(this));
@@ -76,6 +78,7 @@
                     password: credential.password,
                     domainName: credential.domainName,
                     sharedResource: credential.sharedResource,
+                    rootDirectory: credential.rootDirectory,
                     onSuccess: function() {
                         Debug.log("Resumed file system: " + fileSystemId);
                         onSuccess();
@@ -410,7 +413,8 @@
 
     // Private functions
 
-    var doMount = function(serverName, serverPort, username, password, domainName, sharedResource, callback) {
+    var doMount = function(serverName, serverPort, username, password,
+                           domainName, sharedResource, rootDirectory, callback) {
         this.checkAlreadyMounted(serverName, serverPort, username, domainName, sharedResource, function(exists) {
             if (!exists) {
                 var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, domainName, sharedResource);
@@ -431,7 +435,7 @@
                     writable: true
                 }, function() {
                     registerMountedCredential(
-                        serverName, serverPort, username, password, domainName, sharedResource,
+                        serverName, serverPort, username, password, domainName, sharedResource, rootDirectory,
                         function() {
                             callback();
                         }.bind(this));
@@ -451,42 +455,46 @@
             cifsClient.getUsername(),
             cifsClient.getDomainName(),
             cifsClient.getSharedResource(),
-            function() {
-                successCallback();
-            }.bind(this));
+            cifsClient.getRootDirectory(),
+            successCallback);
     };
 
-    var _doUnmount = function(serverName, serverPort, username, domainName, sharedResource, successCallback) {
+    var _doUnmount = function(serverName, serverPort, username, domainName, sharedResource, rootDirectory, successCallback) {
         Debug.trace("_doUnmount");
         unregisterMountedCredential.call(
             this, serverName, serverPort, username, domainName, sharedResource,
             function() {
                 var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, domainName, sharedResource);
                 Debug.trace(fileSystemId);
-                chrome.fileSystemProvider.unmount({
-                    fileSystemId: fileSystemId
-                }, function() {
-                    var deleteTemporaryInfo = function() {
-                        delete this.cifsClientMap_[fileSystemId];
-                        deleteTaskQueue.call(this, fileSystemId);
-                        deleteMetadataCache.call(this, fileSystemId);
-                        successCallback();
-                    }.bind(this);
-                    var client = getCifsClient.call(this, fileSystemId);
-                    client.close({
-                        onSuccess: function() {
-                            deleteTemporaryInfo();
-                        }.bind(this),
-                        onError: function(error) {
-                            deleteTemporaryInfo();
-                        }.bind(this)
-                    });
-                }.bind(this));
+                var callUnmountToChromeOS = function() {
+                    successCallback(); // Should call the callback before unmounting.
+                    chrome.fileSystemProvider.unmount({
+                        fileSystemId: fileSystemId
+                    }, function() {
+                        Debug.info("Unmounted. " + fileSystemId);
+                    }.bind(this));
+                }.bind(this);
+                var deleteTemporaryInfo = function(callback) {
+                    delete this.cifsClientMap_[fileSystemId];
+                    deleteTaskQueue.call(this, fileSystemId);
+                    deleteMetadataCache.call(this, fileSystemId);
+                    deleteWatchers.call(this, fileSystemId);
+                    callback();
+                }.bind(this);
+                var client = getCifsClient.call(this, fileSystemId);
+                client.close({
+                    onSuccess: function() {
+                        deleteTemporaryInfo(callUnmountToChromeOS);
+                    }.bind(this),
+                    onError: function(error) {
+                        deleteTemporaryInfo(callUnmountToChromeOS);
+                    }.bind(this)
+                });
             }.bind(this));
     };
 
     var registerMountedCredential = function(
-            serverName, serverPort, username, password, domainName, sharedResource, callback) {
+            serverName, serverPort, username, password, domainName, sharedResource, rootDirectory, callback) {
         var fileSystemId = createFileSystemID.call(this, serverName, serverPort, username, domainName, sharedResource);
         chrome.storage.local.get("mountedCredentials", function(items) {
             var mountedCredentials = items.mountedCredentials || {};
@@ -496,7 +504,8 @@
                 username: username,
                 password: password,
                 domainName: domainName,
-                sharedResource: sharedResource
+                sharedResource: sharedResource,
+                rootDirectory: rootDirectory
             };
             chrome.storage.local.set({
                 mountedCredentials: mountedCredentials
@@ -552,6 +561,7 @@
                                     credential.username,
                                     credential.domainName,
                                     credential.sharedResource,
+                                    credential.rootDirectory,
                                     function() {
                                         errorCallback("FAILED");
                                     }.bind(this));
@@ -781,6 +791,10 @@
         return watchers;
     };
     
+    var deleteWatchers = function(fileSystemId) {
+        delete this.watchers_[fileSystemId];
+    };
+    
     var notifyEntryChanged = function(fileSystemId, directoryPath, changeType, entryPath) {
         chrome.fileSystemProvider.notify({
             fileSystemId: fileSystemId,
@@ -797,7 +811,7 @@
     var watchDirectory = function(fileSystemId, cifsClient, requestId, entryPath) {
         addTaskQueue.call(this, fileSystemId, function() {
             prepare.call(this, cifsClient, requestId, function(closeCallback) {
-                console.log(entryPath);
+                Debug.log("watchDirectory: " + entryPath);
                 cifsClient.readDirectory({
                     requestId: requestId,
                     path: entryPath,
