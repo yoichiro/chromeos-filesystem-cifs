@@ -6,13 +6,15 @@
 
     var CifsClient = function(
             cifsFS, serverName, serverPort,
-            username, password, domainName, sharedResource) {
+            username, password, domainName, sharedResource,
+            rootDirectory) {
         this.serverName_ = serverName;
         this.serverPort_ = serverPort;
         this.username_ = username;
         this.password_ = password;
         this.domainName_ = domainName;
         this.sharedResource_ = sharedResource;
+        this.rootDirectory_ = rootDirectory;
 
         this.cifsFS_ = cifsFS;
 
@@ -43,6 +45,10 @@
 
     CifsClient.prototype.getSharedResource = function() {
         return this.sharedResource_;
+    };
+    
+    CifsClient.prototype.getRootDirectory = function() {
+        return this.rootDirectory_;
     };
 
     CifsClient.prototype.setup = function() {
@@ -224,8 +230,7 @@
     };
 
     var createRealPath = function(path) {
-        //return this.sharedResource_ + path;
-        return normalizePath.call(this, path);
+        return normalizePath.call(this, this.rootDirectory_ + path);
     };
 
     var normalizePath = function(path) {

@@ -59,7 +59,10 @@
         </paper-input-decorator>
       </div>
       <paper-input floatinglabel type="text" id="domainName" data-message="domainName"></paper-input>
-      <paper-input floatinglabel type="text" id="sharedResourceName" data-message="sharedResourceName"></paper-input>
+      <div layout horizontal>
+        <paper-input floatinglabel type="text" id="sharedResourceName" data-message="sharedResourceName"></paper-input>
+        <paper-input floatinglabel type="text" id="rootDirectory" data-message="rootDirectory"></paper-input>
+      </div>
       <div horizontal layout>
         <paper-button raised id="btnMount" data-message="mount"></paper-button>
         <paper-button raised id="btnKeep" data-message="keep"></paper-button>

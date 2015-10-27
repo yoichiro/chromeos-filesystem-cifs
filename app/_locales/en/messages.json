@@ -59,6 +59,10 @@
     "message": "Shared Resource Name",
     "description": "The shared resource name"
   },
+  "rootDirectory": {
+    "message": "Root Directory",
+    "description": "The Root directory"
+  },
   "keepPasswordYes": {
     "message": "Yes",
     "description": "Keep password"

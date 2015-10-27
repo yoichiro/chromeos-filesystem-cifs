@@ -118,6 +118,7 @@
                     error: "Already mounted"
                 });
             } else {
+                var rootDirectory = normalizeRootDirectory(request.rootDirectory);
                 var options = {
                     serverName: request.serverName,
                     serverPort: request.serverPort,
@@ -125,6 +126,7 @@
                     password: request.password,
                     domainName: request.domainName,
                     sharedResource: request.sharedResource,
+                    rootDirectory: rootDirectory,
                     onSuccess: function(algorithm, fingerprint, requestId, fileSystemId) {
                         sendResponse({
                             type: "mount",
@@ -142,6 +144,21 @@
                 cifs_fs_.mount(options);
             }
         });
+    };
+    
+    var normalizeRootDirectory = function(rootDirectory) {
+        var work = rootDirectory;
+        if (!work) {
+            return "";
+        }
+        if (work.charAt(0) !== "/") {
+            work = "/" + work;
+        }
+        if (work.substring(work.length - 1) === "/") {
+            work = work.substring(0, work.length - 1);
+        }
+        console.log(work);
+        return work;
     };
 
     setDebugLevel();
