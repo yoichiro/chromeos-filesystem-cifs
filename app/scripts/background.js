@@ -4,7 +4,7 @@
 
     var mdnsResult = [];
 
-//    var cifs_fs_ = new CifsFS();
+    var cifs_fs_ = new CifsFS();
 
     var setDebugLevel = function() {
         chrome.storage.local.get("settings", function(items) {
@@ -18,8 +18,7 @@
     };
 
     var openWindow = function() {
-//        chrome.app.window.create("window.html", {
-        chrome.app.window.create("index.html", {
+        chrome.app.window.create("window.html", {
             outerBounds: {
                 width: 800,
                 height: 480

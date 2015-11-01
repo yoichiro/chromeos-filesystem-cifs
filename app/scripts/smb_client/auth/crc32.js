@@ -9,6 +9,7 @@
     // Public functions
 
     // buffer: ArrayBuffer
+    /*jslint bitwise: true */
     CRC32.prototype.calculate = function(buffer) {
         var crcTable = CRC32.crcTable || (CRC32.crcTable = createCRCTable.call(this));
 
@@ -24,6 +25,7 @@
 
     // Private functions
 
+    /*jslint bitwise: true */
     var createCRCTable = function() {
         var c;
         var crcTable = [];

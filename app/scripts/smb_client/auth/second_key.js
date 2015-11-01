@@ -31,8 +31,9 @@
     // key: ArrayBuffer, byteLength: 40 or 56
     SecondKey.prototype.weakenForNtlm2 = function(key, byteLength) {
         var keyArray = new Uint8Array(key);
+        var trimed;
         if (byteLength === 56) {
-            var trimed = new Uint8Array(new ArrayBuffer(7));
+            trimed = new Uint8Array(new ArrayBuffer(7));
             trimed.set(keyArray.subarray(0, 7), 0);
             return trimed.buffer;
         } else if (byteLength === 40) {
