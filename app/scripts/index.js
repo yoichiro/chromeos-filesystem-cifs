@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", function() {
     var client = null;
 
     var assignEventHandlers = function() {
-        document.querySelector("#testAuth").addEventListener("click", function(evt) {
-            onClickedTestAuth();
+        document.querySelector("#testHashAndResponse").addEventListener("click", function(evt) {
+            onClickedTestHashAndResponse();
         });
         document.querySelector("#login").addEventListener("click", function(evt) {
             onClickedLogin();
@@ -67,30 +67,45 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     };
 
-    var onClickedTestAuth = function() {
+    var onClickedTestHashAndResponse = function() {
         console.log("LM Hash & LM Reponse");
-        var lmHash = new SmbClient.LmHash();
+        var lmHash = new SmbClient.Auth.LmHash();
         var hash = lmHash.create("SecREt01");
         _outputArrayBuffer(hash);
-        var lmResponse = new SmbClient.LmResponse();
+        var lmResponse = new SmbClient.Auth.LmResponse();
         var serverChallenge = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
         var response = lmResponse.create(hash, serverChallenge);
         _outputArrayBuffer(response);
 
+        var userSessionKey = lmResponse.getLmUserSessionKey();
+        _outputArrayBuffer(userSessionKey);
+
+        var lanManagerSessionKey = lmResponse.getLanManagerSessionKey();
+        _outputArrayBuffer(lanManagerSessionKey);
+
+        var secondKey = new SmbClient.Auth.SecondKey();
+        _outputArrayBuffer(secondKey.create(userSessionKey));
+
+        secondKey = new SmbClient.Auth.SecondKey();
+        _outputArrayBuffer(secondKey.create(lanManagerSessionKey));
+
         console.log("NTLM Hash & NTLM Reponse");
-        var ntlmHash = new SmbClient.NtlmHash();
+        var ntlmHash = new SmbClient.Auth.NtlmHash();
         hash = ntlmHash.create("SecREt01");
         _outputArrayBuffer(hash);
-        lmResponse = new SmbClient.LmResponse();
+        lmResponse = new SmbClient.Auth.LmResponse();
         serverChallenge = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
         response = lmResponse.create(hash, serverChallenge);
         _outputArrayBuffer(response);
 
+        userSessionKey = lmResponse.getNtlmUserSessionKey();
+        _outputArrayBuffer(userSessionKey);
+
         console.log("NTLMv2 Hash & NTLMv2 Reponse");
-        var ntlmV2Hash = new SmbClient.NtlmV2Hash();
+        var ntlmV2Hash = new SmbClient.Auth.NtlmV2Hash();
         hash = ntlmV2Hash.create("user", "SecREt01", "DOMAIN");
         _outputArrayBuffer(hash);
-        var ntlmV2Response = new SmbClient.NtlmV2Response();
+        var ntlmV2Response = new SmbClient.Auth.NtlmV2Response();
         serverChallenge = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
         var targetInformation = new Uint8Array(
             [0x02, 0x00, 0x0c, 0x00, 0x44, 0x00, 0x4f, 0x00,
@@ -110,21 +125,72 @@ document.addEventListener("DOMContentLoaded", function() {
         response = ntlmV2Response.create(hash, serverChallenge, targetInformation);
         _outputArrayBuffer(response);
 
+        userSessionKey = ntlmV2Response.getNtlmV2UserSessionKey();
+        _outputArrayBuffer(userSessionKey);
+
         console.log("LMv2 Hash & LMv2 Reponse");
-        ntlmV2Hash = new SmbClient.NtlmV2Hash();
+        ntlmV2Hash = new SmbClient.Auth.NtlmV2Hash();
         hash = ntlmV2Hash.create("user", "SecREt01", "DOMAIN");
         _outputArrayBuffer(hash);
-        var lmV2Response = new SmbClient.LmV2Response();
+        var lmV2Response = new SmbClient.Auth.LmV2Response();
         serverChallenge = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
         response = lmV2Response.create(hash, serverChallenge);
         _outputArrayBuffer(response);
 
-        console.log("NTLMv2 Session Response");
-        var ntlmV2SessionResponse = new SmbClient.NtlmV2SessionResponse();
+        userSessionKey = lmV2Response.getLmV2UserSessionKey();
+        _outputArrayBuffer(userSessionKey);
+
+        console.log("NTLM2 Session Response");
+        var ntlm2SessionResponse = new SmbClient.Auth.Ntlm2SessionResponse();
         serverChallenge = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
-        response = ntlmV2SessionResponse.create("SecREt01", serverChallenge);
+        response = ntlm2SessionResponse.create("SecREt01", serverChallenge);
         _outputArrayBuffer(response.lmResponse);
         _outputArrayBuffer(response.ntlmResponse);
+
+        userSessionKey = ntlm2SessionResponse.getNtlm2SessionResponseUserSessionKey();
+        _outputArrayBuffer(userSessionKey);
+
+        console.log("NTLM1 Key Derivation");
+        ntlmHash = new SmbClient.Auth.NtlmHash();
+        hash = ntlmHash.create("SecREt01");
+        lmResponse = new SmbClient.Auth.LmResponse();
+        serverChallenge = new Uint8Array(
+            [0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
+        lmResponse.create(hash, serverChallenge);
+        var masterKey = lmResponse.getNtlmUserSessionKey();
+        _outputArrayBuffer(masterKey);
+        secondKey = new SmbClient.Auth.SecondKey();
+        var secondMasterKey = secondKey.create();
+        var exchangedKey = secondKey.encrypt(secondMasterKey, masterKey);
+        _outputArrayBuffer(exchangedKey);
+        var key = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00]);
+        _outputArrayBuffer(secondKey.weakenForNtlm1(key.buffer, 40));
+        _outputArrayBuffer(secondKey.weakenForNtlm1(key.buffer, 56));
+
+        console.log("CRC32");
+        var source = new Uint8Array([0x6a, 0x43, 0x49, 0x46, 0x53]);
+        var crc32 = new SmbClient.Auth.CRC32();
+        var checksum = crc32.calculate(source.buffer);
+        console.log(Number(checksum).toString(16));
+
+        console.log("Signature for NTLM1");
+        var signature = new SmbClient.Auth.Signature();
+        var message = new Uint8Array([0x6a, 0x43, 0x49, 0x46, 0x53]);
+        var negotiatedKey = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05, 0xe5, 0x38, 0xb0]);
+        var sign = signature.calculateForNtlm1(negotiatedKey.buffer, message.buffer, 0);
+        _outputArrayBuffer(sign);
+
+        console.log("Signature for NTLM2");
+        signature = new SmbClient.Auth.Signature();
+        message = new Uint8Array([0x6a, 0x43, 0x49, 0x46, 0x53]);
+        masterKey = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x00]);
+        var subkey = new SmbClient.Auth.Subkey();
+        var clientSigningKey = subkey.createClientSigningKey(masterKey);
+        _outputArrayBuffer(clientSigningKey);
+        var clientSealingKey = subkey.createClientSealingKey(masterKey);
+        _outputArrayBuffer(clientSealingKey);
+        sign = signature.calculateForNtlm2(clientSigningKey, clientSealingKey, message, 0);
+        _outputArrayBuffer(sign);
     };
 
     var msg = function(message) {

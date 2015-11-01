@@ -1,11 +1,11 @@
 (function(Debug) {
 
     "use strict";
-    
+
     var mdnsResult = [];
-    
-    var cifs_fs_ = new CifsFS();
-    
+
+//    var cifs_fs_ = new CifsFS();
+
     var setDebugLevel = function() {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings;
@@ -18,7 +18,8 @@
     };
 
     var openWindow = function() {
-        chrome.app.window.create("window.html", {
+//        chrome.app.window.create("window.html", {
+        chrome.app.window.create("index.html", {
             outerBounds: {
                 width: 800,
                 height: 480
@@ -29,7 +30,7 @@
 
     var assignEventListeners = function() {
         chrome.app.runtime.onLaunched.addListener(openWindow);
-    
+
         if (chrome.fileSystemProvider.onMountRequested) {
             chrome.fileSystemProvider.onMountRequested.addListener(openWindow);
         }
@@ -65,7 +66,7 @@
             }
             return true;
         });
-        
+
         chrome.mdns.onServiceList.addListener(function(result) {
             console.log("Looked up with chrome.mdns: ", result);
             mdnsResult = result;
@@ -73,7 +74,7 @@
             serviceType: "_smb._tcp.local"
         });
     };
-    
+
     var lookupServiceList = function(request, sendResponse) {
         sendResponse({
             type: "serviceList",
@@ -145,7 +146,7 @@
             }
         });
     };
-    
+
     var normalizeRootDirectory = function(rootDirectory) {
         var work = rootDirectory;
         if (!work) {

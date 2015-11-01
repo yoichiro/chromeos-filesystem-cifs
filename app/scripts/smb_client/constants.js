@@ -46,7 +46,7 @@
     Constants.SMB_COM_RENAME = 0x07;
     Constants.SMB_COM_TREE_DISCONNECT = 0x71;
     Constants.SMB_COM_LOGOFF_ANDX = 0x74;
-    
+
     Constants.SMB2_SESSION_SETUP = 0x0001;
     Constants.SMB2_TREE_CONNECT = 0x0003;
     Constants.SMB2_CREATE = 0x0005;
@@ -77,7 +77,7 @@
     Constants.SMB_FLAGS_CASELESS_PATHNAMES = 0x08; // 0: case-sensitive 1: caseless
     Constants.SMB_FLAGS_CLIENT_BUF_AVAIL = 0x02; // 0: Not posted 1: Buffer posted
     Constants.SMB_FLAGS_SUPPORT_LOCKREAD = 0x01; // 0: Not supported 1: Supported
-    
+
     Constants.SMB2_FLAGS_SERVER_TO_REDIR = 0x00000001;
     Constants.SMB2_FLAGS_ASYNC_COMMAND = 0x00000002;
     Constants.SMB2_FLAGS_RELATED_OPERATIONS = 0x00000004;
@@ -216,7 +216,7 @@
 
     // -- DCERPC ERROR CODEs
     Constants.STATUS_BUFFER_OVERFLOW = 0x80000005;
-    
+
     // -- SMB2 STATUS CODEs
     Constants.SMB2_STATUS_NO_MORE_FILES = 0x80000006;
 
@@ -467,7 +467,7 @@
     Constants.FSCTL_DFS_GET_REFERRALS_EX = 0x000601B0;
     Constants.FSCTL_FILE_LEVEL_TRIM = 0x00098208;
     Constants.FSCTL_VALIDATE_NEGOTIATE_INFO = 0x00140204;
-    
+
     // -- SMB2 IOCTL Flags
     Constants.SMB2_0_IOCTL_IS_FSCTL = 0x00000001; // If Flags is set to this value, the request is an FSCTL request.
 
@@ -476,26 +476,26 @@
     Constants.SMB2_0_INFO_FILESYSTEM = 0x02; // The underlying object store information is requested.
     Constants.SMB2_0_INFO_SECURITY = 0x03; // The security information is requested.
     Constants.SMB2_0_INFO_QUOTA = 0x04; // The underlying object store quota information is requested.
-    
+
     // -- SMB2 File Info Class
     Constants.SMB2_0_FILE_BASIC_INFORMATION = 0x04;
     Constants.SMB2_0_FILE_STANDARD_INFORMATION = 0x05;
     Constants.SMB2_0_FILE_ID_BOTH_DIRECTORY_INFORMATION = 0x25;
     Constants.SMB2_0_FILE_DISPOSITION_INFORMATION = 0x0d;
     Constants.SMB2_0_FILE_RENAME_INFORMATION = 0x0a;
-    
+
     // -- SMB2 QueryDirectoryInfo Flags
     Constants.SMB2_RESTART_SCANS = 0x01; // The server MUST restart the enumeration from the beginning, but the search pattern is not changed.
     Constants.SMB2_RETURN_SINGLE_ENTRY = 0x02; // The server MUST only return the first entry of the search results.
     Constants.SMB2_INDEX_SPECIFIED = 0x04; // The server SHOULD<66> return entries beginning at the byte number specified by FileIndex.
     Constants.SMB2_REOPEN = 0x10; // The server MUST restart the enumeration from the beginning, and the search pattern MUST be changed to the provided value. This often involves silently closing and reopening the directory on the server side.
-    
+
     // -- ASN.1 Object Identifiers
     Constants.ASN1_OID_SPNEGO = "1.3.6.1.5.5.2";
     Constants.ASN1_OID_SPNEGO_BINARY = new Uint8Array([0x2b, 0x06, 0x01, 0x05, 0x05, 0x02]);
     Constants.ASN1_OID_NLMP = "1.3.6.1.4.1.311.2.2.10";
     Constants.ASN1_OID_NLMP_BINARY = new Uint8Array([0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x02, 0x0a]);
-    
+
     // -- ASN.1 Tags
     Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST = 0x60;
     Constants.ASN1_TAG_OBJECT_IDENTIFIER = 0x06;
@@ -505,7 +505,13 @@
     Constants.ASN1_TAG_RETURN_RESULT_STRUCTURE_WITHIN_COMPONENT = 0xa2;
     Constants.ASN1_TAG_OCTET_STRING = 0x04;
     Constants.ASN1_TAG_HANDLE_MICROSOFT_V3_SASL_BIND_REQUEST = 0xa3;
-    
+
+    // -- NTLM2 Subkey base strings
+    Constants.NTLM2_SUBKEY_CLIENT_SIGNING_KEY = "session key to client-to-server signing key magic constant";
+    Constants.NTLM2_SUBKEY_SERVER_SIGNING_KEY = "session key to server-to-client signing key magic constant";
+    Constants.NTLM2_SUBKEY_CLIENT_SEALING_KEY = "session key to client-to-server sealing key magic constant";
+    Constants.NTLM2_SUBKEY_SERVER_SEALING_KEY = "session key to server-to-client sealing key magic constant";
+
     SmbClient.Constants = Constants;
 
 })();

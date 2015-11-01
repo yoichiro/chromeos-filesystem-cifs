@@ -59,13 +59,19 @@
         return resultWordArray.ciphertext;
     };
 
-    HashResponseBase.prototype.createClientNonce = function() {
-        var buffer = new ArrayBuffer(8);
+    HashResponseBase.prototype.createClientNonce = function(byteLength) {
+        return this.createRandomBytes(byteLength);
+    };
+
+    HashResponseBase.prototype.createRandomBytes = function(byteLength) {
+        var buffer = new ArrayBuffer(byteLength);
         var view = new DataView(buffer);
-        var rand = Math.floor((Math.random() * 100000000000) + 1) % 0xffffffff;
-        view.setUint32(0, rand, true);
-        rand = Math.floor((Math.random() * 100000000000) + 1) % 0xffffffff;
-        view.setUint32(4, rand, true);
+        var pos = 0;
+        while (pos < byteLength) {
+            var rand = Math.floor((Math.random() * 100000000000) + 1) % 0xffffffff;
+            view.setUint32(pos, rand, true);
+            pos += 4;
+        }
         // This returns the result as ArrayBuffer.
         return buffer;
         //var rand = new Uint8Array([0xff, 0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44]);
