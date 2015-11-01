@@ -796,6 +796,7 @@
     };
     
     var notifyEntryChanged = function(fileSystemId, directoryPath, changeType, entryPath) {
+        Debug.log("notifyEntryChanged: " + directoryPath + " " + entryPath + " " + changeType);
         chrome.fileSystemProvider.notify({
             fileSystemId: fileSystemId,
             observedPath: directoryPath,
@@ -827,7 +828,7 @@
                             if (old) {
                                 // Changed
                                 if ((current.size !== old.size) ||
-                                        (current.modificationTime !== old.modificationTime)) {
+                                        (current.modificationTime.getTime() !== old.modificationTime.getTime())) {
                                     notifyEntryChanged.call(this, fileSystemId, entryPath, "CHANGED", current.name);
                                 }
                             } else {
