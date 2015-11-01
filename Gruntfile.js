@@ -147,6 +147,7 @@ module.exports = function (grunt) {
                     '<%= config.app %>/bower_components/cryptojslib/components/mode-ecb.js',
                     '<%= config.app %>/bower_components/cryptojslib/components/tripledes.js',
                     '<%= config.app %>/bower_components/cryptojslib/components/pad-nopadding.js',
+                    '<%= config.app %>/bower_components/cryptojslib/components/rc4.js',
                     '<%= config.app %>/scripts/deps/md4.js',
                     '<%= config.app %>/scripts/deps/lib-typedarrays.js',
                     '<%= config.app %>/scripts/smb_client/smb_client.js',

@@ -38,6 +38,7 @@
                 "bower_components/cryptojslib/components/mode-ecb.js",
                 "bower_components/cryptojslib/components/tripledes.js",
                 "bower_components/cryptojslib/components/pad-nopadding.js",
+                "bower_components/cryptojslib/components/rc4.js",
                 "scripts/deps/md4.js",
                 "scripts/deps/lib-typedarrays.js",
                 "scripts/smb_client/smb_client.js",
