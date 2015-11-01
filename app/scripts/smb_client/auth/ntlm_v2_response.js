@@ -6,22 +6,38 @@
     var NtlmV2Response = function() {
         this.base_ = new Base();
         this.types_ = new Types();
+
+        // For calculating User Session Key
+        this.ntlmV2Hash_ = null;
+        this.hash_ = null;
     };
 
     // Public functions
 
     // ntlmV2Hash: ArrayBuffer, serverChallenge: Uint8Array, targetInformation: Uint8Array
     NtlmV2Response.prototype.create = function(ntlmV2Hash, serverChallenge, targetInformation) {
+        this.ntlmV2Hash_ = ntlmV2Hash;
+
         var blobArrayBuffer = createBlob.call(this, targetInformation);
         var blobWordArray = CryptoJS.lib.WordArray.create(blobArrayBuffer);
         var serverChallengeWordArray = CryptoJS.lib.WordArray.create(serverChallenge);
         var concated = serverChallengeWordArray.concat(blobWordArray);
         var ntlmV2HashWordArray = CryptoJS.lib.WordArray.create(ntlmV2Hash);
-        var hash = CryptoJS.HmacMD5(concated, ntlmV2HashWordArray);
-        var response = hash.concat(blobWordArray);
+        this.hash_ = CryptoJS.HmacMD5(concated, ntlmV2HashWordArray);
+        var response = this.hash_.concat(blobWordArray);
         var buffer = response.toArrayBuffer();
+
         // This returns the result as ArrayBuffer.
         return buffer;
+    };
+
+    NtlmV2Response.prototype.getNtlmV2UserSessionKey = function() {
+        var ntlmV2HashWordArray = CryptoJS.lib.WordArray.create(this.ntlmV2Hash_);
+        var ntlmV2UserSessionKeyWordArray = CryptoJS.HmacMD5(this.hash_, ntlmV2HashWordArray);
+        var ntlmV2UserSessionKeyBuffer = ntlmV2UserSessionKeyWordArray.toArrayBuffer();
+
+        // This returns the result as ArrayBuffer.
+        return ntlmV2UserSessionKeyBuffer;
     };
 
     // Private functions

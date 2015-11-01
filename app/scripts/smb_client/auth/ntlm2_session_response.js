@@ -6,28 +6,32 @@
     var Ntlm2SessionResponse = function() {
         this.base_ = new Base();
         this.types_ = new Types();
+
+        // For calculating User Session Key
+        this.htmlHashBuffer_ = null;
+        this.sessionNonceWordArray_ = null;
     };
 
     // Public functions
 
     // password: String, serverChallenge: Uint8Array
     Ntlm2SessionResponse.prototype.create = function(password, serverChallenge) {
-        var clientNonceBuffer = this.base_.createClientNonce.call(this);
+        var clientNonceBuffer = this.base_.createClientNonce(8);
         var lmResponseBuffer = paddingNullBytes.call(this, clientNonceBuffer, 24);
 
         var serverChallengeWordArray = CryptoJS.lib.WordArray.create(serverChallenge);
         var clientNonceWordArray = CryptoJS.lib.WordArray.create(clientNonceBuffer);
-        var concated = serverChallengeWordArray.concat(clientNonceWordArray);
-        var md5 = CryptoJS.MD5(concated);
+        this.sessionNonceWordArray_ = serverChallengeWordArray.concat(clientNonceWordArray);
+        var md5 = CryptoJS.MD5(this.sessionNonceWordArray_);
         var md5Buffer = md5.toArrayBuffer();
         var ntlm2SessionHash = trim8Bytes.call(this, md5Buffer);
 
         var unicodePasswordBuffer = this.types_.createUnicodeString(password);
         var unicodePasswordWordArray = CryptoJS.lib.WordArray.create(unicodePasswordBuffer);
         var ntlmHashWordArray = CryptoJS.MD4(unicodePasswordWordArray);
-        var ntlmHashBuffer = ntlmHashWordArray.toArrayBuffer();
+        this.ntlmHashBuffer_ = ntlmHashWordArray.toArrayBuffer();
 
-        var padded = paddingNullBytes.call(this, ntlmHashBuffer, 21);
+        var padded = paddingNullBytes.call(this, this.ntlmHashBuffer_, 21);
         var divided = this.base_.divide7BytesArray(new Uint8Array(padded));
         var desKey1 = this.base_.createDesKey(divided[0]);
         var desKey2 = this.base_.createDesKey(divided[1]);
@@ -44,6 +48,15 @@
             lmResponse: lmResponseBuffer,
             ntlmResponse: ntlm2SessionResponseBuffer
         };
+    };
+
+    Ntlm2SessionResponse.prototype.getNtlm2SessionResponseUserSessionKey = function() {
+        var ntlmHashWordArray = CryptoJS.lib.WordArray.create(this.ntlmHashBuffer_);
+        var ntlmUserSessionKeyWordArray = CryptoJS.MD4(ntlmHashWordArray);
+        var userSessionKeyWordArray = CryptoJS.HmacMD5(
+            this.sessionNonceWordArray_, ntlmUserSessionKeyWordArray);
+        // This returns two values as ArrayBuffer.
+        return userSessionKeyWordArray.toArrayBuffer();
     };
 
     // Private functions
