@@ -9,8 +9,9 @@
         this.maxBufferSize_ = null;
         this.userId_ = null;
         this.treeId_ = null;
-        this.processId_ = (new Date()).getTime() % 0xffffffff;
+        this.processId_ = (new Date()).getTime() % 0xffff;
         this.protocolVersion_ = Constants.PROTOCOL_VERSION_SMB1;
+        this.clientGuid_ = null;
     };
 
     // Public functions
@@ -55,12 +56,29 @@
         return this.processId_;
     };
 
+    Session.prototype.changeProcessId = function() {
+        var current = this.processId_;
+        var newProcessId = current;
+        while (newProcessId === current) {
+            newProcessId = (new Date()).getTime() % 0xffff;
+        }
+        this.processId_ = newProcessId;
+    };
+
     Session.prototype.setProtocolVersion = function(protocolVersion) {
         this.protocolVersion_ = protocolVersion;
     };
 
     Session.prototype.getProtocolVersion = function() {
         return this.protocolVersion_;
+    };
+
+    Session.prototype.setClientGuid = function(clientGuid) {
+        this.clientGuid_ = clientGuid;
+    };
+
+    Session.prototype.getClientGuid = function() {
+        return this.clientGuid_;
     };
 
     // Export

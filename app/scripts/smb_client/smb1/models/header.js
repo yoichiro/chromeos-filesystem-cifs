@@ -14,7 +14,7 @@
         this.flag_ = 0;
         this.flag2_ = 0;
 
-        this.treeId_ = 0;
+        this.treeId_ = 0xffff;
         this.processId_ = 0;
         this.userId_ = 0;
         this.multiplexId_ = 0;

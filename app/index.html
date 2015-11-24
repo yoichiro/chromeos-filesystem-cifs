@@ -41,6 +41,7 @@
         <script src="scripts/smb_client/types.js"></script>
         <script src="scripts/smb_client/session.js"></script>
         <script src="scripts/smb_client/auth/auth.js"></script>
+        <script src="scripts/smb_client/auth/crc32.js"></script>
         <script src="scripts/smb_client/auth/hash_response_base.js"></script>
         <script src="scripts/smb_client/auth/lm_hash.js"></script>
         <script src="scripts/smb_client/auth/lm_response.js"></script>
@@ -55,7 +56,6 @@
         <script src="scripts/smb_client/auth/type_message_utils.js"></script>
         <script src="scripts/smb_client/auth/second_key.js"></script>
         <script src="scripts/smb_client/auth/subkey.js"></script>
-        <script src="scripts/smb_client/auth/crc32.js"></script>
         <script src="scripts/smb_client/auth/signature.js"></script>
         <script src="scripts/smb_client/spnego/spnego.js"></script>
         <script src="scripts/smb_client/spnego/asn1_obj.js"></script>
@@ -69,6 +69,7 @@
         <script src="scripts/smb_client/smb1/models/response_utils.js"></script>
         <script src="scripts/smb_client/smb2/models/response_utils.js"></script>
         <script src="scripts/smb_client/smb1/models/negotiate_protocol_request.js"></script>
+        <script src="scripts/smb_client/smb2/models/negotiate_request.js"></script>
         <script src="scripts/smb_client/smb1/models/negotiate_protocol_response.js"></script>
         <script src="scripts/smb_client/smb2/models/negotiate_response.js"></script>
         <script src="scripts/smb_client/smb1/models/session_setup_andx_request.js"></script>
@@ -143,14 +144,15 @@
 
     <body>
 
+      <div style="width: 300px; float: left; position: relative; display: block;">
         <button id="testHashAndResponse">Test Hash and Response</button><br />
 
         <input type="password" id="password" />
         <button id="login">Login</button><br />
         <button id="getSharedResources">Get shared resources</button><br />
-        <button id="connectSharedResource">Connect shared resource</button><br />
+        <input type="text" id="resource" value="yoichiro" /><button id="connectSharedResource">Connect shared resource</button><br />
         <button id="getMetadata">Get metadata</button><br />
-        <button id="readDirectory">Read directory</button><br />
+        <input type="text" id="directory" value="\" /><button id="readDirectory">Read directory</button><br />
         <button id="readFile">Read file</button><br />
         <button id="createFile">Create file</button><br />
         <button id="truncateFile">Truncate file</button><br />
@@ -163,19 +165,20 @@
         <button id="moveFile">Move file</button><br />
         <button id="copyFile">Copy file</button><br />
         <button id="renameFile">Rename file</button><br />
+      </div>
 
-        <br />
+      <div style="width: 450px; float: left; position: relative; display: block;">
+        <textarea id="msg" style="width: 100%; height: 400px;"></textarea>
+      </div>
 
-        <div id="msg"></div>
+      <!-- build:js scripts/vendor.js -->
+      <!-- bower:js -->
+      <!-- endbower -->
+      <!-- endbuild -->
 
-        <!-- build:js scripts/vendor.js -->
-        <!-- bower:js -->
-        <!-- endbower -->
-        <!-- endbuild -->
-
-        <!-- build:js scripts/index.js -->
-        <script src="scripts/index.js"></script>
-        <!-- endbuild -->
+      <!-- build:js scripts/index.js -->
+      <script src="scripts/index.js"></script>
+      <!-- endbuild -->
 
     </body>
 

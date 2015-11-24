@@ -57,7 +57,7 @@
         this.types_ = new Types();
         this.typeMessageUtils_ = new TypeMessageUtils();
 
-        this.sequenceNumber_ = 1;
+        this.sequenceNumber_ = 0;
     };
 
     // Public functions
@@ -98,12 +98,12 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB1, header, sessionSetupAndxRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createSessionSetupRequestSharePacket = function(session, negotiateProtocolResponse, username) {
         var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
             processId: session.getProcessId()
         });
-        
+
         var sessionSetupAndxRequest = new SessionSetupAndxRequest();
         sessionSetupAndxRequest.load(negotiateProtocolResponse, {
             extendedSecurity: false,
@@ -117,12 +117,12 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB1, header, sessionSetupAndxRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createSessionSetupRequestUnextendedSecurityPacket = function(session, negotiateProtocolResponse, username, password, domainName) {
         var header = createHeader.call(this, Constants.SMB_COM_SESSION_SETUP_ANDX, {
             processId: session.getProcessId()
         });
-        
+
         var serverChallenge = negotiateProtocolResponse.getEncryptionKey();
         // LMv1 and NTLMv1
         var lmHashObj = new LmHash();
@@ -134,7 +134,7 @@
         var ntlmHash = ntlmHashObj.create(password);
         var ntlmResponseObj = new LmResponse();
         var ntlmResponse = ntlmResponseObj.create(ntlmHash, serverChallenge);
-        
+
         var sessionSetupAndxRequest = new SessionSetupAndxRequest();
         sessionSetupAndxRequest.load(negotiateProtocolResponse, {
             extendedSecurity: false,
@@ -309,7 +309,7 @@
         dceRpcNetShareEnumAllResponse.load(dataArray, dataOffset);
         return dceRpcNetShareEnumAllResponse;
     };
-    
+
     Protocol.prototype.createCloseRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB_COM_CLOSE, {
             processId: session.getProcessId(),
@@ -593,7 +593,7 @@
     // options: userId
     var createHeader = function(command, options) {
         var userId = options.userId || 0;
-        var treeId = options.treeId || 0;
+        var treeId = options.treeId || 0xfffe;
         var processId = options.processId || 0;
 
         var header = new Header();
@@ -606,7 +606,8 @@
             | Constants.SMB_FLAGS2_32BIT_STATUS
             | Constants.SMB_FLAGS2_EXTENDED_SECURITY
             | Constants.SMB_FLAGS2_EAS
-            | Constants.SMB_FLAGS2_KNOWS_LONG_NAMES);
+            | Constants.SMB_FLAGS2_KNOWS_LONG_NAMES
+            | Constants.SMB_FLAGS2_IS_LONG_NAME);
         header.setTreeId(treeId);
         header.setProcessId(processId);
         header.setUserId(userId);

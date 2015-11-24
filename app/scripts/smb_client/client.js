@@ -25,11 +25,11 @@
     Client.process_id_ = 0;
 
     // Public functions
-    
+
     Client.prototype.getCommunication = function() {
         return this.comm_;
     };
-    
+
     Client.prototype.getSession = function() {
         return this.session_;
     };
@@ -58,10 +58,10 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     Client.prototype.logout = function(onSuccess, onError) {
         Debug.trace("Client#logout");
-        
+
         if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
             this.smb1ClientImpl_.logout(function() {
                 disconnect.call(this, function() {
@@ -82,7 +82,7 @@
     /*jslint bitwise: true */
     Client.prototype.getSharedResourceList = function(onSuccess, onError) {
         Debug.trace("Client#getSharedResourceList");
-        
+
         if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB1) {
             this.smb1ClientImpl_.getSharedResourceList(onSuccess, onError);
         } else if (this.session_.getProtocolVersion() === Constants.PROTOCOL_VERSION_SMB2) {

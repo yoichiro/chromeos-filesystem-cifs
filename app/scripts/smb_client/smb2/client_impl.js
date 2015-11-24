@@ -7,39 +7,53 @@
           FileRenameInformation,
           BinaryUtils,
           Asn1Obj,
-          File) {
+          File,
+          Types) {
     "use strict";
-    
+
     // Constructor
-    
+
     var ClientImpl = function(client) {
         this.protocol_ = new Protocol();
         this.binaryUtils_ = new BinaryUtils();
-      
+
         this.client_ = client;
         this.comm_ = client.getCommunication();
+        this.types_ = new Types();
     };
-    
+
     // Public functions
-    
+
     ClientImpl.prototype.handleNegotiateResponse = function(packet, onSuccess, onError) {
         var session = this.client_.getSession();
         var header = packet.getHeader();
         if (checkError.call(this, header, onError)) {
             var negotiateResponse =
                     this.protocol_.parseNegotiateResponse(packet);
-            if (negotiateResponse.getDialectRevision() !== Constants.DIALECT_SMB_2_002_REVISION) {
-                onError("Supported dialect not found");
-            } else if (!negotiateResponse.isSupportedMechType(Constants.ASN1_OID_NLMP)) {
-                onError("The server doesn't support NLMP");
+            var dialectRevision = negotiateResponse.getDialectRevision();
+            if (dialectRevision === Constants.DIALECT_SMB_2_002_REVISION) {
+                if (negotiateResponse.isSupportedMechType(Constants.ASN1_OID_NLMP)) {
+                    session.setMaxBufferSize(
+                        negotiateResponse.getMaxReadSize());
+                    onSuccess(header, negotiateResponse);
+                } else {
+                    onError("The server doesn't support NLMP");
+                    return;
+                }
+            } else if (dialectRevision === Constants.DIALECT_SMB_2_XXX_REVISION) {
+                if (negotiateResponse.isSupportedMechType(Constants.ASN1_OID_NLMP)) {
+                    session.changeProcessId();
+                    sendNegotiateRequest.call(this, onSuccess, onError);
+                } else {
+                    onError("The server doesn't support NLMP");
+                    return;
+                }
             } else {
-                session.setMaxBufferSize(
-                    negotiateResponse.getMaxReadSize());
-                onSuccess(header, negotiateResponse);
+                onError("Supported dialect not found");
             }
         }
     };
-    
+
     ClientImpl.prototype.sessionSetup = function(negotiateResponse, userName, password, domainName, onSuccess, onError) {
         sendType1Message.call(this, negotiateResponse, function(
             header, sessionSetupResponse) {
@@ -104,10 +118,10 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.logout = function(onSuccess, onError) {
         var session = this.client_.getSession();
-        
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -124,7 +138,7 @@
             logoffAndDisconnect();
         }
     };
-    
+
     ClientImpl.prototype.connectSharedResource = function(path, onSuccess, onError) {
         connectTree.call(this, path/*.toUpperCase()*/, function(
             treeConnectResponseHeader, treeConnectResponse) {
@@ -135,7 +149,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     ClientImpl.prototype.getMetadata = function(fileName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -171,12 +185,12 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.readDirectory = function(directoryName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
-        
+
         var options = {
             desiredAccess:
                 Constants.FILE_READ_DATA | Constants.FILE_READ_ATTRIBUTES | Constants.SYNCHRONIZE,
@@ -205,7 +219,8 @@
                     var result = [];
                     for (var i = 0; i < files.length; i++) {
                         if ((files[i].getFileName() !== ".") && (files[i].getFileName() !== "..")) {
-                            files[i].setFullFileName(directoryName + "\\" + files[i].getFileName());
+                            var delimiter = (directoryName === "\\") ? "" : "\\";
+                            files[i].setFullFileName(directoryName + delimiter + files[i].getFileName());
                             result.push(files[i]);
                         }
                     }
@@ -214,7 +229,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.readFile = function(filename, offset, length, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -228,7 +243,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.createFile = function(filename, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -240,7 +255,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.truncate = function(filename, length, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -274,7 +289,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.writeFile = function(filename, offset, array, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -288,7 +303,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.deleteEntry = function(filename, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -307,7 +322,7 @@
             }
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.createDirectory = function(directoryName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -340,7 +355,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.move = function(source, target, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -362,7 +377,7 @@
             }.bind(this), errorHandler);
         }
     };
-    
+
     ClientImpl.prototype.copy = function(source, target, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -376,7 +391,7 @@
     };
 
     // Private functions
-    
+
     var checkError = function(header, onError, expected) {
         var errorCode = header.getStatus();
         if (expected) {
@@ -399,7 +414,32 @@
             }
         }
     };
-    
+
+    var sendNegotiateRequest = function(onSuccess, onError) {
+        var session = this.client_.getSession();
+
+        var clientGuid = this.types_.createClientGuid();
+        var negotiateRequestPacket = this.protocol_.createNegotiateRequestPacket(session, clientGuid);
+        Debug.log(negotiateRequestPacket);
+        this.comm_.writePacket(negotiateRequestPacket, function() {
+            this.comm_.readPacket(function(packet) {
+                var header = packet.getHeader();
+                Debug.log(header);
+                if (checkError.call(this, header, onError)) {
+                    var negotiateResponse = this.protocol_.parseNegotiateResponse(packet);
+                    session.setMaxBufferSize(
+                        negotiateResponse.getMaxReadSize());
+                    session.setClientGuid(clientGuid);
+                    onSuccess(header, negotiateResponse);
+                }
+            }.bind(this), function(error) {
+                onError(error);
+            }.bind(this));
+        }.bind(this), function(error) {
+            onError(error);
+        }.bind(this));
+    };
+
     var sendType1Message = function(negotiateResponse, onSuccess, onError) {
         var session = this.client_.getSession();
         var sessionSetupRequestPacket =
@@ -458,7 +498,7 @@
             }.bind(this));
         }.bind(this));
     };
-    
+
     var connectTree = function(name, onSuccess, onError) {
         var session = this.client_.getSession();
         var treeConnectRequestPacket =
@@ -613,7 +653,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var queryInfo = function(fileId, onSuccess, onError) {
         sendQueryInfoRequest.call(
             this, fileId, Constants.SMB2_0_FILE_BASIC_INFORMATION, function(basicInfo) {
@@ -635,7 +675,7 @@
                 onError(error);
             }.bind(this));
     };
-    
+
     var sendQueryInfoRequest = function(fileId, fileInfoClass, onSuccess, onError) {
         var session = this.client_.getSession();
         var queryInfoRequestPacket =
@@ -658,7 +698,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var queryDirectoryInfo = function(fileId, files, flags, onSuccess, onError) {
         var session = this.client_.getSession();
         var queryDirectoryInfoRequestPacket = this.protocol_.createQueryDirectoryInfoRequestPacket(
@@ -687,7 +727,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     // options: truncate(boolean)
     var openFile = function(filename, mode, options, onSuccess, onError) {
         var params = {
@@ -739,7 +779,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var read = function(fileId, offset, length, onSuccess, onError) {
         read_.call(this, fileId, offset, length, [], function(dataList) {
             var total = 0;
@@ -803,7 +843,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var write = function(fileId, offset, data, onSuccess, onError) {
         write_.call(this, fileId, offset, 0, data, onSuccess, onError);
     };
@@ -845,7 +885,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var deleteFile = function(filename, onSuccess, onError) {
         var session = this.client_.getSession();
         openFile.call(this, filename, "DELETE", {}, function(fileId) {
@@ -921,7 +961,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var deepDelete = function(files, index, depth, stack, onSuccess, onError) {
         if (files.length === index) {
             if (depth === 0) {
@@ -954,7 +994,7 @@
             }
         }
     };
-    
+
     var rename = function(source, target, isDirectory, onSuccess, onError) {
         var session = this.client_.getSession();
         var options = null;
@@ -1028,7 +1068,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var deepCopy = function(files, index, target, depth, stack, onSuccess, onError) {
         if (files.length === index) {
             if (depth === 0) {
@@ -1075,7 +1115,7 @@
         var name = names[names.length - 1];
         return name;
     };
-    
+
     var trimFirstDelimiter = function(path) {
         if (path && path.charAt(0) === '\\') {
             return path.substring(1);
@@ -1083,7 +1123,7 @@
             return path;
         }
     };
-    
+
     var getParentPath = function(path) {
         if (path === "\\") {
             return null;
@@ -1100,10 +1140,10 @@
     };
 
     // Export
-    
+
     Smb2.ClientImpl = ClientImpl;
-    
-    
+
+
 })(SmbClient.Smb2,
    SmbClient.Constants,
    SmbClient.Debug,
@@ -1113,4 +1153,5 @@
    SmbClient.Smb2.Models.FileRenameInformation,
    SmbClient.BinaryUtils,
    SmbClient.Spnego.Asn1Obj,
-   SmbClient.File);
+   SmbClient.File,
+   SmbClient.Types);
