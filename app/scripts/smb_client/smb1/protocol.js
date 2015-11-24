@@ -593,7 +593,7 @@
     // options: userId
     var createHeader = function(command, options) {
         var userId = options.userId || 0;
-        var treeId = options.treeId || 0xfffe;
+        var treeId = options.treeId || 0;
         var processId = options.processId || 0;
 
         var header = new Header();

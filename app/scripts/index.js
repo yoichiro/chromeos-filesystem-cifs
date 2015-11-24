@@ -201,8 +201,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var onClickedLogin = function() {
         client = new SmbClient.Client();
-        var serverName = "127.0.0.1";
-        //var serverName = "192.168.43.31";
+        var serverName = "192.168.0.11";
         //var serverName = "freenas.eisbahn.jp";
         var port = "445";
         //var port = "20445";

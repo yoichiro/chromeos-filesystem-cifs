@@ -17,7 +17,7 @@
         this.chainOffset_ = 0;
         this.messageId_ = 0;
         this.processId_ = 0;
-        this.treeId_ = 0xffff;
+        this.treeId_ = 0;
         this.sessionId_ = 0;
         this.signature_ = 0;
     };

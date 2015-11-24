@@ -24,10 +24,13 @@
         type1Message.setFlag(
               Constants.NTLMSSP_NEGOTIATE_UNICODE
             | Constants.NTLMSSP_REQUEST_TARGET
+            | Constants.NTLMSSP_NEGOTIATE_SIGN
             | Constants.NTLMSSP_NEGOTIATE_NTLM
             | Constants.NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED
             | Constants.NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED
+            | Constants.NTLMSSP_NEGOTIATE_ALWAYS_SIGN
             | Constants.NTLMSSP_NEGOTIATE_NTLM2_KEY
+//            | Constants.NTLMSSP_NEGOTIATE_KEY_EXCH
             | Constants.NTLMSSP_NEGOTIATE_128
         );
         type1Message.setSuppliedDomain("?");
