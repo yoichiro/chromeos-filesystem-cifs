@@ -4,7 +4,7 @@
 
     var mdnsResult = [];
 
-    // var cifs_fs_ = new CifsFS();
+    var cifs_fs_ = new CifsFS();
 
     var setDebugLevel = function() {
         chrome.storage.local.get("settings", function(items) {
