@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var client = null;
 
+    SmbClient.Debug.Level = 0;
+
     var assignEventHandlers = function() {
         document.querySelector("#testHashAndResponse").addEventListener("click", function(evt) {
             onClickedTestHashAndResponse();
@@ -194,21 +196,19 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     var msg = function(message) {
-        document.querySelector("#msg").textContent = message;
+        document.querySelector("#msg").value = message;
     };
 
     var onClickedLogin = function() {
         client = new SmbClient.Client();
-        //var serverName = "10.211.55.4";
-        var serverName = "127.0.0.1";
-        //var serverName = "192.168.147.131";
-        //var serverName = "10.211.55.3";
+        var serverName = "192.168.0.11";
         //var serverName = "freenas.eisbahn.jp";
-        //var port = "445";
-        var port = "20445";
+        var port = "445";
+        //var port = "20445";
         var userName = "yoichiro";
         var password = document.querySelector("#password").value;
-        client.login(serverName, port, userName, password, function() {
+        var domain = "";
+        client.login(serverName, port, userName, password, domain, function() {
             msg("Logged in");
         }, function(error) {
             console.log(error);
@@ -224,8 +224,8 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     var onClickedConnectSharedResource = function() {
-        //client.connectSharedResource("yoichiro", function() {
-        client.connectSharedResource("share", function() {
+        var resource = document.querySelector("#resource").value;
+        client.connectSharedResource(resource, function() {
             msg("Connected");
         }, function(error) {
             console.log(error);
@@ -244,7 +244,8 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     var onClickedReadDirectory = function() {
-        client.readDirectory("\\", function(files) {
+        var dir = document.querySelector("#directory").value;
+        client.readDirectory(dir, function(files) {
         //client.readDirectory("\\Pictures", function(files) {
         //client.readDirectory("\\private\\movies", function(files) {
             msg(JSON.stringify(files));

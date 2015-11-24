@@ -24,8 +24,10 @@
 
     Constants.DIALECT_NT_LM_0_12 = "NT LM 0.12";
     Constants.DIALECT_SMB_2_002 = "SMB 2.002";
+    Constants.DIALECT_SMB_2_XXX = "SMB 2.???";
     Constants.NO_SUPPORTED_DIALECT = 65535;
     Constants.DIALECT_SMB_2_002_REVISION = 0x0202;
+    Constants.DIALECT_SMB_2_XXX_REVISION = 0x02ff;
 
     // - Command
 
@@ -59,6 +61,7 @@
     Constants.SMB2_READ = 0x0008;
     Constants.SMB2_WRITE = 0x0009;
     Constants.SMB2_SET_INFO = 0x0011;
+    Constants.SMB2_NEGOTIATE = 0x0000;
 
     // - Sub Command
     Constants.TRANS2_QUERY_PATH_INFORMATION = 0x0005;

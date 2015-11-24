@@ -39,7 +39,8 @@
           WriteResponse,
           SetInfoRequest,
           Asn1Obj,
-          Debug) {
+          Debug,
+          NegotiateRequest) {
 
     "use strict";
 
@@ -53,11 +54,27 @@
     };
 
     // Public functions
-    
+
     Protocol.prototype.parseNegotiateResponse = function(packet) {
         var negotiateResponse = new NegotiateResponse();
         negotiateResponse.load(packet);
         return negotiateResponse;
+    };
+
+    Protocol.prototype.createNegotiateRequestPacket = function(session, clientGuid) {
+        var header = createHeader.call(this, Constants.SMB2_NEGOTIATE, {
+            processId: session.getProcessId(),
+            creditCharge: 0,
+            creditsRequested: 0
+        });
+        console.log(header);
+
+        var negotiateRequest = new NegotiateRequest();
+        negotiateRequest.setClientGuid(clientGuid);
+
+        var packet = new Packet();
+        packet.set(Constants.PROTOCOL_VERSION_SMB2, header, negotiateRequest);
+        return packet;
     };
 
     /*jslint bitwise: true */
@@ -67,7 +84,7 @@
         });
 
         var type1Message = this.typeMessageUtils_.createType1Message();
-        
+
         var root = Asn1Obj.create(Constants.ASN1_TAG_APPLICATION_0_FOR_BIND_REQUEST)
             .addChild(
                 Asn1Obj.create(Constants.ASN1_TAG_OBJECT_IDENTIFIER)
@@ -106,13 +123,13 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, sessionSetupRequest);
         return packet;
     };
-    
+
     Protocol.prototype.parseSessionSetupResponse = function(packet) {
         var sessionSetupResponse = new SessionSetupResponse();
         sessionSetupResponse.load(packet);
         return sessionSetupResponse;
     };
-    
+
     Protocol.prototype.parseType2Message = function(sessionSetupResponse) {
         var securityBlob = sessionSetupResponse.getSecurityBlob();
         var root = Asn1Obj.load(securityBlob);
@@ -124,7 +141,7 @@
         type2Message.load(new Uint8Array(type2MessageBuffer));
         return type2Message;
     };
-    
+
     Protocol.prototype.createSessionSetupRequestType3Packet = function(
             session, username, password, domainName, negotiateResponse, type2Message, lmCompatibilityLevel) {
         var header = createHeader.call(this, Constants.SMB2_SESSION_SETUP, {
@@ -136,7 +153,7 @@
 
         var type3Message = this.typeMessageUtils_.createType3Message(
             username, password, domainName, serverChallenge, type2Message, lmCompatibilityLevel);
-        
+
         var root = Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE_OF_SEQUENCE_OF_OID_1)
             .addChild(
                 Asn1Obj.create(Constants.ASN1_TAG_SEQUENCE)
@@ -168,7 +185,7 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, sessionSetupRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createTreeConnectRequestPacket = function(session, path) {
         var header = createHeader.call(this, Constants.SMB2_TREE_CONNECT, {
             processId: session.getProcessId(),
@@ -189,7 +206,7 @@
         return treeConnectResponse;
     };
 
-    // options: (requestedOpLockLevel), (impersonationLevel), desiredAccess, fileAttributes, 
+    // options: (requestedOpLockLevel), (impersonationLevel), desiredAccess, fileAttributes,
     //          shareAccess, createDisposition, (createOptions), name, (createContexts)
     Protocol.prototype.createCreateRequestPacket = function(session, options) {
         var header = createHeader.call(this, Constants.SMB2_CREATE, {
@@ -213,24 +230,25 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, createRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createCreateContext = function(next, name, data) {
         var createContext = new CreateContext();
         createContext.set(next, name, data);
         return createContext;
     };
-    
+
     Protocol.prototype.parseCreateResponse = function(packet) {
         var createResponse = new CreateResponse();
         createResponse.load(packet);
         return createResponse;
     };
-    
+
     Protocol.prototype.createDceRpcBindRequestPacket = function(session, fid) {
         var header = createHeader.call(this, Constants.SMB2_IOCTL, {
             processId: session.getProcessId(),
             userId: session.getUserId(),
-            treeId: session.getTreeId()
+            treeId: session.getTreeId(),
+            creditsRequested: 256
         });
 
         var ioctlRequest = new IoctlRequest();
@@ -242,7 +260,7 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, ioctlRequest);
         return packet;
     };
-    
+
     Protocol.prototype.parseDceRpcBindAckPacket = function(packet) {
         var ioctlResponse = new IoctlResponse();
         ioctlResponse.load(packet, 0);
@@ -294,7 +312,7 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, closeRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createTreeDisconnectRequestPacket = function(session) {
         var header = createHeader.call(this, Constants.SMB2_TREE_DISCONNECT, {
             processId: session.getProcessId(),
@@ -321,7 +339,7 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, emptyRequest);
         return packet;
     };
-    
+
     Protocol.prototype.createQueryInfoRequestPacket = function(session, fileId, fileInfoClass) {
         var header = createHeader.call(this, Constants.SMB2_QUERY_INFO, {
             processId: session.getProcessId(),
@@ -337,13 +355,13 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, queryInfoRequest);
         return packet;
     };
-    
+
     Protocol.prototype.parseQueryInfoResponsePacket = function(packet, fileInfoClass) {
         var queryInfoResponse = new QueryInfoResponse();
         queryInfoResponse.load(packet, fileInfoClass);
         return queryInfoResponse;
     };
-    
+
     Protocol.prototype.createQueryDirectoryInfoRequestPacket = function(session, fileId, flags) {
         var header = createHeader.call(this, Constants.SMB2_QUERY_DIRECTORY_INFO, {
             processId: session.getProcessId(),
@@ -359,13 +377,13 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, queryDirectoryInfoRequest);
         return packet;
     };
-    
+
     Protocol.prototype.parseQueryDirectoryInfoResponsePacket = function(packet) {
         var queryDirectoryInfoResponse = new QueryDirectoryInfoResponse();
         queryDirectoryInfoResponse.load(packet);
         return queryDirectoryInfoResponse;
     };
-    
+
     Protocol.prototype.createReadRequestPacket = function(
         session, fileId, offset, length) {
         var header = createHeader.call(this, Constants.SMB2_READ, {
@@ -383,7 +401,7 @@
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, readRequest);
         return packet;
     };
-    
+
     Protocol.prototype.parseReadResponsePacket = function(packet) {
         var readResponse = new ReadResponse();
         readResponse.load(packet);
@@ -412,23 +430,23 @@
         writeResponse.load(packet);
         return writeResponse;
     };
-    
+
     Protocol.prototype.createSetInfoRequestPacket = function(session, fileId, fileInfoClass) {
         var header = createHeader.call(this, Constants.SMB2_SET_INFO, {
             processId: session.getProcessId(),
             userId: session.getUserId(),
             treeId: session.getTreeId()
         });
-        
+
         var setInfoRequest = new SetInfoRequest();
         setInfoRequest.setFileId(fileId);
         setInfoRequest.setFileInfoClass(fileInfoClass);
-        
+
         var packet = new Packet();
         packet.set(Constants.PROTOCOL_VERSION_SMB2, header, setInfoRequest);
         return packet;
     };
-    
+
     // Private functions
 
     // options: userId
@@ -436,9 +454,23 @@
         var userId = options.userId || 0;
         var treeId = options.treeId || 0;
         var processId = options.processId || 0;
+        var creditCharge;
+        if (options.creditCharge === 0) {
+            creditCharge = 0;
+        } else {
+            creditCharge = options.creditCharge || 1;
+        }
+        var creditsRequested;
+        if (options.creditsRequested === 0) {
+            creditsRequested = 0;
+        } else {
+            creditsRequested = options.creditsRequested || 1;
+        }
 
         var header = new Header();
         header.setCommand(command);
+        header.setCreditCharge(creditCharge);
+        header.setCreditsRequested(creditsRequested);
         header.setFlags(0);
         header.setChannelSequence(0);
         header.setMessageId(this.sequenceNumber_);
@@ -496,4 +528,5 @@
    SmbClient.Smb2.Models.WriteResponse,
    SmbClient.Smb2.Models.SetInfoRequest,
    SmbClient.Spnego.Asn1Obj,
-   SmbClient.Debug);
+   SmbClient.Debug,
+   SmbClient.Smb2.Models.NegotiateRequest);

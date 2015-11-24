@@ -50,7 +50,7 @@
 
         array[0] = 0xfe;
         this.types_.setSimpleStringTo(this.protocol_, array, 1);
-        
+
         this.types_.setFixed2BytesValue(this.structureSize_, array, 4);
         this.types_.setFixed2BytesValue(this.creditCharge_, array, 6);
         this.types_.setFixed2BytesValue(this.channelSequence_, array, 8);

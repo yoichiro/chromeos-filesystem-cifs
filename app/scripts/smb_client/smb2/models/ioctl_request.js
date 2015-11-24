@@ -8,36 +8,36 @@
 
         this.ctlCode_ = Constants.FSCTL_PIPE_TRANSCEIVE;
         this.maxInputResponse_ = 0;
-        this.outputOffset_ = 0;
+        this.outputOffset_ = Constants.SMB2_HEADER_SIZE + 56;
         this.outputCount_ = 0;
-        this.maxOutputResponse_ = 65536;
+        this.maxOutputResponse_ = 4280;
         this.flags_ = Constants.SMB2_0_IOCTL_IS_FSCTL;
         this.fileId_ = null;
         this.data_ = null;
     };
 
     // Public functions
-    
+
     IoctlRequest.prototype.setCtlCode = function(ctlCode) {
         this.ctlCode_ = ctlCode;
     };
-    
+
     IoctlRequest.prototype.setMaxInputResponse = function(maxInputResponse) {
         this.maxInputResponse_ = maxInputResponse;
     };
-    
+
     IoctlRequest.prototype.setOutputOffset = function(outputOffset) {
         this.outputOffset_ = outputOffset;
     };
-    
+
     IoctlRequest.prototype.setOutputCount = function(outputCount) {
         this.outputCount_ = outputCount;
     };
-    
+
     IoctlRequest.prototype.setMaxOutputResponse = function(maxOutputResponse) {
         this.maxOutputResponse_ = maxOutputResponse;
     };
-    
+
     IoctlRequest.prototype.setFlags = function(flags) {
         this.flags_ = flags;
     };
@@ -49,14 +49,14 @@
     IoctlRequest.prototype.setSubMessage = function(message) {
         this.data_ = message.createTransactionData();
     };
-    
+
     IoctlRequest.prototype.createArrayBuffer = function() {
         var dataBuffer = this.data_.createArrayBuffer();
-        
+
         var total = 56 + dataBuffer.byteLength;
         var buffer = new ArrayBuffer(total);
         var array = new Uint8Array(buffer);
-        
+
         // structure_size
         this.types_.setFixed2BytesValue(57, array, 0);
         // USHORT reserved
@@ -81,7 +81,7 @@
         // UINT reserved
         // buffer
         this.types_.copyArray(new Uint8Array(dataBuffer), array, 56, dataBuffer.byteLength);
-        
+
         return buffer;
     };
 

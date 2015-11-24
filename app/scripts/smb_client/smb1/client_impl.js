@@ -1,18 +1,18 @@
 (function(Smb1, Constants, Debug, Protocol, Packet, BinaryUtils) {
     "use strict";
-    
+
     // Constructor
-    
+
     var ClientImpl = function(client) {
         this.protocol_ = new Protocol();
         this.binaryUtils_ = new BinaryUtils();
-      
+
         this.client_ = client;
         this.comm_ = client.getCommunication();
     };
-    
+
     // Public functions
-    
+
     ClientImpl.prototype.negotiateProtocol = function(onSuccess, onError) {
         var session = this.client_.getSession();
         chrome.storage.local.get("settings", function(items) {
@@ -25,7 +25,9 @@
             if (maxProtocolVersion === 1) {
                 dialects = [Constants.DIALECT_NT_LM_0_12];
             } else {
-                dialects = [Constants.DIALECT_NT_LM_0_12, Constants.DIALECT_SMB_2_002];
+                dialects = [Constants.DIALECT_NT_LM_0_12,
+                            Constants.DIALECT_SMB_2_002,
+                            Constants.DIALECT_SMB_2_XXX];
             }
             var negotiateProtocolRequestPacket =
                     this.protocol_.createNegotiateProtocolRequestPacket(
@@ -43,7 +45,7 @@
             }.bind(this));
         }.bind(this));
     };
-    
+
     ClientImpl.prototype.handleNegotiateProtocolResponse = function(packet, onSuccess, onError) {
         var session = this.client_.getSession();
         var header = packet.getHeader();
@@ -61,7 +63,7 @@
             }
         }
     };
-    
+
     ClientImpl.prototype.sessionSetup = function(negotiateProtocolResponse, userName, password, domainName, onSuccess, onError) {
         if (negotiateProtocolResponse.isSecurityModeOf(Constants.NEGOTIATE_SECURITY_USER_LEVEL) === 1) { // user
             if (negotiateProtocolResponse.isCapabilityOf(Constants.CAP_EXTENDED_SECURITY)) {
@@ -96,7 +98,7 @@
             }.bind(this));
         }
     };
-    
+
     /*jslint bitwise: true */
     ClientImpl.prototype.getSharedResourceList = function(onSuccess, onError) {
         var errorHandler = function(error) {
@@ -150,10 +152,10 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.logout = function(onSuccess, onError) {
         var session = this.client_.getSession();
-        
+
         var errorHandler = function(error) {
             onError(error);
         }.bind(this);
@@ -170,7 +172,7 @@
             logoffAndDisconnect();
         }
     };
-    
+
     ClientImpl.prototype.connectSharedResource = function(path, onSuccess, onError) {
         connectTree.call(this, path.toUpperCase(), "?????", function(
             treeConnectAndxResponseHeader, treeConnectAndxResponse) {
@@ -181,7 +183,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     ClientImpl.prototype.getMetadata = function(fileName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -194,7 +196,7 @@
             onSuccess(queryPathInfoResponse.getFile());
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.readDirectory = function(directoryName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -221,7 +223,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.readFile = function(fileName, offset, length, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -235,7 +237,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.createFile = function(fileName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -247,7 +249,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.truncate = function(fileName, length, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -281,7 +283,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.writeFile = function(fileName, offset, array, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -295,7 +297,7 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.createDirectory = function(directoryName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -307,7 +309,7 @@
             onSuccess();
         }.bind(this), errorHandler);
     };
-    
+
     ClientImpl.prototype.deleteEntry = function(fileName, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -350,7 +352,7 @@
             }.bind(this), errorHandler);
         }
     };
-    
+
     ClientImpl.prototype.copy = function(source, target, onSuccess, onError) {
         var errorHandler = function(error) {
             onError(error);
@@ -362,9 +364,9 @@
             }.bind(this), errorHandler);
         }.bind(this), errorHandler);
     };
-    
+
     // Private functions
-    
+
     var checkError = function(header, onError, expected) {
         var errorCode = header.getNtStyleErrorCode();
         if (expected) {
@@ -387,7 +389,7 @@
             }
         }
     };
-    
+
     var sendType1Message = function(negotiateProtocolResponse, onSuccess, onError) {
         var session = this.client_.getSession();
         var sessionSetupAndxRequestPacket =
@@ -441,7 +443,7 @@
             }.bind(this));
         }.bind(this));
     };
-    
+
     var sendSessionSetupRequestForShare = function(negotiateProtocolResponse, username, onSuccess, onError) {
         var session = this.client_.getSession();
         var sessionSetupAndxRequestPacket =
@@ -485,7 +487,7 @@
             onError(error);
         }.bind(this));
     };
-    
+
     var connectTree = function(name, service, onSuccess, onError) {
         var session = this.client_.getSession();
         var treeConnectAndxRequestPacket =
@@ -1071,10 +1073,10 @@
     };
 
     // Export
-    
+
     Smb1.ClientImpl = ClientImpl;
-    
-    
+
+
 })(SmbClient.Smb1,
    SmbClient.Constants,
    SmbClient.Debug,

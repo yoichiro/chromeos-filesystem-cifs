@@ -94,7 +94,7 @@
         // Return the next position.
         return offset + uniSourceArray.length + 2;
     };
-    
+
     Types.prototype.setUnicodeString = function(source, array, offset) {
         var uniSourceWordArray = CryptoJS.enc.Utf16LE.parse(source);
         var uniSourceArrayBuffer = uniSourceWordArray.toArrayBuffer();
@@ -178,7 +178,7 @@
         this.setFixed4BytesValue(divided.high, array, offset + 4);
         return offset + 8;
     };
-    
+
     /*jslint bitwise: true */
     Types.prototype.divide8BytesValue = function(value) {
         var low = (value & 0xffffffff) >>> 0;
@@ -246,10 +246,24 @@
         var n = ((i + m) & ~m) - i;
         return n;
     };
-    
+
     Types.prototype.copyArrayWithPadding = function(source, target, offset, length, padding) {
         this.copyArray(source, target, offset, length);
         return offset + length + this.getPaddingLength(offset + length, padding);
+    };
+
+    // --- For GUID
+
+    Types.prototype.createClientGuid = function() {
+        var array = new Uint8Array(new ArrayBuffer(16));
+        for (var i = 0; i < 8; i++) {
+            this.setFixed2BytesValue(
+                Math.floor((1 + Math.random()) * 0x10000),
+                array,
+                i * 2);
+        }
+        // This returns the result as Uint8Array.
+        return array;
     };
 
     // Export
