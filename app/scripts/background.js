@@ -8,7 +8,7 @@
 
     var setDebugLevel = function() {
         chrome.storage.local.get("settings", function(items) {
-            var settings = items.settings;
+            var settings = items.settings || {};
             var debugLevel = settings.debugLevel;
             if (typeof debugLevel === "undefined") {
                 debugLevel = 1;
@@ -161,8 +161,15 @@
         console.log(work);
         return work;
     };
+    
+    var outputStartingMessageToConsole = function() {
+        var manifest = chrome.runtime.getManifest();
+        console.info(manifest.name + " Version " + manifest.version);
+        console.info("Debug level: " + Debug.Level);
+    };
 
     setDebugLevel();
     assignEventListeners();
+    outputStartingMessageToConsole();
 
 })(SmbClient.Debug);
