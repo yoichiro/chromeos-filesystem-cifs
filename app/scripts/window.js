@@ -24,7 +24,7 @@
             var body = document.querySelector("body");
             body.appendChild(img);
         }
-     };
+    };
 
     var assignEventHandlers = function() {
         var btnMount = document.querySelector("#btnMount");
