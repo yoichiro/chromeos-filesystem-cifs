@@ -14,6 +14,10 @@ File System for CIFS provides you an ability to access to your SMB/CIFS storage 
 <img src="https://raw.githubusercontent.com/yoichiro/chromeos-filesystem-dropbox/master/docs/screenshot_2.png">
 -->
 
+## For Developers
+
+Please visit [Code Structure](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/docs/code_structure.md) document, if you want to know the detail of this software.
+
 ## How to build
 
 ```
