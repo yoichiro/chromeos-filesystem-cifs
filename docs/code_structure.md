@@ -4,14 +4,14 @@ This document describes you code structure of this software. Mainly, I write dow
 
 # Directory
 
-* / - Build files, Configuration files, and etc.
-* /app - This directory has one HTML file and the manifest.json file.
-* /app/_locales/en - There is one message resource file for English.
-* /app/icons - This directory has some image files.
-* /app/scripts - There are all JavaScript files.
-* /app/styles - There is one css style sheet definition file.
-* /test - Currently, all files are garbage...
-* /docs - Currently, there is one image file which is referenced by the README.md file.
+* [/](https://github.com/yoichiro/chromeos-filesystem-cifs) - Build files, Configuration files, and etc.
+* [/app](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/app) - This directory has one HTML file and the manifest.json file.
+* [/app/_locales/en](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/app/_locales/en) - There is one message resource file for English.
+* [/app/icons](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/app.icons) - This directory has some image files.
+* [/app/scripts](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/app/scripts) - There are all JavaScript files.
+* [/app/styles](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/app/styles) - There is one css style sheet definition file.
+* [/test](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/test) - Currently, all files are garbage...
+* [/docs](https://github.com/yoichiro/chromeos-filesystem-cifs/tree/master/docs) - Currently, there is one image file which is referenced by the README.md file.
 
 At least, if you are a programmer, first you should enter the /app/scripts directory and see each JavaScript files to understand this app's behaviors.
 
