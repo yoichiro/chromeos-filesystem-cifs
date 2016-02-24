@@ -56,8 +56,8 @@ First dialog is for setting some configurations. Actually, this dialog is the el
 
 #### Shared Resource List Dialog
 
-After authenticating the user, this software gets the shared resource list from the server, if the user didn't fill in the shared resource name on the window.html screen. Then, the Shared Resource List Dialog is opened, and the shared resource list is displayed on the dialog. The user has to select one shared resource and to click the "Connect" button.
+After authenticating the user, this software gets the shared resource list from the server, if the user didn't fill in the shared resource name on the window.html screen. Then, the Shared Resource List Dialog is opened, and the shared resource list is displayed on the dialog. The user has to select one shared resource and to click the "Connect" button. This dialog is the element which has the "selectSharedResourceDialog" ID value.
 
 #### Service List Dialog
 
-In the background context, it handles the multi-cast DNS (mDNS) event regarding SMB servers with the chrome.mdns API. This Service List dialog shows the user the retrieved server list. If the user selects one server from the list, the server name is set into the connection information form.
+In the background context, it handles the multi-cast DNS (mDNS) event regarding SMB servers with the chrome.mdns API. This Service List dialog shows the user the retrieved server list. This dialog is the element which has the "serviceListDialog" ID value. If the user selects one server from the list, the server name is set into the connection information form.
