@@ -61,3 +61,53 @@ After authenticating the user, this software gets the shared resource list from 
 #### Service List Dialog
 
 In the background context, it handles the multi-cast DNS (mDNS) event regarding SMB servers with the chrome.mdns API. This Service List dialog shows the user the retrieved server list. This dialog is the element which has the "serviceListDialog" ID value. If the user selects one server from the list, the server name is set into the connection information form.
+
+## JavaScript
+
+This software consists of many JavaScript files. The abstract structure is the following:
+
+![code_structure_1.png](https://raw.githubusercontent.com/yoichiro/chromeos-filesystem-cifs/master/docs/code_structure_1.png)
+
+The red blocks represents the classes which are in charge of handling the File System Provider API. The "SmbClient.*" blue block is a name space of classes which are implementations of SMB protocol. The SmbClient.* classes have a following structure:
+
+![code_structure_1.png](https://raw.githubusercontent.com/yoichiro/chromeos-filesystem-cifs/master/docs/code_structure_2.png)
+
+As the most low layer, the chrome.sockets.tcp API is used to communicate with the SMB server. 
+
+[/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/metadata_cache.js)
+
+This script provides an ability to keep metadata objects. As the result, whole performance is increased because of reducing a network communication. Each metadata object is stored per each directory. That is, the cache key is a directory path.
+
+* put() - Store metadata object array to the cache storage mapped by the specified directory path.
+* get() - Retrieve metadata object/array specified by the directory path/file path.
+* remove() - Delete the metadata object/array specified by the directory path/file path.
+
+[/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/task_queue.js)
+
+This Class provides you an ability of a Queue Mechanism. You can register a new task, and the registered tasks will be executed sequentially.
+
+Actually, this is not a completed queue. Because, you must call shiftAndConsumeTask() function to execute a next task like "non-preemptive multitasking".
+
+* addTask() - Register a new task. If the queue size was empty at registering above, the registered task will be called after 10ms.
+* shiftAndConsumeTask() - You must call shiftAndConsumeTask() function to shift the executed task and to execute the next task.
+
+The standard usage is like the following:
+
+```js
+let taskQueue = new TaskQueue();
+...
+chrome.fileSystemProvider.on***Requested.addListener(
+  (options, successCallback, errorCallback) => { <- createEventHandler()
+    taskQueue.addTask(() => { <- prepare()
+      ...
+      taskQueue.shiftAndConsumeTask();
+    });
+  }
+);
+```
+
+## Other
+
+[/app/manifest.json](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/manifest.json)
+
+This is a manifest file which is needed for Chrome Apps.
