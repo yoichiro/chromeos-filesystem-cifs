@@ -74,7 +74,13 @@ The red blocks represents the classes which are in charge of handling the File S
 
 As the most low layer, the chrome.sockets.tcp API is used to communicate with the SMB server. 
 
-[/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/metadata_cache.js)
+### [/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/background.js)
+
+This is a background script. Mainly, this script has a responsibility of launching the window when users want to mount the SMB server. Also, this script has an ability to receive the message from the window.js script. When the message received, this script delegates the request of mounting the SMB server to the [/app/scripts/cifs_fs.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/cifs_fs.js) script. Especially, this script has one SMB instance.
+
+This script can know what users want to mount the SMB server by handling chrome.fileSystemProvider.onMountRequested event. When this event fired, this script opens the window.html.
+
+### [/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/metadata_cache.js)
 
 This script provides an ability to keep metadata objects. As the result, whole performance is increased because of reducing a network communication. Each metadata object is stored per each directory. That is, the cache key is a directory path.
 
@@ -82,7 +88,7 @@ This script provides an ability to keep metadata objects. As the result, whole p
 * get() - Retrieve metadata object/array specified by the directory path/file path.
 * remove() - Delete the metadata object/array specified by the directory path/file path.
 
-[/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/task_queue.js)
+### [/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/task_queue.js)
 
 This Class provides you an ability of a Queue Mechanism. You can register a new task, and the registered tasks will be executed sequentially.
 
@@ -108,6 +114,6 @@ chrome.fileSystemProvider.on***Requested.addListener(
 
 ## Other
 
-[/app/manifest.json](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/manifest.json)
+### [/app/manifest.json](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/manifest.json)
 
 This is a manifest file which is needed for Chrome Apps.
