@@ -74,7 +74,37 @@ The red blocks represents the classes which are in charge of handling the File S
 
 As the most low layer, the chrome.sockets.tcp API is used to communicate with the SMB server. 
 
-### [/app/scripts/metadata_cache.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/background.js)
+### [/app/scripts/background.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/window.js)
+
+This window.js file is in charge of handling each click event fired on the window.html. For instance, there are the events below:
+
+* Mount button click event
+* Keep button click event
+* Setting button click event
+* Searching button click event
+
+Each event handler is assigned by the assignEventHandlers() function.
+
+There are two patterns of the interaction for mounting. One is that a user fills in a shared resource name. Another one is that a user doesn't fill in a shared resource name. For the first case, the following interaction occurs:
+
+1. The window.js sends the message which has type:"mount" and other information (of course, including the shared resource name) needed to log in to the background.js.
+1. The background.js do mounting process. If it succeeded, the background.js returns the message which has "success".
+
+This is simple. In the other hand, for the 2nd case, the following interaction (it is a little more complicated) occurs:
+
+1. The window.js sends the message which has type:"getSharedResources" and other information without the shared resource name needed to log in to the background.js.
+1. The background.js script delegates the request to a CifsFS class for fetching a shared resource list from the SMB server. After fetching its list, the background.js script returns the result to the window.js as the response message which includes the list.
+1. The window.js script shows the user a shared resource list dialog. The user chooses one shared resource the user want to mount on the dialog.
+1. When the user chooses it and clicks the Connect button, the window.js sends the message which has type:"mount" and other information needed to log in to the background.js.
+1. The background.js do mounting process. If it succeeded, the background.js returns the message which has "success".
+
+(TBD)
+
+#### Mount button click event
+
+When this event fired, the onClickedBtnMount() function is called. The window.js file doesn't have any process to mount the SMB server. Instead, this event handler delegates the actual process to the background page represented by the background.js file. For instance, the onClickedBtnMount() function sends a message to the background page. The message has key/value pairs: type:"mount" and other information to log in which was filled in each field by the user.
+
+### [/app/scripts/background.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/background.js)
 
 This is a background script. Mainly, this script has a responsibility of launching the window when users want to mount the SMB server. Also, this script has an ability to receive the message from the window.js script. When the message received, this script delegates the request of mounting the SMB server to the [/app/scripts/cifs_fs.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/cifs_fs.js) script. Especially, this script has one SMB instance.
 
