@@ -85,6 +85,10 @@ This window.js file is in charge of handling each click event fired on the windo
 
 Each event handler is assigned by the assignEventHandlers() function.
 
+#### Mount button click event
+
+When this event fired, the onClickedBtnMount() function is called. The window.js file doesn't have any process to mount the SMB server. Instead, this event handler delegates the actual process to the background page represented by the background.js file. For instance, the onClickedBtnMount() function sends a message to the background page. The message has key/value pairs: type:"mount" and other information to log in which was filled in each field by the user.
+
 There are two patterns of the interaction for mounting. One is that a user fills in a shared resource name. Another one is that a user doesn't fill in a shared resource name. For the first case, the following interaction occurs:
 
 1. The window.js sends the message which has type:"mount" and other information (of course, including the shared resource name) needed to log in to the background.js.
@@ -100,9 +104,6 @@ This is simple. In the other hand, for the 2nd case, the following interaction (
 
 (TBD)
 
-#### Mount button click event
-
-When this event fired, the onClickedBtnMount() function is called. The window.js file doesn't have any process to mount the SMB server. Instead, this event handler delegates the actual process to the background page represented by the background.js file. For instance, the onClickedBtnMount() function sends a message to the background page. The message has key/value pairs: type:"mount" and other information to log in which was filled in each field by the user.
 
 ### [/app/scripts/background.js](https://github.com/yoichiro/chromeos-filesystem-cifs/blob/master/app/scripts/background.js)
 
