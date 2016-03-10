@@ -102,6 +102,14 @@ This is simple. In the other hand, for the 2nd case, the following interaction (
 1. When the user chooses it and clicks the Connect button, the window.js sends the message which has type:"mount" and other information needed to log in to the background.js.
 1. The background.js do mounting process. If it succeeded, the background.js returns the message which has "success".
 
+#### Keep button click event
+
+When this event fired, the onClickedBtnKeep() function is called. This function has an ability to store the entered information to log in to the server to local storage with chrome.storage.local API. If the entry which has the same server name, port number user name and domain name exists, it will be overwritten.
+
+#### Setting button click event
+
+When this event fired, the onClickedBtnSettings() function is called. The function opens the dialog to configure some settings.
+
 (TBD)
 
 
