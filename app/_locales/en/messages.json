@@ -94,5 +94,17 @@
   "lmCompatibilityLevel": {
     "message": "LMCompatibilityLevel",
     "description": "LMCompatibilityLevel"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "Cancel"
+  },
+  "select": {
+    "message": "Select",
+    "description": "Select"
+  },
+  "connect": {
+    "message": "Connect",
+    "description": "Connect"
   }
 }
