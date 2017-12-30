@@ -161,7 +161,7 @@
         console.log(work);
         return work;
     };
-    
+
     var outputStartingMessageToConsole = function() {
         var manifest = chrome.runtime.getManifest();
         console.info(manifest.name + " Version " + manifest.version);

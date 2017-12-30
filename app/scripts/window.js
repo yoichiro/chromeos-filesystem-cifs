@@ -8,7 +8,7 @@
         changeRootDirectoryEnabled();
         showSeasonImage();
     };
-    
+
     var showSeasonImage = function() {
         var today = new Date();
         var month = today.getMonth() + 1;
@@ -59,24 +59,24 @@
             onClickedBtnSettings(e);
         });
         var keepPasswordYes = document.querySelector("#keepPasswordYes");
-        keepPasswordYes.addEventListener("core-change", onChangeKeepPassword);
+        keepPasswordYes.addEventListener("click", onChangeKeepPassword);
         var keepPasswordNo = document.querySelector("#keepPasswordNo");
-        keepPasswordNo.addEventListener("core-change", onChangeKeepPassword);
+        keepPasswordNo.addEventListener("click", onChangeKeepPassword);
 
         var debugLevelTrace = document.querySelector("#debugLevelTrace");
-        debugLevelTrace.addEventListener("core-change", onChangeDebugLevel);
+        debugLevelTrace.addEventListener("click", onChangeDebugLevel);
         var debugLevelInfo = document.querySelector("#debugLevelInfo");
-        debugLevelInfo.addEventListener("core-change", onChangeDebugLevel);
+        debugLevelInfo.addEventListener("click", onChangeDebugLevel);
         var debugLevelError = document.querySelector("#debugLevelError");
-        debugLevelError.addEventListener("core-change", onChangeDebugLevel);
-        
+        debugLevelError.addEventListener("click", onChangeDebugLevel);
+
         var maxProtocolVersionSmb1 = document.querySelector("#maxProtocolVersionSmb1");
-        maxProtocolVersionSmb1.addEventListener("core-change", onChangeMaxProtocolVersion);
+        maxProtocolVersionSmb1.addEventListener("click", onChangeMaxProtocolVersion);
         var maxProtocolVersionSmb2 = document.querySelector("#maxProtocolVersionSmb2");
-        maxProtocolVersionSmb2.addEventListener("core-change", onChangeMaxProtocolVersion);
-        
+        maxProtocolVersionSmb2.addEventListener("click", onChangeMaxProtocolVersion);
+
         var lmCompatibilityLevel = document.querySelector("#lmCompatibilityLevel");
-        lmCompatibilityLevel.addEventListener("core-select", onSelectLmCompatibilityLevel);
+        lmCompatibilityLevel.addEventListener("change", onSelectLmCompatibilityLevel);
 
         // Search dialog
         var btnSearch = document.querySelector("#btnSearch");
@@ -94,7 +94,7 @@
         var btnMount = document.querySelector("#btnMount");
         evt.preventDefault();
         btnMount.setAttribute("disabled", "true");
-        document.getElementById("toast-mount-attempt").show();
+        $.toaster({message: chrome.i18n.getMessage("mountAttempt")});
         var request = {
             serverName: document.querySelector("#serverName").value,
             serverPort: document.querySelector("#serverPort").value,
@@ -115,36 +115,56 @@
         }
         chrome.runtime.sendMessage(request, function(response) {
             console.log(response);
-            var toast = document.getElementById("toast-mount-fail");
+            // var toast = document.getElementById("toast-mount-fail");
             if (response.type === "sharedResources") {
                 var sharedResources = document.querySelector("#sharedResources");
                 sharedResources.innerHTML = "";
                 for (var i = 0; i < response.sharedResources.length; i++) {
-                    var radio = document.createElement("paper-radio-button");
-                    radio.name = response.sharedResources[i].name;
-                    radio.label = response.sharedResources[i].name;
-                    sharedResources.appendChild(radio);
+                    var div = document.createElement("div");
+                    div.setAttribute("class", "radio");
+                    var label = document.createElement("label");
+                    var radio = document.createElement("input");
+                    radio.name = "sharedResource";
+                    radio.value = response.sharedResources[i].name;
+                    radio.type = "radio";
+                    if (i == 0) {
+                      radio.checked = true;
+                    }
+                    label.appendChild(radio);
+                    var text = response.sharedResources[i].name;
+                    label.appendChild(document.createTextNode(text));
+                    div.appendChild(label);
+                    sharedResources.appendChild(div);
                 }
-                sharedResources.selected = response.sharedResources[0].name;
-                document.querySelector("#selectSharedResourceDialog").toggle();
+                $("#selectSharedResourceDialog").modal("show");
             } else if (response.type === "mount") {
                 if (response.success) {
-                    document.getElementById("toast-mount-success").show();
+                    $.toaster({message: chrome.i18n.getMessage("mountSuccess")});
                     window.setTimeout(function() {
                         window.close();
                     }, 2000);
                 } else {
+                    var msg = {
+                      title: chrome.i18n.getMessage("mountFail"),
+                      priority: "danger",
+                      message: "Something wrong"
+                    };
                     if (response.error) {
-                        toast.setAttribute("text", response.error);
+                        msg.message = response.error;
                     }
-                    toast.show();
+                    $.toaster(msg);
                     btnMount.removeAttribute("disabled");
                 }
             } else {
+                var msg = {
+                  title: chrome.i18n.getMessage("mountFail"),
+                  priority: "danger",
+                  message: "Something wrong"
+                };
                 if (response.error) {
-                    toast.setAttribute("text", response.error);
+                  msg.message = response.error;
                 }
-                toast.show();
+                $.toaster(msg);
                 btnMount.removeAttribute("disabled");
             }
         });
@@ -156,7 +176,7 @@
         var username = document.querySelector("#username").value;
         var password = document.querySelector("#password").value;
         var domainName = document.querySelector("#domainName").value;
-        var sharedResource = document.querySelector("#sharedResources").selected;
+        var sharedResource = document.forms.selectSharedResourceForm.sharedResource.value;
         var request = {
             type: "mount",
             serverName: serverName,
@@ -167,17 +187,22 @@
             sharedResource: sharedResource
         };
         chrome.runtime.sendMessage(request, function(response) {
-            if (response.success) {
-                document.getElementById("toast-mount-success").show();
+            if (response && response.success) {
+                $.toaster({message: chrome.i18n.getMessage("mountSuccess")});
                 window.setTimeout(function() {
                     window.close();
                 }, 2000);
             } else {
-                var toast = document.getElementById("toast-mount-fail");
-                if (response.error) {
-                    toast.setAttribute("text", response.error);
+                var msg = {
+                  title: chrome.i18n.getMessage("mountFail"),
+                  priority: "danger",
+                  message: "Something wrong"
+                };
+                if (response && response.error) {
+                  msg.message = response.error;
                 }
-                toast.show();
+                $.toaster(msg);
+                $("#selectSharedResourceDialog").modal("hide");
                 var btnMount = document.querySelector("#btnMount");
                 btnMount.removeAttribute("disabled");
             }
@@ -194,16 +219,16 @@
         var btnMount = document.querySelector("#btnMount");
         btnMount.removeAttribute("disabled");
     };
-    
+
     var onKeyupSharedResourceName = function(evt) {
         changeRootDirectoryEnabled();
     };
-    
+
     var changeRootDirectoryEnabled = function() {
         var rootDirectory = document.querySelector("#rootDirectory");
         var sharedResourceName = document.querySelector("#sharedResourceName");
         if (sharedResourceName.value) {
-            rootDirectory.setAttribute("disabled", "false");
+            rootDirectory.removeAttribute("disabled");
         } else {
             rootDirectory.setAttribute("disabled", "true");
         }
@@ -222,21 +247,16 @@
             var textNode = null;
 
             switch(element.tagName.toLowerCase()) {
-            case "paper-button":
+            case "button":
                 textNode = document.createTextNode(messageText);
                 element.appendChild(textNode);
                 break;
-            case "paper-input":
-            case "paper-input-decorator":
-            case "paper-radio-button":
-            case "paper-dropdown-menu":
-                element.setAttribute("label", messageText);
-                break;
-            case "paper-toast":
-                element.setAttribute("text", messageText);
+            case "input":
+                element.setAttribute("placeholder", messageText);
                 break;
             case "h2":
             case "title":
+            case "label":
                 textNode = document.createTextNode(messageText);
                 element.appendChild(textNode);
                 break;
@@ -246,6 +266,7 @@
 
     var onClickedBtnKeep = function(evt) {
         console.log("onClickedBtnKeep");
+        evt.preventDefault();
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
             var keepPassword = settings.keepPassword || "keepPasswordNo";
@@ -296,21 +317,22 @@
     var appendCredentialToScreen = function(credential) {
         var credentials = document.querySelector("#credentials");
         var div = document.createElement("div");
-        div.setAttribute("horizontal", "true");
-        div.setAttribute("layout", "true");
-        div.setAttribute("center", "true");
-        var item = document.createElement("paper-item");
-        item.textContent = createKey(
+        div.setAttribute("class", "credential");
+        var credentialInfo = document.createElement("div");
+        credentialInfo.setAttribute("class", "pull-left credential-info");
+        credentialInfo.textContent = createKey(
             credential.serverName, credential.serverPort, credential.username, credential.domainName);
-        item.addEventListener("click", (function(credential) {
+        credentialInfo.addEventListener("click", (function(credential) {
             return function(evt) {
                 setCredentialToForm(credential);
             };
         })(credential));
-        div.appendChild(item);
-        var btnClose = document.createElement("paper-icon-button");
-        btnClose.setAttribute("icon", "close");
-        btnClose.setAttribute("title", "Delete");
+        div.appendChild(credentialInfo);
+        var divBtn = document.createElement("div");
+        divBtn.setAttribute("class", "pull-right");
+        var btnClose = document.createElement("div");
+        btnClose.setAttribute("class", "glyphicon glyphicon-remove btn-credential-remove");
+        btnClose.setAttribute("aria-hidden", "true");
         btnClose.addEventListener("click", (function(credential) {
             return function(evt) {
                 setCredentialToForm(credential);
@@ -327,7 +349,8 @@
                 });
             };
         })(credential));
-        div.appendChild(btnClose);
+        divBtn.appendChild(btnClose);
+        div.appendChild(divBtn);
         credentials.appendChild(div);
     };
 
@@ -365,9 +388,9 @@
             var settings = items.settings || {};
             var keepPassword = settings.keepPassword || "keepPasswordNo";
             if (keepPassword === "keepPasswordYes") {
-                document.querySelector("#keepPassword").selected = "keepPasswordYes";
+                document.querySelector("#keepPasswordYes").checked = true;
             } else {
-                document.querySelector("#keepPassword").selected = "keepPasswordNo";
+                document.querySelector("#keepPasswordNo").checked = true;
             }
 
             var debugLevel = settings.debugLevel;
@@ -375,39 +398,43 @@
                 debugLevel = 1;
             }
             if (debugLevel === 0) {
-                document.querySelector("#debugLevel").selected = "debugLevelTrace";
+                document.querySelector("#debugLevelTrace").checked = true;
             } else if (debugLevel === 1) {
-                document.querySelector("#debugLevel").selected = "debugLevelInfo";
+                document.querySelector("#debugLevelInfo").checked = true;
             } else {
-                document.querySelector("#debugLevel").selected = "debugLevelError";
+                document.querySelector("#debugLevelError").checked = true;
             }
-            
+
             var maxProtocolVersion = settings.maxProtocolVersion;
             if (typeof maxProtocolVersion === "undefined") {
                 maxProtocolVersion = 2;
             }
             if (maxProtocolVersion === 1) {
-                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb1";
+                document.querySelector("#maxProtocolVersionSmb1").checked = true;
             } else if (maxProtocolVersion === 2) {
-                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb2";
+                document.querySelector("#maxProtocolVersionSmb2").checked = true;
             } else {
-                document.querySelector("#maxProtocolVersion").selected = "maxProtocolVersionSmb2";
+                document.querySelector("#maxProtocolVersionSmb2").checked = true;
             }
-            
+
             var lmCompatibilityLevel = settings.lmCompatibilityLevel;
             if (typeof lmCompatibilityLevel === "undefined") {
                 lmCompatibilityLevel = 5;
             }
-            document.querySelector("#lmCompatibilityLevel").selected = lmCompatibilityLevel;
+            document.querySelector("#lmCompatibilityLevel").value = lmCompatibilityLevel;
 
-            document.querySelector("#settingsDialog").toggle();
+            $("#settingsDialog").modal("show");
         });
     };
 
     var onChangeKeepPassword = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            settings.keepPassword = document.querySelector("#keepPassword").selected;
+            if (document.querySelector("#keepPasswordYes").checked) {
+              settings.keepPassword = "keepPasswordYes";
+            } else {
+              settings.keepPassword = "keepPasswordNo";
+            }
             chrome.storage.local.set({settings: settings}, function() {
                 console.log("Saving settings done.");
             });
@@ -417,10 +444,9 @@
     var onChangeDebugLevel = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            var debugLevelName = document.querySelector("#debugLevel").selected;
-            if (debugLevelName === "debugLevelTrace") {
+            if (document.querySelector("#debugLevelTrace").checked) {
                 settings.debugLevel = 0;
-            } else if (debugLevelName === "debugLevelInfo") {
+            } else if (document.querySelector("#debugLevelInfo").checked) {
                 settings.debugLevel = 1;
             } else {
                 settings.debugLevel = 2;
@@ -434,14 +460,13 @@
             });
         });
     };
-    
+
     var onChangeMaxProtocolVersion = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            var maxProtocolVersion = document.querySelector("#maxProtocolVersion").selected;
-            if (maxProtocolVersion === "maxProtocolVersionSmb1") {
+            if (document.querySelector("#maxProtocolVersionSmb1").checked) {
                 settings.maxProtocolVersion = 1;
-            } else if (maxProtocolVersion === "maxProtocolVersionSmb2") {
+            } else if (document.querySelector("#maxProtocolVersionSmb2").checked) {
                 settings.maxProtocolVersion = 2;
             } else {
                 settings.maxProtocolVersion = 2;
@@ -451,18 +476,18 @@
             });
         });
     };
-    
+
     var onSelectLmCompatibilityLevel = function(evt) {
         chrome.storage.local.get("settings", function(items) {
             var settings = items.settings || {};
-            var lmCompatibilityLevel = document.querySelector("#lmCompatibilityLevel").selected;
+            var lmCompatibilityLevel = document.querySelector("#lmCompatibilityLevel").value;
             settings.lmCompatibilityLevel = Number(lmCompatibilityLevel);
             chrome.storage.local.set({settings: settings}, function() {
                 console.log("Saving settings done.");
             });
         });
     };
-    
+
     var onClickedBtnSearch = function(evt) {
         console.log("onClickedBtnSearch");
         var request = {
@@ -470,32 +495,38 @@
         };
         chrome.runtime.sendMessage(request, function(response) {
             var serviceList = response.serviceList;
-            console.log(serviceList);
-            
+
             var serviceListElem = document.querySelector("#serviceList");
             serviceListElem.innerHTML = "";
             for (var i = 0; i < serviceList.length; i++) {
-                var radio = document.createElement("paper-radio-button");
-                radio.name = createServiceName(serviceList[i]);
-                radio.label = serviceList[i].serviceName.substring(0, serviceList[i].serviceName.indexOf("."));
-                serviceListElem.appendChild(radio);
-            }
-            if (serviceList.length > 0) {
-                serviceListElem.selected = createServiceName(serviceList[0]);
+                var div = document.createElement("div");
+                div.setAttribute("class", "radio");
+                var label = document.createElement("label");
+                var radio = document.createElement("input");
+                radio.name = "service";
+                radio.value = createServiceName(serviceList[i]);
+                radio.type = "radio";
+                if (i == 0) {
+                  radio.checked = true;
+                }
+                label.appendChild(radio);
+                var text = serviceList[i].serviceName.substring(0, serviceList[i].serviceName.indexOf("."));
+                label.appendChild(document.createTextNode(text));
+                div.appendChild(label);
+                serviceListElem.appendChild(div);
             }
 
-            document.querySelector("#serviceListDialog").toggle();
+            $("#serviceListDialog").modal("show");
         });
     };
-    
+
     var createServiceName = function(service) {
         return service.ipAddress + "_" + service.serviceHostPort.substring(service.serviceHostPort.indexOf(":") + 1);
     };
-    
+
     var onClickedBtnSelectServer = function(evt) {
         console.log("onClickedBtnSelectServer");
-        var serviceListElem = document.querySelector("#serviceList");
-        var selectedServiceName = serviceListElem.selected;
+        var selectedServiceName = document.forms.serviceListForm.service.value;
         if (selectedServiceName) {
             var ipAddress = selectedServiceName.substring(0, selectedServiceName.indexOf("_"));
             var port = selectedServiceName.substring(selectedServiceName.indexOf("_") + 1);
@@ -503,6 +534,7 @@
             document.querySelector("#serverPort").value = port;
             document.querySelector("#username").focus();
         }
+      $("#serviceListDialog").modal("hide");
     };
 
     window.addEventListener("load", function(e) {
