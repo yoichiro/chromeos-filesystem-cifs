@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/yoichiro/chromeos-filesystem-cifs.svg?style=svg)](https://circleci.com/gh/yoichiro/chromeos-filesystem-cifs)
+
 [![Code Climate](https://codeclimate.com/github/yoichiro/chromeos-filesystem-cifs/badges/gpa.svg)](https://codeclimate.com/github/yoichiro/chromeos-filesystem-cifs)
 
 # File System for CIFS
